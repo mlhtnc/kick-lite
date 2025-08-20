@@ -1,45 +1,27 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { StatusBar } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import LoginScreen from './src/screens/LoginScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import { Colors, HomeScreenName, LoginScreenName } from './src/constants';
+import { RootStackParamList } from './src/types';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
+export default function App() {
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }} >
+        <StatusBar translucent backgroundColor={"transparent"} barStyle="light-content" />
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName={LoginScreenName} screenOptions={{ headerShown: false, animation: 'none' }}>
+              <Stack.Screen name={LoginScreenName} component={LoginScreen} />
+              <Stack.Screen name={HomeScreenName} component={HomeScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaView>
     </SafeAreaProvider>
   );
 }
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
-export default App;
