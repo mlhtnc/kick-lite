@@ -15,7 +15,7 @@ export interface ColorsType {
 
 export type RootStackParamList = {
   [LoginScreenName]: undefined;
-  [HomeScreenName]: undefined;
+  [HomeScreenName]: { tokens: Tokens; }
 };
 
 export type HomeScreenProps = NativeStackScreenProps<
@@ -35,4 +35,19 @@ export interface ScreenHeaderProps {
   editTitle?: boolean;
   titleTextStyle?: TextStyle;
   hideEditButton?: boolean;
+}
+
+export interface ClientInfo {
+  clientId: string;
+  clientSecret: string;
+}
+
+export interface Tokens {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface PKCE {
+  code_verifier: string;
+  code_challenge: string;
 }

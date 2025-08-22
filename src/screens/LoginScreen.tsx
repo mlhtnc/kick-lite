@@ -1,148 +1,166 @@
 import { useEffect, useState } from 'react';
-import { ColorValue, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import WebView, { WebViewNavigation } from 'react-native-webview';
 
 import BasicButton from '../components/buttons/BasicButton';
-import { Colors, HomeScreenName } from '../constants';
-import { LoginScreenProps } from '../types';
+import { Colors, HomeScreenName, KickRedirectUri, KickScopeString } from '../constants';
+import { LoginScreenProps, PKCE } from '../types';
+import { loadClient, loadTokens, saveClient, saveTokens } from '../utils/save_utils';
+import { createAuthUrl, generatePKCE } from '../utils/auth_utils';
+import { getToken, isAccessTokenValid, refreshAccessToken } from '../services/kick_service';
 
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
 
-  // const [ password, setPassword ] = useState<string>('');
-  // const [ confirmPassword, setConfirmPassword ] = useState<string>('');
-  // const [ passwordExist, setPasswordExist ] = useState<boolean>(true);
-  // const [ passHash, setPassHash ] = useState<string>('');
-  // const [ confirmPasswordInputColor, setConfirmPasswordInputColor ] = useState<ColorValue>(Colors.success);
-  // const [ passwordInputBorderWidth, setPasswordInputBorderWidth ] = useState<number>(0);
-  // const [ confirmPasswordInputBorderWidth, setConfirmPasswordInputBorderWidth ] = useState<number>(0);
+  const [ clientId, setClientId ] = useState<string>('');
+  const [ clientSecret, setClientSecret ] = useState<string>('');
+  const [ authUrl, setAuthUrl ] = useState<string | null>(null);
+  const [ pkce, setPkce ] = useState<PKCE>();
+  const [ loading, setLoading ] = useState<boolean>(true);
+  
+
+  useEffect(() => {
+    auth();
+  }, []);
 
 
-  // useEffect(() => {
-  //   initPassHash();
-  // }, []);
+  const auth = async () => {
+    const tokens = await loadTokens();
+    const client = await loadClient();
+
+    if(!tokens) {
+      if(client) {
+        await requestTokens(client.clientId);
+      } else {
+        // Show login screen
+        setLoading(false);
+      }
+
+      return;
+    }
+
+    isAccessTokenValid(tokens.accessToken).then(async (isValid) => {
+      if(isValid) {
+        navigation.reset({ index: 0, routes: [{ name: HomeScreenName, params: { tokens: tokens }}]});
+        return;
+      }
+
+      refreshAccessToken(
+        client.clientId,
+        client.clientSecret,
+        tokens.refreshToken
+      ).then(async (tokenResponse) => handleTokenResponse(tokenResponse)
+      ).catch((error) => {
+        // FIXME:
+        console.error('Error refreshing access token:', error);
+      });
+
+    }).catch((error) => {
+      console.error('Error checking access token validity:', error);
+    });
+  }
+
+  const onLoginButtonClicked = async () => {
+    // FIXME: Validate client info properly
+    if (clientId === "" || clientSecret === "") {
+      return;
+    }
+
+    await saveClient({ clientId, clientSecret });
+    await requestTokens(clientId);
+  }
+
+  const requestTokens = async (clientId: string) => {
+    const pkce = await generatePKCE() as PKCE;
+    setPkce(pkce);
+
+    const authUrl = createAuthUrl(
+      clientId,
+      KickRedirectUri,
+      KickScopeString,
+      pkce.code_challenge
+    );
+
+    setAuthUrl(authUrl);
+  }
+
+  const handleTokenResponse = async (tokenResponse: any) => {
+    const tokens = { accessToken: tokenResponse.access_token, refreshToken: tokenResponse.refresh_token };
+        
+    await saveTokens(tokens);
+    navigation.reset({ index: 0, routes: [{ name: HomeScreenName, params: { tokens: tokens }}]});
+  }
+
+  const handleNavigationChange = async (navState: WebViewNavigation) => {
+    const url = navState.url;
+  
+    if(url.includes(KickRedirectUri)) {
+      const codeParam = url.split('code=')[1];
+      const code = codeParam ? codeParam.split('&')[0] : null;
+
+      const { clientId, clientSecret } = await loadClient();
+
+      getToken(
+        clientId,
+        clientSecret,
+        code as string,
+        KickRedirectUri,
+        pkce?.code_verifier || '',
+      ).then(async (tokenResponse) => {
+        await handleTokenResponse(tokenResponse);
+      }).catch((error) => {
+        // FIXME: 
+        console.error('getToken error:', error);
+      });
+
+      setAuthUrl(null);
+    }
+  }
 
 
-  // const initPassHash = async () => {
-  //   const storedPassHash = await loadPassHash();
-  //   if(storedPassHash) {
-  //     setPassHash(await loadPassHash());
-  //   } else {
-  //     setPasswordExist(false);
-  //   }
-  // }
+  if (!authUrl) {
+    return (
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={ -100 }>
+        <View style={styles.container}>
 
-  // const onPassInputChanged = async (changedText: string) => {
-  //   setPassword(changedText);
-    
-  //   if(passwordExist) {
-  //     return;
-  //   }
-
-  //   if(changedText.length >= 8) {
-  //     setPasswordInputBorderWidth(1);
-  //   } else {
-  //     setPasswordInputBorderWidth(0);
-  //   }
-
-  //   if(changedText.length >= 8) {
-  //     if(changedText === confirmPassword) {
-  //       setConfirmPasswordInputColor(Colors.success);
-  //     } else {
-  //       setConfirmPasswordInputColor(Colors.error);
-  //     }
-  //   }
-  // }
-
-  // const onConfirmPassInputChanged = async (changedText: string) => {
-  //   setConfirmPassword(changedText);
-
-  //   if(changedText.length > 0) {
-  //     setConfirmPasswordInputBorderWidth(1);
-  //   } else {
-  //     setConfirmPasswordInputBorderWidth(0);
-  //   }
-
-  //   if(password === changedText) {
-  //     setConfirmPasswordInputColor(Colors.success);
-  //   } else {
-  //     setConfirmPasswordInputColor(Colors.error);
-  //   }
-  // }
-
-
-  // const onCreateButtonClicked = async () => {
-  //   if(password.length === 0) {
-  //     return;
-  //   }
-
-  //   if(password === confirmPassword) {
-  //     savePassHash(await sha512(password));
-
-  //     navigation.reset({ index: 0, routes: [{ name: HomeScreenName, params: { masterPassword: password } }] });
-  //   }
-  // }
-
-  // const onConfirmButtonClicked = async () => {
-  //   if(password.length === 0) {
-  //     return;
-  //   }
-
-  //   const textHash = await sha512(password);
-  //   if(passHash && textHash === passHash) {
-  //     navigation.reset({ index: 0, routes: [{ name: HomeScreenName, params: { masterPassword: password } }] });
-  //   }
-  // }
-
-
-  return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={ -100 }>
-      <View style={styles.container}>
-
-        <Text style={styles.titleText}>Kick Lite</Text>
-
-        {/* <Text style={styles.passwordText}>Master Password</Text>
-        <TextInput
-          style={[styles.passInput, { borderWidth: passwordInputBorderWidth }]}
-          value={password}
-          onChangeText={onPassInputChanged}
-          secureTextEntry={true}
-        />
-
-        { !passwordExist ? null :
-
-          <BasicButton
-            style={styles.button}
-            text={"Confirm"}
-            textStyle={styles.buttonText}
-            onPress={onConfirmButtonClicked}
-          />
-        }
-
-        { passwordExist ? null :
-
-          <View>
-            <Text style={styles.passwordText}>Confirm Password</Text>
+        { loading ? null :
+          <View style={styles.content} >
+            <Text style={styles.titleText}>Client Id</Text>
             <TextInput
-              style={[styles.passInput, { borderColor: confirmPasswordInputColor, borderWidth: confirmPasswordInputBorderWidth }]}
-              value={confirmPassword}
-              onChangeText={onConfirmPassInputChanged}
-              secureTextEntry={true}
+              style={styles.input}
+              value={clientId}
+              onChangeText={setClientId}
+            />
+
+            <Text style={styles.titleText}>Client Secret</Text>
+            <TextInput
+              style={styles.input}
+              value={clientSecret}
+              onChangeText={setClientSecret}
             />
           
-
             <BasicButton
               style={styles.button}
-              text={"Create"}
+              text={"LOGIN"}
               textStyle={styles.buttonText}
-              onPress={onCreateButtonClicked}
+              onPress={onLoginButtonClicked}
             />
           </View>
+        }
 
-        } */}
-
-      </View>
-    </KeyboardAvoidingView>
-  );
+        </View>
+      </KeyboardAvoidingView>
+    );
+  } else {
+    return (
+      <WebView
+        source={{ uri: authUrl }}
+        onNavigationStateChange={handleNavigationChange}
+        startInLoadingState={true}
+        renderLoading={() => <ActivityIndicator size="large" />}
+      />
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -152,7 +170,12 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: 'center'
   },
-  passInput: {
+  content: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    justifyContent: 'center'
+  },
+  input: {
     height: 40,
     alignSelf: 'stretch',
     backgroundColor: '#aaa2',
@@ -161,16 +184,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: '#fffa',
     marginBottom: 10,
-    borderColor: Colors.success
   },
   titleText: {
-    textAlign: 'center',
-    color: Colors.textPrimary,
-    marginBottom: 50,
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-  passwordText: {
     marginHorizontal: 30,
     marginBottom: 4,
     color: "#586572ff",
@@ -180,7 +195,6 @@ const styles = StyleSheet.create({
   button: {
     width: 150,
     height: 40,
-    backgroundColor: '#46538dff',
     marginTop: 20,
     alignSelf: 'center'
   },

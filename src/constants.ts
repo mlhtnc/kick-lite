@@ -1,14 +1,20 @@
 import { ColorsType } from "./types";
 
+export const KickApiBaseUrl = "https://api.kick.com/public/v1/users";
+export const KickAuthBaseUrl = "https://id.kick.com/oauth/authorize";
+export const KickAuthTokenBaseUrl = "https://id.kick.com/oauth/token";
+export const KickScopeString = "chat:read chat:write user:read user:edit channel:read channel:edit";
+export const KickRedirectUri = "http://localhost:3000/callback";
+
 export const LoginScreenName = "LoginScreen";
 export const HomeScreenName = "HomeScreen";
 
 export const Colors: ColorsType = {
-  background: "#15202B",
-  textPrimary: "#E7E9EA",
-  textSecondary: "#8899A6",
-  buttonPrimary: "#46538dff",
-  success: "#00BA7C",
-  error: "#F4212E",
-  border: "#2F3336"
-}
+	background: "#121212",
+	textPrimary: "#FFFFFF",
+	textSecondary: "#AAAAAA",
+	buttonPrimary: "#007A3D",
+	success: "#4CAF50",
+	error: "#F44336",
+	border: "#333333",
+};
