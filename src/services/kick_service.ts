@@ -107,7 +107,7 @@ export const isAccessTokenValid = async (accessToken: string): Promise<boolean> 
 }
 
 export const getCurrentUser = async (accessToken: string) => {
-	const url = KickApiBaseUrl;
+	const url = `${KickApiBaseUrl}/users`;
 	const headers = {
 		"Authorization": `Bearer ${accessToken}`,
 		"Accept": "*/*",
@@ -131,3 +131,32 @@ export const getCurrentUser = async (accessToken: string) => {
 		throw err;
 	}
 }
+
+export const getChannelsBySlug = async (slugs: string[], token: string) => {
+	if (!slugs.length) return [];
+
+	try {
+		const params = new URLSearchParams();
+		slugs.forEach((s) => params.append("slug", s));
+
+		console.log(`${KickApiBaseUrl}/channels?${params.toString()}`);
+
+		const res = await fetch(`${KickApiBaseUrl}/channels?${params.toString()}`, {
+			method: "GET",
+			headers: {
+				"Authorization": `Bearer ${token}`,
+      	"Accept": "*/*"
+			},
+		});
+
+		if (!res.ok) {
+			throw new Error(`Request failed: ${res.status}`);
+		}
+
+		const data = await res.json();
+		return data;
+	} catch (err) {
+		console.error("getChannelsBySlug error:", err);
+		return [];
+	}
+};

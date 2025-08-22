@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Colors } from '../constants';
 import { HomeScreenProps } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
-import { getCurrentUser } from '../services/kick_service';
+import { getChannelsBySlug, getCurrentUser } from '../services/kick_service';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
@@ -12,15 +12,19 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
   const { tokens } = route.params;
 
   useEffect(() => {
-    getCurrentUser(tokens.accessToken)
+    // test();
+  }, []);
+
+  
+  const test = () => {
+    getChannelsBySlug(["ilkinsan", "jahrein", "bishopirl", "chips", "purplebixi", "erlizzy"], tokens.accessToken)
     .then((res) => {
-      console.log(res.data[0]);
+      console.log(res.data);
     }).catch((err) => {
       console.log(err);
     });
+  }
 
-  }, []);
-  
   return (
     <View style={styles.container}>
       <ScreenHeader title={"Kick Lite"} hideEditButton={true} />
