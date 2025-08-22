@@ -1,25 +1,41 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Colors } from '../constants';
-import { HomeScreenProps } from '../types';
+import { Channel, HomeScreenProps, User } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
-import { getChannelsBySlug, getCurrentUser } from '../services/kick_service';
+import { getChannels, getUser } from '../services/kick_service';
+import ChannelList from '../components/ChannelList';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
   const { tokens } = route.params;
 
+  const [ channels, setChannels ] = useState<Channel[]>();
+
   useEffect(() => {
-    // test();
+    test();
   }, []);
 
   
   const test = () => {
-    getChannelsBySlug(["ilkinsan", "jahrein", "bishopirl", "chips", "purplebixi", "erlizzy"], tokens.accessToken)
-    .then((res) => {
-      console.log(res.data);
+    getChannels(tokens.accessToken, ["jahrein", "ilkinsan", "chips", "bishopirl"])
+    .then(async (channels) => {
+
+      const updated = await Promise.all(
+        channels.map(async (ch) => {
+          try {
+            const user = await getUser(tokens.accessToken, ch.id);
+            return { ...ch, name: user.name };
+          } catch (err) {
+            console.log(err);
+            return ch;
+          }
+        })
+      );
+
+      setChannels(updated);
     }).catch((err) => {
       console.log(err);
     });
@@ -31,7 +47,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       
       <View style={styles.listContainer}>
 
-     
+        <ChannelList channels={channels || []}/>
       
       </View>
 

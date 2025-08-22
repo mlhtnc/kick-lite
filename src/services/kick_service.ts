@@ -1,4 +1,5 @@
 import { KickApiBaseUrl, KickAuthTokenBaseUrl } from "../constants";
+import { Channel, User } from "../types";
 
 
 export const getToken = async (
@@ -106,12 +107,18 @@ export const isAccessTokenValid = async (accessToken: string): Promise<boolean> 
 	}
 }
 
-export const getCurrentUser = async (accessToken: string) => {
-	const url = `${KickApiBaseUrl}/users`;
+export const getUser = async (accessToken: string, id?: string): Promise<User> => {
+	let url = `${KickApiBaseUrl}/users`;
+	const params = new URLSearchParams();
 	const headers = {
 		"Authorization": `Bearer ${accessToken}`,
 		"Accept": "*/*",
 	};
+
+	if(id) {
+		params.append("id", id);
+		url += "?" + params.toString();
+	}
 
 	try {
 		const response = await fetch(url, { headers });
@@ -124,7 +131,13 @@ export const getCurrentUser = async (accessToken: string) => {
 		}
 
 		const data = await response.json();
-		return data;
+		const user: User = {
+			id: data.data[0].user_id,
+			name: data.data[0].name
+		}
+
+		return user;
+
 	} catch (err) {
 		// FIXME:
 		console.error("Error while requesting user:", err);
@@ -132,19 +145,20 @@ export const getCurrentUser = async (accessToken: string) => {
 	}
 }
 
-export const getChannelsBySlug = async (slugs: string[], token: string) => {
-	if (!slugs.length) return [];
+export const getChannels = async (accessToken: string, slugs?: string[]): Promise<Channel[]> => {
+	let url = `${KickApiBaseUrl}/channels`;
+	const params = new URLSearchParams();
+
+	if (slugs && slugs.length > 0) {
+		slugs.forEach((s) => params.append("slug", s));
+		url += "?" + params.toString();
+	}
 
 	try {
-		const params = new URLSearchParams();
-		slugs.forEach((s) => params.append("slug", s));
-
-		console.log(`${KickApiBaseUrl}/channels?${params.toString()}`);
-
-		const res = await fetch(`${KickApiBaseUrl}/channels?${params.toString()}`, {
+		const res = await fetch(url, {
 			method: "GET",
 			headers: {
-				"Authorization": `Bearer ${token}`,
+				"Authorization": `Bearer ${accessToken}`,
       	"Accept": "*/*"
 			},
 		});
@@ -154,9 +168,21 @@ export const getChannelsBySlug = async (slugs: string[], token: string) => {
 		}
 
 		const data = await res.json();
-		return data;
+
+		return data.data.map(( data: any ): Channel => {
+			const channel: Channel = {
+				id: data.broadcaster_user_id,
+				name: "",
+				isLive: data.stream.is_live,
+				viewerCount: data.stream.viewer_count,
+				streamTitle: data.stream_title
+			}
+
+			return channel;
+		});
+
 	} catch (err) {
-		console.error("getChannelsBySlug error:", err);
+		console.error("getChannels error:", err);
 		return [];
 	}
 };
