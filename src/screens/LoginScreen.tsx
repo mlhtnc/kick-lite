@@ -3,8 +3,8 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, Text, Te
 import WebView, { WebViewNavigation } from 'react-native-webview';
 
 import BasicButton from '../components/buttons/BasicButton';
-import { Colors, HomeScreenName, KickRedirectUri, KickScopeString } from '../constants';
-import { LoginScreenProps, PKCE } from '../types';
+import { Colors, KickRedirectUri, KickScopeString } from '../constants';
+import { LoginScreenProps, PKCE, Screens } from '../types';
 import { loadClient, loadTokens, saveClient, saveTokens } from '../utils/save_utils';
 import { createAuthUrl, generatePKCE } from '../utils/auth_utils';
 import { getToken, isAccessTokenValid, refreshAccessToken } from '../services/kick_service';
@@ -41,7 +41,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
     isAccessTokenValid(tokens.accessToken).then(async (isValid) => {
       if(isValid) {
-        navigation.reset({ index: 0, routes: [{ name: HomeScreenName, params: { tokens: tokens }}]});
+        navigation.reset({ index: 0, routes: [{ name: Screens.Home, params: { tokens: tokens }}]});
         return;
       }
 
@@ -88,7 +88,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     const tokens = { accessToken: tokenResponse.access_token, refreshToken: tokenResponse.refresh_token };
         
     await saveTokens(tokens);
-    navigation.reset({ index: 0, routes: [{ name: HomeScreenName, params: { tokens: tokens }}]});
+    navigation.reset({ index: 0, routes: [{ name: Screens.Home, params: { tokens: tokens }}]});
   }
 
   const handleNavigationChange = async (navState: WebViewNavigation) => {

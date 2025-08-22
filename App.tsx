@@ -5,8 +5,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
-import { Colors, HomeScreenName, LoginScreenName } from './src/constants';
-import { RootStackParamList } from './src/types';
+import StreamScreen from './src/screens/StreamScreen';
+import { RootStackParamList, Screens } from './src/types';
+import { Colors } from './src/constants';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -16,9 +17,10 @@ export default function App() {
       <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }} >
         <StatusBar translucent backgroundColor={"transparent"} barStyle="light-content" />
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={LoginScreenName} screenOptions={{ headerShown: false, animation: 'none' }}>
-              <Stack.Screen name={LoginScreenName} component={LoginScreen} />
-              <Stack.Screen name={HomeScreenName} component={HomeScreen} />
+            <Stack.Navigator initialRouteName={Screens.Login} screenOptions={{ headerShown: false, animation: 'none' }}>
+              <Stack.Screen name={Screens.Login} component={LoginScreen} />
+              <Stack.Screen name={Screens.Home} component={HomeScreen} />
+              <Stack.Screen name={Screens.Stream} component={StreamScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaView>

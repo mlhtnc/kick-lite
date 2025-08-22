@@ -1,16 +1,15 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Colors } from '../constants';
-import { Channel, ChannelCardProps } from '../types';
+import { Channel, ChannelCardProps, Screens } from '../types';
 import Ionicons from '@react-native-vector-icons/ionicons';
 
 
-export default function ChannelCard({ channel }: ChannelCardProps) {
+export default function ChannelCard({ navigation, channel }: ChannelCardProps) {
 
 
   const handleChannelClick = (channel: Channel) => {
-    // TODO:
-    console.log(channel);
+    navigation.navigate(Screens.Stream, { channel: channel })
   }
 
   

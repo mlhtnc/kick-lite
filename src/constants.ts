@@ -6,8 +6,7 @@ export const KickAuthTokenBaseUrl = "https://id.kick.com/oauth/token";
 export const KickScopeString = "chat:read chat:write user:read user:edit channel:read channel:edit";
 export const KickRedirectUri = "http://localhost:3000/callback";
 
-export const LoginScreenName = "LoginScreen";
-export const HomeScreenName = "HomeScreen";
+
 
 export const Colors: ColorsType = {
 	background: "#121212",

@@ -47,7 +47,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       
       <View style={styles.listContainer}>
 
-        <ChannelList channels={channels || []}/>
+        <ChannelList channels={channels || []} navigation={navigation}/>
       
       </View>
 

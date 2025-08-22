@@ -1,5 +1,4 @@
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { HomeScreenName, LoginScreenName } from "./constants";
+import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
 import { TextStyle } from "react-native";
 
 
@@ -13,21 +12,22 @@ export interface ColorsType {
   border: string;
 }
 
+export enum Screens {
+	Login = "LoginScreen",
+	Home = "HomeScreen",
+	Stream = "StreamScreen",
+}
+
 export type RootStackParamList = {
-  [LoginScreenName]: undefined;
-  [HomeScreenName]: { tokens: Tokens; }
+  [Screens.Login]: undefined;
+  [Screens.Home]: { tokens: Tokens; };
+  [Screens.Stream]: { channel: Channel };
 };
 
-export type HomeScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  typeof HomeScreenName
->;
-
-
-export type LoginScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  typeof LoginScreenName
->;
+export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Home>;
+export type LoginScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Login>;
+export type StreamScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Stream>;
+type AnyNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 
 export interface ScreenHeaderProps {
@@ -40,10 +40,12 @@ export interface ScreenHeaderProps {
 
 export interface ChannelListProps {
 	channels: Channel[];
+  navigation: AnyNavigationProp;
 }
 
 export interface ChannelCardProps {
   channel: Channel;
+  navigation: AnyNavigationProp;
 }
 
 export interface ClientInfo {
