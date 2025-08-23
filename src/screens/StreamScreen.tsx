@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, View, Dimensions } from 'react-native';
 
 import { Colors } from '../constants';
 import { StreamScreenProps } from '../types';
@@ -20,7 +20,7 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
     <View style={styles.container}>
       <Video
 				source={{ uri: '' }}
-        style={{ width: '100%', aspectRatio: 16 / 9 }}
+        style={styles.video}
         controls
 			/>
       
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
 		backgroundColor: '#000',
-		justifyContent: 'center',
+		justifyContent: 'flex-start',
 		alignItems: 'center',
   },
   video: {
