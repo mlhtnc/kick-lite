@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Colors } from '../constants';
-import { Channel, HomeScreenProps, User } from '../types';
+import { Channel, HomeScreenProps } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
 import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
@@ -22,7 +22,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
   const initChannels = () => {
     getChannels(tokens.accessToken, ["jahrein", "ilkinsan", "chips", "bishopirl", "purplebixi", "caglararts", "glomerius", "erlizzy", "ebonivon"])
     .then(async (channels) => {
-      let updatedChannels = await updateChannelUserNames(channels);
+      let updatedChannels = await fetchChannelUsernames(channels);
       sortChannels(updatedChannels);
       setChannels(updatedChannels);
     }).catch((err) => {
@@ -30,7 +30,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     });
   }
 
-  const updateChannelUserNames = async (channels: Channel[]) => {
+  const fetchChannelUsernames = async (channels: Channel[]) => {
     return await Promise.all(
       channels.map(async (ch) => {
         try {
@@ -43,6 +43,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       })
     );
   }
+
 
   const sortChannels = (channels: Channel[]) => {
     return channels.sort((a, b) => {

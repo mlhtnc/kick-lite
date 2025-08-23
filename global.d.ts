@@ -12,3 +12,7 @@ interface Crypto {
 }
 
 declare var crypto: Crypto;
+
+declare module '@env' {
+  export const API_HOST: string;
+}

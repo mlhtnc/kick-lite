@@ -68,6 +68,7 @@ export interface PKCE {
 export interface Channel {
   id: string;
   name: string;
+  slug: string;
   isLive: boolean;
   viewerCount: number;
   streamTitle: string;

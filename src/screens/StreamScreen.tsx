@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
-
-import { Colors } from '../constants';
-import { StreamScreenProps } from '../types';
 import Video from 'react-native-video';
+
+import { StreamScreenProps } from '../types';
+import { getStreamURL } from '../services/backend_service';
+
 
 const { width } = Dimensions.get('window');
 
@@ -11,18 +12,35 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
 
   const { channel } = route.params;
 
+  const [ streamURL, setStreamURL ] = useState<string>("");
+
 
   useEffect(() => {
+    fetchStreamURL();
   }, []);
  
 
+  const fetchStreamURL = () => {
+    getStreamURL(channel.slug)
+    .then((res) => {
+      setStreamURL(res.streamURL)
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
+
   return (
     <View style={styles.container}>
-      <Video
-				source={{ uri: '' }}
-        style={styles.video}
-        controls
-			/>
+
+      { streamURL !== "" ?
+        <Video
+          source={{ uri: streamURL }}
+          style={styles.video}
+          controls
+        />
+        :
+        null
+      }
       
     </View>
   );

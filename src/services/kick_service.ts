@@ -173,9 +173,10 @@ export const getChannels = async (accessToken: string, slugs?: string[]): Promis
 			const channel: Channel = {
 				id: data.broadcaster_user_id,
 				name: "",
+				slug: data.slug,
 				isLive: data.stream.is_live,
 				viewerCount: data.stream.viewer_count,
-				streamTitle: data.stream_title
+				streamTitle: data.stream_title,
 			}
 
 			return channel;
