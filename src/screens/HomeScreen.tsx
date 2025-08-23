@@ -15,31 +15,45 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
   const [ channels, setChannels ] = useState<Channel[]>();
 
   useEffect(() => {
-    test();
+    initChannels();
   }, []);
 
   
-  const test = () => {
-    getChannels(tokens.accessToken, ["jahrein", "ilkinsan", "chips", "bishopirl"])
+  const initChannels = () => {
+    getChannels(tokens.accessToken, ["jahrein", "ilkinsan", "chips", "bishopirl", "purplebixi", "caglararts", "glomerius", "erlizzy", "ebonivon"])
     .then(async (channels) => {
-
-      const updated = await Promise.all(
-        channels.map(async (ch) => {
-          try {
-            const user = await getUser(tokens.accessToken, ch.id);
-            return { ...ch, name: user.name };
-          } catch (err) {
-            console.log(err);
-            return ch;
-          }
-        })
-      );
-
-      setChannels(updated);
+      let updatedChannels = await updateChannelUserNames(channels);
+      sortChannels(updatedChannels);
+      setChannels(updatedChannels);
     }).catch((err) => {
       console.log(err);
     });
   }
+
+  const updateChannelUserNames = async (channels: Channel[]) => {
+    return await Promise.all(
+      channels.map(async (ch) => {
+        try {
+          const user = await getUser(tokens.accessToken, ch.id);
+          return { ...ch, name: user.name };
+        } catch (err) {
+          console.log(err);
+          return ch;
+        }
+      })
+    );
+  }
+
+  const sortChannels = (channels: Channel[]) => {
+    return channels.sort((a, b) => {
+      if (a.isLive !== b.isLive) {
+        return a.isLive ? -1 : 1;
+      }
+
+      return b.viewerCount - a.viewerCount;
+    });
+  }
+
 
   return (
     <View style={styles.container}>

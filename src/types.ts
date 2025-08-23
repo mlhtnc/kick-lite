@@ -6,7 +6,9 @@ export interface ColorsType {
   background: string;
   textPrimary: string;
   textSecondary: string;
+  textAccent: string;
   buttonPrimary: string;
+  card: string;
   success: string;
   error: string;
   border: string;
