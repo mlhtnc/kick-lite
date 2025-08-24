@@ -9,6 +9,10 @@ export default function ChannelCard({ navigation, channel }: ChannelCardProps) {
 
 
   const handleChannelClick = (channel: Channel) => {
+    if(!channel.isLive) {
+      return;
+    }
+    
     navigation.navigate(Screens.Stream, { channel: channel })
   }
 
