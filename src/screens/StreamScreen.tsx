@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, Dimensions, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, Dimensions } from 'react-native';
 import Video from 'react-native-video';
 
 import { StreamScreenProps } from '../types';
@@ -49,6 +49,7 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
           resizeMode='contain'
           onFullscreenPlayerWillPresent={onFullscreenPlayerWillPresent}
           onFullscreenPlayerWillDismiss={onFullscreenPlayerWillDismiss}
+          controls
         />
         :
         null
