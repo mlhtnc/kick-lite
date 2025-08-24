@@ -10,6 +10,9 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 
+// Added for react-native-orientation-locker
+import org.wonday.orientation.OrientationActivityLifecycle
+
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost =
@@ -34,5 +37,8 @@ class MainApplication : Application(), ReactApplication {
   override fun onCreate() {
     super.onCreate()
     loadReactNative(this)
+
+    // Added for react-native-orientation-locker
+    registerActivityLifecycleCallbacks(OrientationActivityLifecycle.getInstance())
   }
 }

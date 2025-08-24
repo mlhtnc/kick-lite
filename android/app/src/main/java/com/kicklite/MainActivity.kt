@@ -5,6 +5,10 @@ import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 
+// Added for react-native-orientation-locker
+import android.content.Intent
+import android.content.res.Configuration
+
 class MainActivity : ReactActivity() {
 
   /**
@@ -19,4 +23,12 @@ class MainActivity : ReactActivity() {
    */
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+
+  // Added for react-native-orientation-locker
+  override fun onConfigurationChanged(newConfig: Configuration) {
+      super.onConfigurationChanged(newConfig)
+      val intent = Intent("onConfigurationChanged")
+      intent.putExtra("newConfig", newConfig)
+      sendBroadcast(intent)
+  }
 }

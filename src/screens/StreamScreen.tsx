@@ -4,6 +4,7 @@ import Video from 'react-native-video';
 
 import { StreamScreenProps } from '../types';
 import { getStreamURL } from '../services/backend_service';
+import Orientation from 'react-native-orientation-locker';
 
 
 const { width } = Dimensions.get('window');
@@ -29,6 +30,14 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
     });
   }
 
+  const onFullscreenPlayerWillPresent = () => {
+    Orientation.lockToLandscape();
+  }
+
+  const onFullscreenPlayerWillDismiss = () => {
+    Orientation.lockToPortrait();
+  }
+
   return (
     <View style={styles.container}>
 
@@ -36,6 +45,9 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
         <Video
           source={{ uri: streamURL }}
           style={styles.video}
+          resizeMode='contain'
+          onFullscreenPlayerWillPresent={onFullscreenPlayerWillPresent}
+          onFullscreenPlayerWillDismiss={onFullscreenPlayerWillDismiss}
           controls
         />
         :
