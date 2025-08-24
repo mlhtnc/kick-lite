@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     height: 100,
     backgroundColor: Colors.background,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   listItemButton: {
     flex: 1,
