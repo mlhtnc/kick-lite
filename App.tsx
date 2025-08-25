@@ -10,6 +10,7 @@ import StreamScreen from './src/screens/StreamScreen';
 import { RootStackParamList, Screens } from './src/types';
 import { Colors } from './src/constants';
 import { mainToastConfig } from './src/toast_types/toast_types';
+import SearchScreen from './src/screens/SearchScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -24,6 +25,7 @@ export default function App() {
             <Stack.Screen name={Screens.Login} component={LoginScreen} />
             <Stack.Screen name={Screens.Home} component={HomeScreen} />
             <Stack.Screen name={Screens.Stream} component={StreamScreen} />
+            <Stack.Screen name={Screens.Search} component={SearchScreen} />
           </Stack.Navigator>
         </NavigationContainer>
         <Toast config={mainToastConfig} visibilityTime={5000} swipeable />

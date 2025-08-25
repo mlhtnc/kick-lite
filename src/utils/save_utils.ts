@@ -2,22 +2,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Client = "client";
 const Tokens = "tokens";
+const Channels = "channels";
 
 
-const loadClient = async (): Promise<any> => {
+export const loadClient = async (): Promise<any> => {
   return await load(Client);
 }
 
-const saveClient = async (info: any): Promise<void> => {
+export const saveClient = async (info: any): Promise<void> => {
   save(Client, info);
 }
 
-const loadTokens = async (): Promise<any> => {
+export const loadTokens = async (): Promise<any> => {
   return await load(Tokens);
 }
 
-const saveTokens = async (tokens: any): Promise<void> => {
+export const saveTokens = async (tokens: any): Promise<void> => {
   save(Tokens, tokens);
+}
+
+export const loadChannels = async (): Promise<any> => {
+  const channels = await load(Channels);
+  if(channels) {
+    return await load(Channels);
+  } else {
+    return [];
+  }
+}
+
+export const saveChannels = async (channels: any): Promise<void> => {
+  save(Channels, channels);
 }
 
 
@@ -46,14 +60,4 @@ const clear = async (key: string): Promise<void> => {
   } catch(err) {
     console.log('Error while clearing', key);
   }
-}
-
-
-
-
-export {
-  loadClient,
-  saveClient,
-  loadTokens,
-  saveTokens,
 }

@@ -8,7 +8,6 @@ import { LoginScreenProps, PKCE, Screens } from '../types';
 import { loadClient, loadTokens, saveClient, saveTokens } from '../utils/save_utils';
 import { createAuthUrl, generatePKCE } from '../utils/auth_utils';
 import { getToken, isAccessTokenValid, refreshAccessToken } from '../services/kick_service';
-import Toast from 'react-native-toast-message';
 import { showErrorRefreshingAccessToken, showErrorRequestingAccessToken, showErrorValidatingAccessToken } from '../alerts/alerts';
 
 

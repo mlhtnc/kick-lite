@@ -1,48 +1,21 @@
-import { useRef, useState } from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
+import { View, StyleSheet, Text, GestureResponderEvent } from 'react-native';
 
 import { ScreenHeaderProps } from '../types';
 import { Colors } from '../constants';
 import BasicCircleButton from './buttons/BasicCircleButton';
 
 
-export default function ScreenHeader({ title, onTitleChanged, hideEditButton=false }: ScreenHeaderProps) {
+export default function ScreenHeader({ title, onSearchButtonPressed }: ScreenHeaderProps) {
 
-  const titleRef = useRef<TextInput>(null);
-
-  const [ isEditing, setIsEditing ] = useState<boolean>(false);
-
-
-  const onTitleChange = (text: string) => {
-    onTitleChanged?.(text);
+  const handleSearchButtonPressed = (event: GestureResponderEvent) => {
+    onSearchButtonPressed?.();
   }
-
-  const toggleEdit = () => {
-    // If editing is started, focus the title input
-    if (!isEditing) {
-      setTimeout(() => {
-        titleRef.current?.focus();
-      }, 100);
-    }
-
-    setIsEditing((prev) => !prev);
-  }
-
 
   return (
     <View style={styles.header}>
-      <View style={styles.titleContainer}>
-        <TextInput
-          ref={titleRef}
-          editable={isEditing}
-          style={ styles.passInput }
-          value={ title }
-          onChangeText={ onTitleChange }
-        />
-
-        {!hideEditButton &&
-          <BasicCircleButton style={{width: 40, height: 40 }} iconName='pencil' iconSize={24} onPress={ toggleEdit } />
-        }
+      <View style={styles.content}>
+        <Text style={styles.text}>{title}</Text>
+        <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='search' iconSize={24} onPress={handleSearchButtonPressed}></BasicCircleButton>
       </View>
     </View>
   );
@@ -55,9 +28,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     borderColor: Colors.border,
     borderBottomWidth: 1,
-    justifyContent: 'space-between',
   },
-  titleContainer: {
+  content: {
     height: 58,
     backgroundColor: Colors.background,
     flexDirection: 'row',
@@ -65,13 +37,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  passInput: {
-    width: '80%',
-    height: 56,
+  text: {
     color: Colors.textPrimary,
     backgroundColor: Colors.background,
     fontSize: 20,
     textAlign: 'left',
-    padding: 0, // Remove default padding
+    alignSelf: 'center'
   },
 });

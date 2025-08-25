@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Colors } from '../constants';
-import { Channel, HomeScreenProps } from '../types';
+import { Channel, HomeScreenProps, Screens } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
 import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
-import Toast from 'react-native-toast-message';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
+import { loadChannels } from '../utils/save_utils';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
@@ -16,15 +16,15 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
   const [ channels, setChannels ] = useState<Channel[]>();
 
+
   useEffect(() => {
     initChannels();
-
-    
   }, []);
 
-  
-  const initChannels = () => {
-    getChannels(tokens.accessToken, ["jahrein", "ilkinsan", "chips", "bishopirl", "purplebixi", "caglararts", "glomerius", "erlizzy", "ebonivon"])
+  const initChannels = async () => {
+    const channels = await loadChannels();
+
+    getChannels(tokens.accessToken, channels.map((ch: Channel) => ch.slug))
     .then(async (channels) => {
       let updatedChannels = await fetchChannelUsernames(channels);
       sortChannels(updatedChannels);
@@ -56,7 +56,6 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     return updatedChannels;
   }
 
-
   const sortChannels = (channels: Channel[]) => {
     return channels.sort((a, b) => {
       if (a.isLive !== b.isLive) {
@@ -67,10 +66,18 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     });
   }
 
+  const onChannelAdded = (): void => {
+    initChannels();
+  }
+
+  const onSearchButtonPressed = () => {
+    navigation.navigate(Screens.Search, { tokens, onChannelAdded });
+  }
+
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title={"Kick Lite"} hideEditButton={true} />
+      <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed}/>
       
       <View style={styles.listContainer}>
         <ChannelList channels={channels || []} navigation={navigation}/>
