@@ -8,6 +8,8 @@ import { LoginScreenProps, PKCE, Screens } from '../types';
 import { loadClient, loadTokens, saveClient, saveTokens } from '../utils/save_utils';
 import { createAuthUrl, generatePKCE } from '../utils/auth_utils';
 import { getToken, isAccessTokenValid, refreshAccessToken } from '../services/kick_service';
+import Toast from 'react-native-toast-message';
+import { showErrorRefreshingAccessToken, showErrorRequestingAccessToken, showErrorValidatingAccessToken } from '../alerts/alerts';
 
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
@@ -50,13 +52,12 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         client.clientSecret,
         tokens.refreshToken
       ).then(async (tokenResponse) => handleTokenResponse(tokenResponse)
-      ).catch((error) => {
-        // FIXME:
-        console.error('Error refreshing access token:', error);
+      ).catch(() => {
+        showErrorRefreshingAccessToken();
       });
 
-    }).catch((error) => {
-      console.error('Error checking access token validity:', error);
+    }).catch(() => {
+      showErrorValidatingAccessToken();
     });
   }
 
@@ -108,9 +109,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         pkce?.code_verifier || '',
       ).then(async (tokenResponse) => {
         await handleTokenResponse(tokenResponse);
-      }).catch((error) => {
-        // FIXME: 
-        console.error('getToken error:', error);
+      }).catch(() => {
+        showErrorRequestingAccessToken();
       });
 
       setAuthUrl(null);

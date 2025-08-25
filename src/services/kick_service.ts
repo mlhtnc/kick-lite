@@ -1,4 +1,4 @@
-import { KickApiBaseUrl, KickAuthTokenBaseUrl } from "../constants";
+import { KickApiBaseUrl, KickAuthTokenBaseUrl, KickAuthTokenIntrospectUrl } from "../constants";
 import { Channel, User } from "../types";
 
 
@@ -29,17 +29,11 @@ export const getToken = async (
 		});
 
 		if (!response.ok) {
-			const text = await response.text();
-			// FIXME:
-			console.error('Status:', response.status);
-			console.error('Error:', text);
-			throw new Error(`Kick token error: ${response.status}`);
+			throw new Error();
 		}
 
 		return response.json();
 	} catch (err) {
-		// FIXME:
-		console.error('Error while requesting token:', err);
 		throw err;
 	}
 }
@@ -68,27 +62,22 @@ export const refreshAccessToken = async (
 		});
 
 		if (!response.ok) {
-			const text = await response.text();
-			// FIXME:
-			console.error("Refresh token error:", response.status, text);
-			throw new Error(`Kick refresh error: ${response.status}`);
+			throw new Error();
 		}
 
 		const data = await response.json();
 		return data;
 	} catch (err) {
-		// FIXME:
-		console.error("Error while refreshing tokens:", err);
 		throw err;
 	}
 }
 
-export const isAccessTokenValid = async (accessToken: string): Promise<boolean> =>{
+export const isAccessTokenValid = async (accessToken: string): Promise<boolean> => {
 	try {
-		const response = await fetch(KickApiBaseUrl, {
+		const response = await fetch(KickAuthTokenIntrospectUrl, {
+			method: "POST",
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
-				Accept: "application/json",
 			},
 		});
 
@@ -100,10 +89,9 @@ export const isAccessTokenValid = async (accessToken: string): Promise<boolean> 
 			return false;
 		}
 
-		return false;
-	} catch (error) {
-		console.error("Token check failed:", error);
-		return false;
+		throw new Error();
+	} catch (err) {
+		throw err;
 	}
 }
 
@@ -124,10 +112,7 @@ export const getUser = async (accessToken: string, id?: string): Promise<User> =
 		const response = await fetch(url, { headers });
 
 		if (!response.ok) {
-			const text = await response.text();
-			// FIXME:
-			console.error("Error:", response.status, text);
-			throw new Error(`Kick API error: ${response.status}`);
+			throw new Error();
 		}
 
 		const data = await response.json();
@@ -139,8 +124,6 @@ export const getUser = async (accessToken: string, id?: string): Promise<User> =
 		return user;
 
 	} catch (err) {
-		// FIXME:
-		console.error("Error while requesting user:", err);
 		throw err;
 	}
 }
@@ -164,7 +147,7 @@ export const getChannels = async (accessToken: string, slugs?: string[]): Promis
 		});
 
 		if (!res.ok) {
-			throw new Error(`Request failed: ${res.status}`);
+			throw new Error();
 		}
 
 		const data = await res.json();
@@ -183,7 +166,6 @@ export const getChannels = async (accessToken: string, slugs?: string[]): Promis
 		});
 
 	} catch (err) {
-		console.error("getChannels error:", err);
-		return [];
+		throw err;
 	}
 };

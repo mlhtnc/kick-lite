@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import Video from 'react-native-video';
+import Orientation from 'react-native-orientation-locker';
 
 import { StreamScreenProps } from '../types';
 import { getStreamURL } from '../services/backend_service';
-import Orientation from 'react-native-orientation-locker';
 import { Colors } from '../constants';
+import { showErrorUnabletoStream } from '../alerts/alerts';
 
 
 const { width } = Dimensions.get('window');
@@ -25,8 +26,8 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
     getStreamURL(channel.slug)
     .then((res) => {
       setStreamURL(res.streamURL)
-    }).catch((err) => {
-      console.log(err);
+    }).catch(() => {
+      showErrorUnabletoStream();
     });
   }
 

@@ -1,5 +1,6 @@
 import { API_HOST } from "@env";
 
+
 export const getStreamURL = async (channel: string): Promise<any> => {
 
   if(API_HOST === undefined) return null;
@@ -20,7 +21,7 @@ export const getStreamURL = async (channel: string): Promise<any> => {
     });
 
     if (!res.ok) {
-      throw new Error(`Request failed: ${res.status}`);
+      throw new Error();
     }
 
     const response = await res.json();
@@ -29,7 +30,6 @@ export const getStreamURL = async (channel: string): Promise<any> => {
       streamURL: response.stream_url
     }
   } catch (err) {
-    console.error("getStreamURL error:", err);
-    return [];
+    throw err;
   }
 };

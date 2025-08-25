@@ -24,6 +24,7 @@
     "react-native-safe-area-context": "^5.6.1",
     "react-native-screens": "^4.15.0",
     "react-native-sha256": "^1.4.10",
+    "react-native-toast-message": "^2.3.3",
     "react-native-video": "^6.16.1",
     "react-native-webview": "^13.15.0"
   },

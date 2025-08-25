@@ -12,6 +12,7 @@ export interface ColorsType {
   success: string;
   error: string;
   border: string;
+  toastText: string;
 }
 
 export enum Screens {

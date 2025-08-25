@@ -1,5 +1,6 @@
 import { ColorsType } from "./types";
 
+export const KickAuthTokenIntrospectUrl = "https://api.kick.com/public/v1/token/introspect";
 export const KickApiBaseUrl = "https://api.kick.com/public/v1";
 export const KickAuthBaseUrl = "https://id.kick.com/oauth/authorize";
 export const KickAuthTokenBaseUrl = "https://id.kick.com/oauth/token";
@@ -15,7 +16,8 @@ export const Colors: ColorsType = {
 	textAccent: "#53FC18",
 	buttonPrimary: "#007A3D",
 	card: "#222222",
-	success: "#4CAF50",
-	error: "#F44336",
+	success: "#1DB954",
+	error: "#FF5252",
 	border: "#333333",
+	toastText: "#1E1E1E"
 };

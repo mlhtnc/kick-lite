@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Colors } from '../constants';
 import { Channel, HomeScreenProps } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
 import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
+import Toast from 'react-native-toast-message';
+import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
@@ -16,6 +18,8 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
   useEffect(() => {
     initChannels();
+
+    
   }, []);
 
   
@@ -25,23 +29,31 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       let updatedChannels = await fetchChannelUsernames(channels);
       sortChannels(updatedChannels);
       setChannels(updatedChannels);
-    }).catch((err) => {
-      console.log(err);
+    }).catch(() => {
+      showErrorChannelsLoading();
     });
   }
 
   const fetchChannelUsernames = async (channels: Channel[]) => {
-    return await Promise.all(
+    let error: boolean = false;
+
+    const updatedChannels = await Promise.all(
       channels.map(async (ch) => {
         try {
           const user = await getUser(tokens.accessToken, ch.id);
           return { ...ch, name: user.name };
         } catch (err) {
-          console.log(err);
+          error = true;
           return ch;
         }
       })
     );
+
+    if(error) {
+      showErrorUserLoading();
+    }
+
+    return updatedChannels;
   }
 
 
@@ -61,9 +73,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       <ScreenHeader title={"Kick Lite"} hideEditButton={true} />
       
       <View style={styles.listContainer}>
-
         <ChannelList channels={channels || []} navigation={navigation}/>
-      
       </View>
 
     </View>
@@ -81,3 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+
+
+
