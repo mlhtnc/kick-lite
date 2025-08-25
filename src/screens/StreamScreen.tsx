@@ -50,6 +50,9 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
           resizeMode='contain'
           onFullscreenPlayerWillPresent={onFullscreenPlayerWillPresent}
           onFullscreenPlayerWillDismiss={onFullscreenPlayerWillDismiss}
+          playInBackground={true}
+          playWhenInactive={true}
+          ignoreSilentSwitch='ignore'
           controls
         />
         :
