@@ -16,7 +16,7 @@ import ChannelInfo from '../components/ChannelInfo';
 
 const screenDimensions = Dimensions.get('screen');
 
-export default function StreamScreen({ navigation, route }: StreamScreenProps) {
+export default function StreamScreen({ route }: StreamScreenProps) {
   
   const videoRef = useRef<VideoRef>(null);
   const timeoutRef = useRef<NodeJS.Timeout>(undefined);
@@ -136,7 +136,7 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
           }
 
           { /* TODO: Make this component */
-            loadingVideo &&
+            loadingVideo || streamURL === "" &&
             <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
               <ActivityIndicator size={'large'} color={Colors.success} />
             </View>
