@@ -103,8 +103,6 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
   const videoWidth = screenSize.width;
   const videoHeight = isFullscreen ? screenSize.height : (videoWidth * 9) / 16;
   const WrapperView = isFullscreen ? View : SafeAreaView;
-
-
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
 
   return (
@@ -172,7 +170,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    margin: 10,
+    margin: 5,
     backgroundColor: "rgba(0,0,0,0)",
     width: 30,
     height: 30
