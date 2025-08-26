@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '../constants';
@@ -16,6 +16,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
   const { tokens } = route.params;
 
   const [ channels, setChannels ] = useState<Channel[]>();
+  const [ loading, setLoading ] = useState<boolean>(false);
 
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
   const initChannels = async () => {
     const channels = await loadChannels();
 
+    setLoading(true);
     getChannels(tokens.accessToken, channels.map((ch: Channel) => ch.slug))
     .then(async (channels) => {
       let updatedChannels = await fetchChannelUsernames(channels);
@@ -32,6 +34,8 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       setChannels(updatedChannels);
     }).catch(() => {
       showErrorChannelsLoading();
+    }).finally(() => {
+      setLoading(false);
     });
   }
 
@@ -90,10 +94,16 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed}/>
       
-      <View style={styles.listContainer}>
-        <ChannelList channels={channels || []} navigation={navigation} onChannelDelete={onChannelDelete}/>
-      </View>
-
+      { loading ?
+        <View style={styles.listContainer}>
+          <ChannelList channels={channels || []} navigation={navigation} onChannelDelete={onChannelDelete}/>
+        </View>
+        :
+        // TODO: Make this component
+        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+          <ActivityIndicator size={'large'} color={Colors.success} />
+        </View>
+      }
     </SafeAreaView>
   );
 }
