@@ -94,7 +94,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed}/>
       
-      { loading ?
+      { !loading ?
         <View style={styles.listContainer}>
           <ChannelList channels={channels || []} navigation={navigation} onChannelDelete={onChannelDelete}/>
         </View>
