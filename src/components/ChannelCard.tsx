@@ -3,9 +3,13 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../constants';
 import { Channel, ChannelCardProps, Screens } from '../types';
 import { formatViewerCount } from '../helpers/helpers';
+import BasicButton from './buttons/BasicButton';
+import { useState } from 'react';
 
 
-export default function ChannelCard({ navigation, channel }: ChannelCardProps) {
+export default function ChannelCard({ navigation, channel, onChannelDelete }: ChannelCardProps) {
+
+  const [ isDeleteButtonShowing, setIsDeleteButtonShowing ] = useState<boolean>(false);
 
 
   const handleChannelClick = (channel: Channel) => {
@@ -16,27 +20,48 @@ export default function ChannelCard({ navigation, channel }: ChannelCardProps) {
     navigation.navigate(Screens.Stream, { channel: channel })
   }
 
+  const handleChannelLongClick = (channel: Channel) => {
+    setIsDeleteButtonShowing(true);
+
+    setTimeout(() => {
+      setIsDeleteButtonShowing(false);
+    }, 2000);
+  }
+
+
   const viewerCountFormatted = formatViewerCount(channel.viewerCount);
   
   return (
     <View style={styles.listItemContainer}>
     
-      <TouchableOpacity style={styles.listItemButton} onPress={() => handleChannelClick(channel)} activeOpacity={0.7}>
+      { isDeleteButtonShowing ?
+        <BasicButton
+          text='DELETE'
+          style={styles.deleteButton}
+          textStyle={styles.deleteButtonText}
+          onPress={() => onChannelDelete(channel)}
+        />
+        :
+        <TouchableOpacity
+          style={styles.listItemButton}
+          onPress={() => handleChannelClick(channel)}
+          onLongPress={() => handleChannelLongClick(channel)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.listItemButtonContainer}>
+            <View style={styles.textContainer1}>
+              <Text style={styles.nameText}>{channel.name}</Text>
+              <Text style={styles.viewerCountText}>{channel.viewerCount > 0 ? viewerCountFormatted : ""}</Text>
 
-        <View style={styles.listItemButtonContainer}>
-          <View style={styles.textContainer1}>
-            <Text style={styles.nameText}>{channel.name}</Text>
-            <Text style={styles.viewerCountText}>{channel.viewerCount > 0 ? viewerCountFormatted : ""}</Text>
+            </View>
 
+            <View style={styles.textContainer2}>
+              <Text style={styles.streamTitleText}>{channel.streamTitle}</Text>
+
+            </View>
           </View>
-
-          <View style={styles.textContainer2}>
-            <Text style={styles.streamTitleText}>{channel.streamTitle}</Text>
-
-          </View>
-        </View>
-
-      </TouchableOpacity>
+        </TouchableOpacity>
+      }
     </View>
 
   );
@@ -88,5 +113,16 @@ const styles = StyleSheet.create({
     color: Colors.textAccent,
     fontSize: 16,
     textAlign: "right"
+  },
+  deleteButton: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    backgroundColor: Colors.error,
+    borderRadius: 20
+  },
+  deleteButtonText: {
+    fontSize: 24
   }
 });

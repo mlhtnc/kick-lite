@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '../constants';
 import { Channel, HomeScreenProps, Screens } from '../types';
@@ -7,8 +8,7 @@ import ScreenHeader from '../components/ScreenHeader';
 import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
-import { loadChannels } from '../utils/save_utils';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { loadChannels, saveChannels } from '../utils/save_utils';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
@@ -71,6 +71,16 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     initChannels();
   }
 
+  const onChannelDelete = async (channel: Channel) => {
+      const channels: Channel[] = await loadChannels();
+
+      const updatedChannels = channels.filter((ch) => ch.id !== channel.id);
+
+      await saveChannels([ ...updatedChannels ]);
+
+      initChannels();
+  }
+
   const onSearchButtonPressed = () => {
     navigation.navigate(Screens.Search, { tokens, onChannelAdded });
   }
@@ -81,7 +91,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed}/>
       
       <View style={styles.listContainer}>
-        <ChannelList channels={channels || []} navigation={navigation}/>
+        <ChannelList channels={channels || []} navigation={navigation} onChannelDelete={onChannelDelete}/>
       </View>
 
     </SafeAreaView>

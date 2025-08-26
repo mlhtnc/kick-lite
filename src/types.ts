@@ -45,11 +45,13 @@ export interface ScreenHeaderProps {
 export interface ChannelListProps {
 	channels: Channel[];
   navigation: AnyNavigationProp;
+  onChannelDelete: (channel: Channel) => void;
 }
 
 export interface ChannelCardProps {
   channel: Channel;
   navigation: AnyNavigationProp;
+  onChannelDelete: (channel: Channel) => void;
 }
 
 export interface BasicCircleButtonProps {
