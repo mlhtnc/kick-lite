@@ -9,6 +9,7 @@ import { loadClient, loadTokens, saveClient, saveTokens } from '../utils/save_ut
 import { createAuthUrl, generatePKCE } from '../utils/auth_utils';
 import { getToken, isAccessTokenValid, refreshAccessToken } from '../services/kick_service';
 import { showErrorRefreshingAccessToken, showErrorRequestingAccessToken, showErrorValidatingAccessToken } from '../alerts/alerts';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
@@ -119,50 +120,58 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
   if (!authUrl) {
     return (
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={ -100 }>
-        <View style={styles.container}>
+      <SafeAreaView style={styles.safeAreaContainer}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={ -100 }>
+          <View style={styles.container}>
 
-        { loading ? null :
-          <View style={styles.content} >
-            <Text style={styles.titleText}>Client Id</Text>
-            <TextInput
-              style={styles.input}
-              value={clientId}
-              onChangeText={setClientId}
-            />
+          { loading ? null :
+            <View style={styles.content} >
+              <Text style={styles.titleText}>Client Id</Text>
+              <TextInput
+                style={styles.input}
+                value={clientId}
+                onChangeText={setClientId}
+              />
 
-            <Text style={styles.titleText}>Client Secret</Text>
-            <TextInput
-              style={styles.input}
-              value={clientSecret}
-              onChangeText={setClientSecret}
-            />
-          
-            <BasicButton
-              style={styles.button}
-              text={"LOGIN"}
-              textStyle={styles.buttonText}
-              onPress={onLoginButtonClicked}
-            />
+              <Text style={styles.titleText}>Client Secret</Text>
+              <TextInput
+                style={styles.input}
+                value={clientSecret}
+                onChangeText={setClientSecret}
+              />
+            
+              <BasicButton
+                style={styles.button}
+                text={"LOGIN"}
+                textStyle={styles.buttonText}
+                onPress={onLoginButtonClicked}
+              />
+            </View>
+          }
+
           </View>
-        }
-
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     );
   } else {
     return (
-      <WebView
-        source={{ uri: authUrl }}
-        onNavigationStateChange={handleNavigationChange}
-        startInLoadingState={true}
-        renderLoading={() => <ActivityIndicator size="large" />}
-      />
+      <SafeAreaView style={styles.safeAreaContainer}>
+        <WebView
+          source={{ uri: authUrl }}
+          onNavigationStateChange={handleNavigationChange}
+          startInLoadingState={true}
+          renderLoading={() => <ActivityIndicator size="large" />}
+        />
+      </SafeAreaView>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  safeAreaContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.background,

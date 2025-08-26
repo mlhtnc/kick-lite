@@ -8,6 +8,7 @@ import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
 import { loadChannels } from '../utils/save_utils';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
@@ -76,14 +77,14 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed}/>
       
       <View style={styles.listContainer}>
         <ChannelList channels={channels || []} navigation={navigation}/>
       </View>
 
-    </View>
+    </SafeAreaView>
   );
 }
 

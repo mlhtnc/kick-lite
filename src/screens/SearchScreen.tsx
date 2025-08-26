@@ -7,6 +7,7 @@ import BasicCircleButton from '../components/buttons/BasicCircleButton';
 import { getChannels } from '../services/kick_service';
 import { showErrorChannelsLoading } from '../alerts/alerts';
 import { loadChannels, saveChannels } from '../utils/save_utils';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 
@@ -40,7 +41,7 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
 
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.content}>
 
@@ -72,7 +73,7 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
         }
 
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
