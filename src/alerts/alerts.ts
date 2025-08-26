@@ -5,6 +5,24 @@ const showError = (type: string, text1: string, text2: string) => {
   Toast.show({ type, text1, text2 });
 }
 
+
+
+// SUCCESS
+
+
+// FIXME: 
+export const showSuccessSendingMessage = () => {
+  showError(
+    "success",
+    "Success",
+    "Message sent.",
+  );
+}
+
+
+
+// ERROR
+
 export const showErrorUserLoading = () => {
   showError(
     "error",
@@ -50,6 +68,14 @@ export const showErrorUnabletoStream = () => {
     "error",
     "Error",
     "An error occured. Unable to stream.",
+  );
+}
+
+export const showErrorSendingMessage = () => {
+  showError(
+    "error",
+    "Error",
+    "An error occured while sending message.",
   );
 }
 

@@ -169,3 +169,36 @@ export const getChannels = async (accessToken: string, slugs?: string[]): Promis
 		throw err;
 	}
 };
+
+export const postMessage = async (
+	accessToken: string,
+	userId: string,
+	content: string,
+) => {
+	let url = `${KickApiBaseUrl}/chat`;
+	const data = {
+		broadcaster_user_id: userId,
+		content: content,
+		type: "user"
+	};
+
+
+	try {
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				"Authorization": `Bearer ${accessToken}`,
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(data),
+		});
+
+		if (!response.ok) {
+			throw new Error();
+		}
+
+		return response.json();
+	} catch (err) {
+		throw err;
+	}
+}

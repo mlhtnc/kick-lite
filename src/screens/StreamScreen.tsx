@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Dimensions, TouchableOpacity, Text, BackHandler, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Dimensions, TouchableOpacity, Text, BackHandler, ActivityIndicator, TextInput, TextInputSubmitEditingEvent } from 'react-native';
 import Video, { OnBufferData, VideoRef } from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
 import { Immersive } from 'react-native-immersive';
@@ -7,11 +7,12 @@ import { Immersive } from 'react-native-immersive';
 import { StreamScreenProps } from '../types';
 import { getStreamURL } from '../services/backend_service';
 import { Colors } from '../constants';
-import { showErrorUnabletoStream } from '../alerts/alerts';
+import { showErrorSendingMessage, showErrorUnabletoStream, showSuccessSendingMessage } from '../alerts/alerts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import BasicCircleButton from '../components/buttons/BasicCircleButton';
 import ChannelInfo from '../components/ChannelInfo';
+import { postMessage } from '../services/kick_service';
 
 
 const screenDimensions = Dimensions.get('screen');
@@ -22,6 +23,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const timeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   const [ streamURL, setStreamURL ] = useState<string>("");
+  const [ messageText, setMessageText ] = useState<string>("");
   const [ paused, setPaused ] = useState(false);
   const [ isFullscreen, setIsFullscreen ] = useState(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(screenDimensions);
@@ -99,7 +101,22 @@ export default function StreamScreen({ route }: StreamScreenProps) {
         setShowControl(false);
       }, 3000);
     }
-  } 
+  }
+
+  const handleSendMessage = (e: TextInputSubmitEditingEvent) => {
+    postMessage(
+      tokens.accessToken,
+      channel.id,
+      messageText.substring(0, 500),
+    ).then(() => {
+      // FIXME: Check response
+      showSuccessSendingMessage();
+    }).catch(() => {
+      showErrorSendingMessage();
+    });
+
+    setMessageText("");
+  }
 
 
   const videoWidth = screenSize.width;
@@ -147,8 +164,22 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       </View>
 
       { !isFullscreen &&
-        <ChannelInfo channel={channel} tokens={tokens} />
+        <>
+          <ChannelInfo channel={channel} tokens={tokens} />
+
+          <View style={{ flex: 1, alignSelf: "stretch", justifyContent: "flex-end"}}>
+
+            <TextInput
+              style={styles.searchInput}
+              value={messageText}
+              onChangeText={setMessageText}
+              onSubmitEditing={handleSendMessage}
+            />
+
+          </View>
+        </>
       }
+
     </WrapperView>
   );
 }
@@ -191,5 +222,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0)",
     width: 30,
     height: 30
-  }
+  },
+  searchInput: {
+    height: 50,
+    backgroundColor: Colors.background,
+    borderColor: Colors.border,
+    color: Colors.textSecondary,
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginHorizontal: 20,
+    marginBottom: 10,
+    fontSize: 16,
+    padding: 0,
+  },
 });
