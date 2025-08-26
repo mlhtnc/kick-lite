@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Channel, SearchScreenProps } from '../types';
 import { Colors } from '../constants';
@@ -7,8 +8,6 @@ import BasicCircleButton from '../components/buttons/BasicCircleButton';
 import { getChannels } from '../services/kick_service';
 import { showErrorChannelsLoading } from '../alerts/alerts';
 import { loadChannels, saveChannels } from '../utils/save_utils';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 
 export default function SearchScreen({ navigation, route }: SearchScreenProps) {
@@ -17,8 +16,11 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
 
   const [ searchText, setSearchText ] = useState<string>("");
   const [ resultChannel, setResultChannel ] = useState<Channel>();
+  const [ isSearching, setIsSearching ] = useState<boolean>(true);
 
   const onSearchButtonPressed = () => {
+    setIsSearching(true);
+
     getChannels(tokens.accessToken, [searchText])
     .then(async (channels) => {
       if(channels.length === 1) {
@@ -28,6 +30,8 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
       }
     }).catch(() => {
       showErrorChannelsLoading();
+    }).finally(() => {
+      setIsSearching(false);
     });
   }
 
@@ -58,7 +62,7 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
       
       <View style={styles.resultContainer}>
 
-        { resultChannel ? 
+        { !isSearching && (resultChannel ? 
           <View style={styles.result}>
             <Text style={styles.resultText}>{resultChannel.slug}</Text>
             <BasicCircleButton
@@ -70,7 +74,7 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
           </View>
           :
           <Text style={styles.noResultText}>No Result</Text>
-        }
+        )}
 
       </View>
     </SafeAreaView>
