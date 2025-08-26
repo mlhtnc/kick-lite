@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Dimensions, TouchableOpacity, Text, BackHandler } from 'react-native';
-import Video, { VideoRef } from 'react-native-video';
+import { StyleSheet, View, Dimensions, TouchableOpacity, Text, BackHandler, ActivityIndicator } from 'react-native';
+import Video, { OnBufferData, VideoRef } from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
 import { Immersive } from 'react-native-immersive';
 
@@ -11,6 +11,7 @@ import { showErrorUnabletoStream } from '../alerts/alerts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import BasicCircleButton from '../components/buttons/BasicCircleButton';
+import ChannelInfo from '../components/ChannelInfo';
 
 
 const screenDimensions = Dimensions.get('screen');
@@ -25,8 +26,9 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
   const [ isFullscreen, setIsFullscreen ] = useState(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(screenDimensions);
   const [ showControl, setShowControl ] = useState<boolean>(false);
+  const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false);
 
-  const { channel } = route.params;
+  const { channel, tokens } = route.params;
 
 
   useFocusEffect(
@@ -118,6 +120,9 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
             playInBackground={true}
             playWhenInactive={true}
             paused={paused}
+            onLoadStart={() => setLoadingVideo(true)}
+            onLoad={() => setLoadingVideo(false)}
+            onBuffer={(e: OnBufferData) => setLoadingVideo(e.isBuffering)}
             ignoreSilentSwitch='ignore'
           />
         }
@@ -129,9 +134,21 @@ export default function StreamScreen({ navigation, route }: StreamScreenProps) {
               <BasicCircleButton style={styles.fullscreenButton} iconName='expand-outline' iconSize={30} onPress={toggleFullscreen} />
             </>
           }
-        </TouchableOpacity>
 
+          { /* TODO: Make this component */
+            loadingVideo &&
+            <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+              <ActivityIndicator size={'large'} color={Colors.success} />
+            </View>
+          }
+
+        </TouchableOpacity>
+ 
       </View>
+
+      { !isFullscreen &&
+        <ChannelInfo channel={channel} tokens={tokens} />
+      }
     </WrapperView>
   );
 }
@@ -150,7 +167,7 @@ const styles = StyleSheet.create({
   },
   video: {
     width: '100%',
-    height: '100%'
+    height: '100%',
   },
   controls: {
     position: 'absolute',

@@ -85,6 +85,10 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       initChannels();
   }
 
+  const onRefresh = () => {
+    initChannels();
+  }
+
   const onSearchButtonPressed = () => {
     navigation.navigate(Screens.Search, { tokens, onChannelAdded });
   }
@@ -94,16 +98,10 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     <SafeAreaView style={styles.container}>
       <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed}/>
       
-      { !loading ?
         <View style={styles.listContainer}>
-          <ChannelList channels={channels || []} navigation={navigation} onChannelDelete={onChannelDelete}/>
+          <ChannelList channels={channels || []} tokens={tokens} navigation={navigation} loading={loading} onRefresh={onRefresh} onChannelDelete={onChannelDelete}/>
         </View>
-        :
-        // TODO: Make this component
-        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-          <ActivityIndicator size={'large'} color={Colors.success} />
-        </View>
-      }
+    
     </SafeAreaView>
   );
 }

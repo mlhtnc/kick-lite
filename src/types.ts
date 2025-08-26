@@ -25,7 +25,7 @@ export enum Screens {
 export type RootStackParamList = {
   [Screens.Login]: undefined;
   [Screens.Home]: { tokens: Tokens; };
-  [Screens.Stream]: { channel: Channel };
+  [Screens.Stream]: { tokens: Tokens; channel: Channel };
   [Screens.Search]: { tokens: Tokens; onChannelAdded: () => void };
 };
 
@@ -44,14 +44,23 @@ export interface ScreenHeaderProps {
 
 export interface ChannelListProps {
 	channels: Channel[];
+  tokens: Tokens;
   navigation: AnyNavigationProp;
+  loading: boolean;
+  onRefresh: () => void;
   onChannelDelete: (channel: Channel) => void;
 }
 
 export interface ChannelCardProps {
   channel: Channel;
+  tokens: Tokens;
   navigation: AnyNavigationProp;
   onChannelDelete: (channel: Channel) => void;
+}
+
+export interface ChannelInfoProps {
+  channel: Channel;
+  tokens: Tokens;
 }
 
 export interface BasicCircleButtonProps {

@@ -7,7 +7,7 @@ import BasicButton from './buttons/BasicButton';
 import { useState } from 'react';
 
 
-export default function ChannelCard({ navigation, channel, onChannelDelete }: ChannelCardProps) {
+export default function ChannelCard({ navigation, channel, tokens, onChannelDelete }: ChannelCardProps) {
 
   const [ isDeleteButtonShowing, setIsDeleteButtonShowing ] = useState<boolean>(false);
 
@@ -17,7 +17,7 @@ export default function ChannelCard({ navigation, channel, onChannelDelete }: Ch
       return;
     }
     
-    navigation.navigate(Screens.Stream, { channel: channel })
+    navigation.navigate(Screens.Stream, { channel, tokens })
   }
 
   const handleChannelLongClick = (channel: Channel) => {
@@ -46,18 +46,16 @@ export default function ChannelCard({ navigation, channel, onChannelDelete }: Ch
           style={styles.listItemButton}
           onPress={() => handleChannelClick(channel)}
           onLongPress={() => handleChannelLongClick(channel)}
-          activeOpacity={0.7}
+          activeOpacity={0.8}
         >
           <View style={styles.listItemButtonContainer}>
             <View style={styles.textContainer1}>
               <Text style={styles.nameText}>{channel.name}</Text>
               <Text style={styles.viewerCountText}>{channel.viewerCount > 0 ? viewerCountFormatted : ""}</Text>
-
             </View>
 
             <View style={styles.textContainer2}>
               <Text style={styles.streamTitleText}>{channel.streamTitle}</Text>
-
             </View>
           </View>
         </TouchableOpacity>
