@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import BootSplash from "react-native-bootsplash";
 
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -18,7 +19,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar translucent backgroundColor={"transparent"} barStyle="light-content" />
-      <NavigationContainer>
+      <NavigationContainer onReady={() => BootSplash.hide() } >
         <Stack.Navigator initialRouteName={Screens.Login} screenOptions={{ headerShown: false, animation: 'none' }}>
           <Stack.Screen name={Screens.Login} component={LoginScreen} />
           <Stack.Screen name={Screens.Home} component={HomeScreen} />
