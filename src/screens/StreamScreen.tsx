@@ -178,7 +178,6 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       { !isFullscreen &&
         <>
           <ChannelInfo channel={channel} tokens={tokens} />
-
           <View style={{ flex: 1, alignSelf: "stretch", justifyContent: "flex-end"}}>
 
             <TextInput
