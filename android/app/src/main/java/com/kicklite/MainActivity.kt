@@ -1,5 +1,6 @@
 package com.kicklite
 
+import android.os.Bundle
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -8,6 +9,10 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 // Added for react-native-orientation-locker
 import android.content.Intent
 import android.content.res.Configuration
+
+// Added for react-native-bootsplash
+import com.zoontek.rnbootsplash.RNBootSplash
+
 
 class MainActivity : ReactActivity() {
 
@@ -30,5 +35,11 @@ class MainActivity : ReactActivity() {
       val intent = Intent("onConfigurationChanged")
       intent.putExtra("newConfig", newConfig)
       sendBroadcast(intent)
+  }
+
+  // Added for react-native-bootsplash
+  override fun onCreate(savedInstanceState: Bundle?) {
+    RNBootSplash.init(this, R.style.BootTheme)
+    super.onCreate(null) // super.onCreate(null) with react-native-screens
   }
 }
