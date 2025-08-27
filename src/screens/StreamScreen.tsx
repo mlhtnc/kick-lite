@@ -1,15 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Dimensions, TouchableOpacity, Text, BackHandler, ActivityIndicator, TextInput, TextInputSubmitEditingEvent } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  BackHandler,
+  ActivityIndicator,
+  TextInput,
+  TextInputSubmitEditingEvent,
+  StatusBar
+} from 'react-native';
 import Video, { OnBufferData, VideoRef } from 'react-native-video';
+import { useFocusEffect } from '@react-navigation/native';
 import Orientation from 'react-native-orientation-locker';
 import { Immersive } from 'react-native-immersive';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { StreamScreenProps } from '../types';
 import { getStreamURL } from '../services/backend_service';
 import { Colors } from '../constants';
 import { showErrorSendingMessage, showErrorUnabletoStream, showSuccessSendingMessage } from '../alerts/alerts';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
 import BasicCircleButton from '../components/buttons/BasicCircleButton';
 import ChannelInfo from '../components/ChannelInfo';
 import { postMessage } from '../services/kick_service';
@@ -80,9 +90,11 @@ export default function StreamScreen({ route }: StreamScreenProps) {
     if (isFullscreen) {
       Immersive.off();
       Orientation.lockToPortrait();
+      StatusBar.setHidden(false);
     } else {
       Immersive.on();
       Orientation.lockToLandscape();
+      StatusBar.setHidden(true);
     }
     setIsFullscreen((prevIsFullscreen) => !prevIsFullscreen);
   }
