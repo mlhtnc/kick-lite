@@ -88,11 +88,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignContent: "space-between",
-    alignItems: "stretch"
+    alignItems: "stretch",
+
   },
   textContainer2: {
-    flex: 1,
+    flex: 2,
     justifyContent: 'flex-start',
   },
   nameText: {
