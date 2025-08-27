@@ -1,19 +1,21 @@
 import Toast from "react-native-toast-message";
 
 
-const showError = (type: string, text1: string, text2: string) => {
-  Toast.show({ type, text1, text2 });
+const showSuccess = (text1: string, text2: string) => {
+  Toast.show({ type: "success", text1, text2 });
+
+}
+
+const showError = (text1: string, text2: string) => {
+  Toast.show({ type: "error", text1, text2 });
 }
 
 
 
 // SUCCESS
 
-
-// FIXME: 
 export const showSuccessSendingMessage = () => {
-  showError(
-    "success",
+  showSuccess(
     "Success",
     "Message sent.",
   );
@@ -25,7 +27,6 @@ export const showSuccessSendingMessage = () => {
 
 export const showErrorUserLoading = () => {
   showError(
-    "error",
     "Error",
     "An error occured while loading user info."
   );
@@ -33,7 +34,6 @@ export const showErrorUserLoading = () => {
 
 export const showErrorChannelsLoading = () => {
   showError(
-    "error",
     "Error",
     "An error occured while loading channels."
   );
@@ -41,7 +41,6 @@ export const showErrorChannelsLoading = () => {
 
 export const showErrorRefreshingAccessToken = () => {
   showError(
-    "error",
     "Error",
     "An error occured while refreshing access token.",
   );
@@ -49,7 +48,6 @@ export const showErrorRefreshingAccessToken = () => {
 
 export const showErrorValidatingAccessToken = () => {
   showError(
-    "error",
     "Error",
     "An error occured while validating access token.",
   );
@@ -57,7 +55,6 @@ export const showErrorValidatingAccessToken = () => {
 
 export const showErrorRequestingAccessToken = () => {
   showError(
-    "error",
     "Error",
     "An error occured while requesting access token.",
   );
@@ -65,7 +62,6 @@ export const showErrorRequestingAccessToken = () => {
 
 export const showErrorUnabletoStream = () => {
   showError(
-    "error",
     "Error",
     "An error occured. Unable to stream.",
   );
@@ -73,7 +69,6 @@ export const showErrorUnabletoStream = () => {
 
 export const showErrorSendingMessage = () => {
   showError(
-    "error",
     "Error",
     "An error occured while sending message.",
   );
