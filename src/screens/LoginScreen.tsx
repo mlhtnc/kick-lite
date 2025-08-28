@@ -121,7 +121,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   if (!authUrl) {
     return (
       <SafeAreaView style={styles.safeAreaContainer}>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={ -100 }>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} >
           <View style={styles.container}>
 
           { loading ? null :
