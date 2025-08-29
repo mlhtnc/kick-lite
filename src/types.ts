@@ -74,7 +74,12 @@ export interface StreamOverlayProps {
   setIsFullscreen: Dispatch<SetStateAction<boolean>>;
 }
 
-export interface ChannelInfoProps {
+export interface StreamInfoProps {
+  channel: Channel;
+  tokens: Tokens;
+}
+
+export interface ChatInputProps {
   channel: Channel;
   tokens: Tokens;
 }

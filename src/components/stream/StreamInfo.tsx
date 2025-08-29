@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Colors } from '../constants';
-import { Channel, ChannelInfoProps } from '../types';
-import { formatViewerCount } from '../helpers/helpers';
-import { getChannels } from '../services/kick_service';
+import { Colors } from '../../constants';
+import { StreamInfoProps } from '../../types';
+import { formatViewerCount } from '../../helpers/helpers';
+import { getChannels } from '../../services/kick_service';
 
 
-export default function ChannelInfo({ channel, tokens }: ChannelInfoProps) {
+export default function StreamInfo({ channel, tokens }: StreamInfoProps) {
 
   const [ viewerCount, setViewerCount ] = useState<number>(channel.viewerCount);
 

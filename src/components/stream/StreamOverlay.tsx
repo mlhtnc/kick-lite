@@ -10,9 +10,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import Orientation from 'react-native-orientation-locker';
 import { Immersive } from 'react-native-immersive';
 
-import { StreamOverlayHandles, StreamOverlayProps } from '../types';
-import { Colors } from '../constants';
-import BasicCircleButton from '../components/buttons/BasicCircleButton';
+import { StreamOverlayHandles, StreamOverlayProps } from '../../types';
+import { Colors } from '../../constants';
+import BasicCircleButton from '../buttons/BasicCircleButton';
 
 
 function StreamOverlay(props: StreamOverlayProps, ref: ForwardedRef<StreamOverlayHandles>) {

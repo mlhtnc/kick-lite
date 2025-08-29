@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import Video, { OnBufferData } from 'react-native-video';
 
-import { StreamPlayerProps } from '../types';
+import { StreamPlayerProps } from '../../types';
 
 
 export default function StreamPlayer({ streamURL, paused, setLoadingVideo }: StreamPlayerProps) {
