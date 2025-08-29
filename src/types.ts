@@ -1,4 +1,5 @@
 import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Dispatch, SetStateAction } from "react";
 import { ColorValue, GestureResponderEvent, TextStyle, ViewStyle } from "react-native";
 
 
@@ -58,6 +59,21 @@ export interface ChannelCardProps {
   onChannelDelete: (channel: Channel) => void;
 }
 
+export interface StreamPlayerProps {
+  streamURL: string;
+  paused: boolean;
+  setLoadingVideo: (isLoading: boolean) => void;
+}
+
+export interface StreamOverlayProps {
+  isStreamReady: boolean;
+  isLoading: boolean;
+  paused: boolean;
+  isFullscreen: boolean;
+  setPaused: (paused: boolean) => void;
+  setIsFullscreen: Dispatch<SetStateAction<boolean>>;
+}
+
 export interface ChannelInfoProps {
   channel: Channel;
   tokens: Tokens;
@@ -99,4 +115,8 @@ export interface Channel {
 export interface User {
   id: string;
   name: string;
+}
+
+export interface StreamOverlayHandles {
+  toggleFullscreen: () => void;
 }
