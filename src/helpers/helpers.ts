@@ -1,3 +1,4 @@
+import { KeyboardAvoidingViewProps, Platform } from "react-native";
 
 export const formatViewerCount = (count: number): string => {
 	if (count < 1000) return count.toString();
@@ -12,3 +13,5 @@ export const formatViewerCount = (count: number): string => {
 
 	return count.toExponential(1);
 }
+
+export const GlobalKAVBehaviour: KeyboardAvoidingViewProps['behavior'] = Platform.OS === "ios" ? "padding" : "height";
