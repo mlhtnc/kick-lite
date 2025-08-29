@@ -8,13 +8,17 @@ import {
   ActivityIndicator,
   TextInput,
   TextInputSubmitEditingEvent,
-  StatusBar
+  StatusBar,
+  KeyboardAvoidingView,
+  Keyboard,
+  Platform
 } from 'react-native';
 import Video, { OnBufferData, VideoRef } from 'react-native-video';
 import { useFocusEffect } from '@react-navigation/native';
 import Orientation from 'react-native-orientation-locker';
 import { Immersive } from 'react-native-immersive';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StreamScreenProps } from '../types';
 import { getStreamURL } from '../services/backend_service';
@@ -39,8 +43,25 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(screenDimensions);
   const [ showControl, setShowControl ] = useState<boolean>(false);
   const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false);
+  const [ offset, setOffset ] = useState<number>(0);
 
   const { channel, tokens } = route.params;
+
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => setOffset(0));
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => setOffset(-insets.top));
+    const dimensionSubscription = Dimensions.addEventListener('change', ({ screen }) => setScreenSize(screen));
+
+    fetchStreamURL();
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+      dimensionSubscription?.remove();
+    };
+  }, []);
 
 
   useFocusEffect(
@@ -62,16 +83,6 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       return () => subscription.remove();
     }, [isFullscreen])
   );
-
-  useEffect(() => {
-    fetchStreamURL();
-
-    const subscription = Dimensions.addEventListener('change', ({ screen }) => {
-      setScreenSize(screen);
-    });
-
-    return () => subscription?.remove();
-  }, []);
 
   const fetchStreamURL = () => {
     getStreamURL(channel.slug)
@@ -136,8 +147,11 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const WrapperView = isFullscreen ? View : SafeAreaView;
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
 
+
   return (
-    <WrapperView style={styles.container}>
+    <WrapperView style={styles.container} >
+      <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={offset} >
+
       <View style={[ styles.videoContainer, { width: videoWidth, height: videoHeight }]}>
       
         { streamURL !== "" &&
@@ -190,7 +204,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
           </View>
         </>
       }
-
+      </KeyboardAvoidingView>
     </WrapperView>
   );
 }
@@ -199,8 +213,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
 		backgroundColor: Colors.background,
-    justifyContent: "flex-start",
-    alignItems: "center"
+
   },
   videoContainer: {
     backgroundColor: Colors.background,
