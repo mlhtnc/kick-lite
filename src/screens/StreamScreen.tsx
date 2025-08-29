@@ -178,12 +178,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
             </>
           }
 
-          { /* TODO: Make this component */
-            loadingVideo || streamURL === "" &&
-            <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-              <ActivityIndicator size={'large'} color={Colors.success} />
-            </View>
-          }
+          { loadingVideo || streamURL === "" && <ActivityIndicator size={'large'} color={Colors.success} /> }
 
         </TouchableOpacity>
  
