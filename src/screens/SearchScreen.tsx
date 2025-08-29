@@ -12,11 +12,12 @@ import { loadChannels, saveChannels } from '../utils/save_utils';
 
 export default function SearchScreen({ navigation, route }: SearchScreenProps) {
 
-  const { tokens, onChannelAdded } = route.params;
-
   const [ searchText, setSearchText ] = useState<string>("");
   const [ resultChannel, setResultChannel ] = useState<Channel>();
   const [ isSearching, setIsSearching ] = useState<boolean>(true);
+  
+  const { tokens, onChannelAdded } = route.params;
+
 
   const onSearchButtonPressed = () => {
     setIsSearching(true);
@@ -54,6 +55,7 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={onSearchButtonPressed}
+            autoFocus
           />
               
           <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='search' iconSize={24} onPress={onSearchButtonPressed}></BasicCircleButton>
