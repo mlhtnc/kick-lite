@@ -34,7 +34,6 @@ export default function ChatInput({ channel, tokens }: ChatInputProps) {
       value={messageText}
       onChangeText={setMessageText}
       onSubmitEditing={handleSendMessage}
-      secureTextEntry
     />
   );
 }
