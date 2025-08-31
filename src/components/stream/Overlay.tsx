@@ -1,32 +1,23 @@
-import { ForwardedRef, forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
   BackHandler,
   ActivityIndicator,
-  StatusBar,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import Orientation from 'react-native-orientation-locker';
-import { Immersive } from 'react-native-immersive';
 
-import { StreamOverlayHandles, StreamOverlayProps } from '../../types';
+import { OverlayProps } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
 
 
-function StreamOverlay(props: StreamOverlayProps, ref: ForwardedRef<StreamOverlayHandles>) {
+export default function Overlay({actions, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
   
   const timeoutRef = useRef<NodeJS.Timeout>(null);
 
   const [ showControl, setShowControl ] = useState<boolean>(false);
-
-  const { isStreamReady, isLoading, paused, isFullscreen, setPaused, setIsFullscreen }: StreamOverlayProps = props;
-
   
-  useImperativeHandle(ref, () =>({
-    toggleFullscreen
-  }))
 
   useFocusEffect(
     useCallback(() => {
@@ -45,20 +36,19 @@ function StreamOverlay(props: StreamOverlayProps, ref: ForwardedRef<StreamOverla
   );
 
   const togglePlayPause = () => {
-    setPaused(!paused);
+    if(paused) {
+      actions.play();
+    } else {
+      actions.pause();
+    }
   }
 
   const toggleFullscreen = () => {
     if (isFullscreen) {
-      Immersive.off();
-      Orientation.lockToPortrait();
-      StatusBar.setHidden(false);
+      actions.exitFullscreen();
     } else {
-      Immersive.on();
-      Orientation.lockToLandscape();
-      StatusBar.setHidden(true);
+      actions.enterFullscreen();
     }
-    setIsFullscreen((prevIsFullscreen) => !prevIsFullscreen);
   }
 
   const onControllersPressed = () => {
@@ -122,6 +112,3 @@ const styles = StyleSheet.create({
     height: 30
   },
 });
-
-
-export default forwardRef(StreamOverlay);
