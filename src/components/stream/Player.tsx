@@ -9,7 +9,7 @@ import { PlayerProps } from '../../types';
 import Overlay from './Overlay';
 
 
-export default function Player({ streamURL, isFullscreen, isStreamReady, setIsFullscreen }: PlayerProps) {
+export default function Player({ streamURL, startTime, isFullscreen, isStreamReady, setIsFullscreen }: PlayerProps) {
 
   const videoViewRef =  React.useRef<VideoViewRef>(null);
 
@@ -82,6 +82,7 @@ export default function Player({ streamURL, isFullscreen, isStreamReady, setIsFu
       />
       <Overlay
         actions={overlayActions}
+        startTime={startTime}
         isStreamReady={isStreamReady}
         isLoading={loadingVideo}
         paused={paused}
