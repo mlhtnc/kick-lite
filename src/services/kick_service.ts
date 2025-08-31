@@ -160,6 +160,7 @@ export const getChannels = async (accessToken: string, slugs?: string[]): Promis
 				isLive: data.stream.is_live,
 				viewerCount: data.stream.viewer_count,
 				streamTitle: data.stream_title,
+				startTime: data.stream.start_time
 			}
 
 			return channel;

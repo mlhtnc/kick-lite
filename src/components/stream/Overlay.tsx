@@ -4,20 +4,24 @@ import {
   TouchableOpacity,
   BackHandler,
   ActivityIndicator,
+  Text,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { OverlayProps } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
+import { convertMillisecondsToTime } from '../../helpers/helpers';
 
 
-export default function Overlay({actions, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
+export default function Overlay({actions, startTime, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
   
   const timeoutRef = useRef<NodeJS.Timeout>(null);
+  const timerInterval = useRef<NodeJS.Timeout>(null);
 
   const [ showControl, setShowControl ] = useState<boolean>(false);
-  
+  const [ elapsedTime, setElapsedTime ] = useState<string>("");
+
 
   useFocusEffect(
     useCallback(() => {
@@ -53,8 +57,10 @@ export default function Overlay({actions, isStreamReady, isLoading, paused, isFu
 
   const onControllersPressed = () => {
     if(showControl) {
+      stopShowingTime();
       setShowControl(false);
     } else {
+      startShowingTime();
       setShowControl(true);
 
       if(timeoutRef.current) {
@@ -62,14 +68,28 @@ export default function Overlay({actions, isStreamReady, isLoading, paused, isFu
       }
 
       timeoutRef.current = setTimeout(() => {
+        stopShowingTime();
         setShowControl(false);
       }, 3000);
     }
   }
 
+  const startShowingTime = () => {
+    const diffMs = new Date().getTime() - new Date(startTime).getTime();
+    setElapsedTime(convertMillisecondsToTime(diffMs));
+
+    timerInterval.current = setInterval(() => {
+      const diffMs = new Date().getTime() - new Date(startTime).getTime();
+      setElapsedTime(convertMillisecondsToTime(diffMs));
+    }, 500);
+  }
+
+  const stopShowingTime = () => {
+    clearInterval(timerInterval.current || undefined);
+  }
+
   
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
-
 
   return (
     <TouchableOpacity style={styles.controls} onPress={onControllersPressed} activeOpacity={1}>
@@ -77,6 +97,7 @@ export default function Overlay({actions, isStreamReady, isLoading, paused, isFu
         <>
           <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause} />
           <BasicCircleButton style={styles.fullscreenButton} iconName='expand-outline' iconSize={30} onPress={toggleFullscreen} />
+          <Text style={styles.timeText}>{elapsedTime}</Text>
         </>
         : null
       }
@@ -110,5 +131,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0)",
     width: 30,
     height: 30
+  },
+  timeText: {
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    margin: 5,
+    fontSize: 16,
+    color: "#fff"
   },
 });

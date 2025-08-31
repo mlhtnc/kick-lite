@@ -60,7 +60,13 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   return (
     <WrapperView style={styles.container}>
 
-      <Player streamURL={streamURL} isFullscreen={isFullscreen} isStreamReady={isStreamReady} setIsFullscreen={setIsFullscreen}  />
+      <Player
+        streamURL={streamURL}
+        startTime={channel.startTime}
+        isFullscreen={isFullscreen}
+        isStreamReady={isStreamReady}
+        setIsFullscreen={setIsFullscreen}
+      />
 
       { !isFullscreen &&
         <KeyboardAvoidingView style={{flex: 1}} behavior={GlobalKAVBehaviour} keyboardVerticalOffset={offset}>
