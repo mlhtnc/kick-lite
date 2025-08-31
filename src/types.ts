@@ -59,19 +59,26 @@ export interface ChannelCardProps {
   onChannelDelete: (channel: Channel) => void;
 }
 
-export interface StreamPlayerProps {
+export interface PlayerProps {
   streamURL: string;
-  paused: boolean;
-  setLoadingVideo: (isLoading: boolean) => void;
+  isFullscreen: boolean;
+  isStreamReady: boolean;
+  setIsFullscreen: (fullscreen: boolean) => void;
 }
 
-export interface StreamOverlayProps {
+export interface OverlayProps {
+  actions: OverlayActions;
   isStreamReady: boolean;
   isLoading: boolean;
   paused: boolean;
   isFullscreen: boolean;
-  setPaused: (paused: boolean) => void;
-  setIsFullscreen: Dispatch<SetStateAction<boolean>>;
+}
+
+export interface OverlayActions {
+  play: () => void;
+  pause: () => void;
+  enterFullscreen: () => void;
+  exitFullscreen: () => void;
 }
 
 export interface StreamInfoProps {
@@ -120,8 +127,4 @@ export interface Channel {
 export interface User {
   id: string;
   name: string;
-}
-
-export interface StreamOverlayHandles {
-  toggleFullscreen: () => void;
 }
