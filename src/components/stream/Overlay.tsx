@@ -60,6 +60,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
   const onControllersPressed = () => {
     if(showControl) {
       stopShowingTime();
+      setShowQualityMenu(false);
       setShowControl(false);
     } else {
       startShowingTime();
