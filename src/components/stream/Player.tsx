@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { AppState, Dimensions, StyleSheet, View } from 'react-native';
-import { useVideoPlayer, VideoView, VideoViewRef } from 'react-native-video';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Dimensions, StatusBar, StyleSheet, View } from 'react-native';
+import Video, { OnBufferData, VideoRef } from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
 
 import { Colors } from '../../constants';
@@ -11,25 +11,13 @@ import Overlay from './Overlay';
 
 export default function Player({ streamURLs, startTime, isFullscreen, isStreamReady, setIsFullscreen }: PlayerProps) {
 
-  const videoViewRef =  React.useRef<VideoViewRef>(null);
+  const videoRef = useRef<VideoRef>(null);
 
   const [ streamURL, setStreamURL ] = useState<string>("");
   const [ paused, setPaused ] = useState(false);
   const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
 
-
-  const player = useVideoPlayer(streamURL, (_player) => {
-    _player.onLoadStart = () => setLoadingVideo(true);
-    _player.onLoad = () => setLoadingVideo(false);
-    _player.onBuffer = (buffering: boolean) => setLoadingVideo(buffering);
-
-    _player.playInBackground = true;
-    _player.playWhenInactive = true;
-    _player.ignoreSilentSwitchMode = 'ignore';
-
-    _player.play();
-  });
 
   useEffect(() => {
     const dimensionSubscription = Dimensions.addEventListener('change', ({ screen }) => setScreenSize(screen));
@@ -52,24 +40,24 @@ export default function Player({ streamURLs, startTime, isFullscreen, isStreamRe
 
 
   const play = () => {
-    player.play();
     setPaused(false);
   }
 
   const pause = () => {
-    player.pause();
     setPaused(true);
   }
 
   const enterFullscreen = () => {
-    videoViewRef.current?.enterFullscreen();
+    videoRef.current?.presentFullscreenPlayer();
     Orientation.lockToLandscapeLeft();
+    StatusBar.setHidden(true);
     setIsFullscreen(true);
   }
 
   const exitFullscreen = () => {
-    videoViewRef.current?.exitFullscreen();
+    videoRef.current?.dismissFullscreenPlayer();
     Orientation.lockToPortrait();
+    StatusBar.setHidden(false);
     setIsFullscreen(false);
   }
 
@@ -83,12 +71,18 @@ export default function Player({ streamURLs, startTime, isFullscreen, isStreamRe
 
   return (
     <View style={[ styles.videoContainer, { width: videoWidth, height: videoHeight }]}>
-      <VideoView
-        ref={videoViewRef}
+      <Video
+        source={{ uri: streamURL }}
         style={styles.video}
-        player={player}
-        controls={false}
         resizeMode='contain'
+        playInBackground={true}
+        playWhenInactive={true}
+        enterPictureInPictureOnLeave={true}
+        paused={paused}
+        onLoadStart={() => setLoadingVideo(true)}
+        onLoad={() => setLoadingVideo(false)}
+        onBuffer={(e: OnBufferData) => setLoadingVideo(e.isBuffering)}
+        ignoreSilentSwitch='ignore'
       />
       <Overlay
         actions={overlayActions}
