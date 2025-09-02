@@ -15,13 +15,15 @@ import BasicCircleButton from '../buttons/BasicCircleButton';
 import { convertMillisecondsToTime } from '../../helpers/helpers';
 
 
-export default function Overlay({actions, streamURLs, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
+export default function Overlay({actions, streamURLs, startTime, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
   
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
 
   const [ showControl, setShowControl ] = useState<boolean>(false);
   const [ showQualityMenu, setShowQualityMenu ] = useState<boolean>(false);
+  const [ elapsedTime, setElapsedTime ] = useState<string>("");
+
 
   useFocusEffect(
     useCallback(() => {
@@ -74,6 +76,20 @@ export default function Overlay({actions, streamURLs, isStreamReady, isLoading, 
     }
   }
 
+  const startShowingTime = () => {
+    const diffMs = new Date().getTime() - new Date(startTime).getTime();
+    setElapsedTime(convertMillisecondsToTime(diffMs));
+
+    timerInterval.current = setInterval(() => {
+      const diffMs = new Date().getTime() - new Date(startTime).getTime();
+      setElapsedTime(convertMillisecondsToTime(diffMs));
+    }, 500);
+  }
+
+  const stopShowingTime = () => {
+    clearInterval(timerInterval.current || undefined);
+  }
+
   const showQualityOptions = () => {
     setShowQualityMenu(true);
     clearTimeout(timeoutRef.current || undefined);
@@ -107,7 +123,9 @@ export default function Overlay({actions, streamURLs, isStreamReady, isLoading, 
                 </TouchableOpacity>
               ))}
             </View>
-          )}  
+          )}
+
+          <Text style={styles.timeText}>{elapsedTime}</Text>
 
         </>
         : null
@@ -165,5 +183,13 @@ const styles = StyleSheet.create({
   },
   qualityOption: {
     padding: 5,
-  }
+  },
+  timeText: {
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    margin: 5,
+    fontSize: 16,
+    color: "#fff"
+  },
 });

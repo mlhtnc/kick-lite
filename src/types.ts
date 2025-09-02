@@ -61,6 +61,7 @@ export interface ChannelCardProps {
 
 export interface PlayerProps {
   streamURLs: StreamURL[] | undefined;
+  startTime: string;
   isFullscreen: boolean;
   isStreamReady: boolean;
   setIsFullscreen: (fullscreen: boolean) => void;
@@ -69,6 +70,7 @@ export interface PlayerProps {
 export interface OverlayProps {
   actions: OverlayActions;
   streamURLs: StreamURL[] | undefined;
+  startTime: string;
   isStreamReady: boolean;
   isLoading: boolean;
   paused: boolean;
