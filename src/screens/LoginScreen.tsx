@@ -62,7 +62,6 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   }
 
   const onLoginButtonClicked = async () => {
-    // FIXME: Validate client info properly
     if (clientId === "" || clientSecret === "") {
       return;
     }

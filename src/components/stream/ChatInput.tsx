@@ -18,7 +18,6 @@ export default function ChatInput({ channel, tokens }: ChatInputProps) {
       channel.id,
       messageText.substring(0, 500),
     ).then(() => {
-      // FIXME: Check response
       showSuccessSendingMessage();
     }).catch(() => {
       showErrorSendingMessage();
