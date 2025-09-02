@@ -19,7 +19,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [ authUrl, setAuthUrl ] = useState<string | null>(null);
   const [ pkce, setPkce ] = useState<PKCE>();
   const [ loading, setLoading ] = useState<boolean>(true);
-  
+  const [ tokenHandled, setTokenHandled ] = useState<boolean>(false);
+
 
   useEffect(() => {
     auth();
@@ -93,8 +94,14 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
   const handleNavigationChange = async (navState: WebViewNavigation) => {
     const url = navState.url;
-  
+
+    if(tokenHandled) {
+      return;
+    }
+
     if(url.includes(KickRedirectUri)) {
+      setTokenHandled(true);
+
       const codeParam = url.split('code=')[1];
       const code = codeParam ? codeParam.split('&')[0] : null;
 
