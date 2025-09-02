@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { AppState, Dimensions, StyleSheet, View } from 'react-native';
 import { useVideoPlayer, VideoView, VideoViewRef } from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
 
 import { Colors } from '../../constants';
 import useOverrideBackPress from '../hooks/useOverrideBackPress';
-import { PlayerProps } from '../../types';
+import { PlayerProps, StreamURL } from '../../types';
 import Overlay from './Overlay';
 
 
-export default function Player({ streamURL, isFullscreen, isStreamReady, setIsFullscreen }: PlayerProps) {
+export default function Player({ streamURLs, isFullscreen, isStreamReady, setIsFullscreen }: PlayerProps) {
 
   const videoViewRef =  React.useRef<VideoViewRef>(null);
 
+  const [ streamURL, setStreamURL ] = useState<string>("");
   const [ paused, setPaused ] = useState(false);
   const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
@@ -34,6 +35,12 @@ export default function Player({ streamURL, isFullscreen, isStreamReady, setIsFu
     const dimensionSubscription = Dimensions.addEventListener('change', ({ screen }) => setScreenSize(screen));
     return () => dimensionSubscription?.remove();
   }, []);
+
+  useEffect(() => {
+    if(streamURLs) {
+      setStreamURL(streamURLs[0].url);
+    }
+  }, [streamURLs]);
 
   useOverrideBackPress(useCallback(() => {
     if (isFullscreen) {
@@ -66,7 +73,11 @@ export default function Player({ streamURL, isFullscreen, isStreamReady, setIsFu
     setIsFullscreen(false);
   }
 
-  const overlayActions = { play, pause, enterFullscreen, exitFullscreen };
+  const onQualityChanged = (quality: StreamURL) => {
+    setStreamURL(quality.url);
+  }
+
+  const overlayActions = { play, pause, enterFullscreen, exitFullscreen, onQualityChanged };
   const videoWidth = screenSize.width;
   const videoHeight = isFullscreen ? screenSize.height : (videoWidth * 9) / 16;
 
@@ -77,11 +88,11 @@ export default function Player({ streamURL, isFullscreen, isStreamReady, setIsFu
         style={styles.video}
         player={player}
         controls={false}
-        autoEnterPictureInPicture={true}
         resizeMode='contain'
       />
       <Overlay
         actions={overlayActions}
+        streamURLs={streamURLs}
         isStreamReady={isStreamReady}
         isLoading={loadingVideo}
         paused={paused}

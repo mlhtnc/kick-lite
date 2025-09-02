@@ -4,20 +4,22 @@ import {
   TouchableOpacity,
   BackHandler,
   ActivityIndicator,
+  View,
+  Text,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { OverlayProps } from '../../types';
+import { OverlayProps, StreamURL } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
 
 
-export default function Overlay({actions, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
+export default function Overlay({actions, streamURLs, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
   
   const timeoutRef = useRef<NodeJS.Timeout>(null);
 
   const [ showControl, setShowControl ] = useState<boolean>(false);
-  
+  const [ showQualityMenu, setShowQualityMenu ] = useState<boolean>(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -67,6 +69,17 @@ export default function Overlay({actions, isStreamReady, isLoading, paused, isFu
     }
   }
 
+  const showQualityOptions = () => {
+    setShowQualityMenu(true);
+    clearTimeout(timeoutRef.current || undefined);
+  }
+
+  const selectQuality = (quality: StreamURL) => {
+    actions.onQualityChanged(quality);
+    setShowQualityMenu(false);
+    setShowControl(false);
+  }
+
   
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
 
@@ -75,8 +88,22 @@ export default function Overlay({actions, isStreamReady, isLoading, paused, isFu
     <TouchableOpacity style={styles.controls} onPress={onControllersPressed} activeOpacity={1}>
       { (isStreamReady && showControl) ?
         <>
-          <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause} />
-          <BasicCircleButton style={styles.fullscreenButton} iconName='expand-outline' iconSize={30} onPress={toggleFullscreen} />
+          <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
+          <BasicCircleButton style={styles.fullscreenButton} iconName='scan-outline' iconSize={25} onPress={toggleFullscreen} />
+          
+          
+          { !showQualityMenu || !streamURLs ? (
+            <BasicCircleButton style={styles.qualityButton} iconName='settings-outline' iconSize={25} onPress={showQualityOptions} />
+          ) : (
+            <View style={styles.qualityMenu}>
+              {streamURLs.map(q => (
+                <TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={styles.qualityOption}>
+                  <Text style={{color:"white"}}>{q.height + "p"}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}  
+
         </>
         : null
       }
@@ -100,7 +127,9 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0)"
   },
   playPauseButton: {
-    backgroundColor: "rgba(0,0,0,0)"
+    width: 40,
+    height: 40,
+    backgroundColor: "rgba(0,0,0,0)",
   },
   fullscreenButton: {
     position: 'absolute',
@@ -108,7 +137,28 @@ const styles = StyleSheet.create({
     right: 0,
     margin: 5,
     backgroundColor: "rgba(0,0,0,0)",
-    width: 30,
-    height: 30
+    width: 25,
+    height: 25
   },
+  qualityButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    margin: 5,
+    backgroundColor: "rgba(0,0,0,0)",
+    width: 25,
+    height: 25
+  },
+  qualityMenu: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    margin: 5,
+    backgroundColor: "rgba(0,0,0,0.8)",
+    borderRadius: 5,
+    padding: 5,
+  },
+  qualityOption: {
+    padding: 5,
+  }
 });
