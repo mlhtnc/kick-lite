@@ -8,20 +8,20 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { StreamScreenProps } from '../types';
-import { getStreamURL } from '../services/backend_service';
+import { StreamScreenProps, StreamURL } from '../types';
+import { getStreamURLs } from '../services/backend_service';
 import { Colors } from '../constants';
 import { showErrorUnabletoStream } from '../alerts/alerts';
-import StreamInfo from '../components/stream/StreamInfo';
 import ChatInput from '../components/stream/ChatInput';
 import ChatFeed from '../components/stream/ChatFeed';
 import { GlobalKAVBehaviour } from '../helpers/helpers';
 import Player from '../components/stream/Player';
+import StreamInfo from '../components/stream/StreamInfo';
 
 
 export default function StreamScreen({ route }: StreamScreenProps) {
   
-  const [ streamURL, setStreamURL ] = useState<string>("");
+  const [ streamURLs, setStreamURLs ] = useState<StreamURL[]>();
   const [ offset, setOffset ] = useState<number>(0);
   const [ isFullscreen, setIsFullscreen ] = useState(false);
   const [ isStreamReady, setIsStreamReady ] = useState<boolean>(false);
@@ -45,9 +45,11 @@ export default function StreamScreen({ route }: StreamScreenProps) {
 
 
   const fetchStreamURL = () => {
-    getStreamURL(channel.slug)
+    getStreamURLs(channel.slug)
     .then((res) => {
-      setStreamURL(res.streamURL);
+      const sortedURLs = res.sort((a: StreamURL, b: StreamURL) => b.height - a.height);
+
+      setStreamURLs(sortedURLs);
       setIsStreamReady(true);
     }).catch(() => {
       showErrorUnabletoStream();
@@ -60,13 +62,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   return (
     <WrapperView style={styles.container}>
 
-      <Player
-        streamURL={streamURL}
-        startTime={channel.startTime}
-        isFullscreen={isFullscreen}
-        isStreamReady={isStreamReady}
-        setIsFullscreen={setIsFullscreen}
-      />
+      <Player streamURLs={streamURLs} isFullscreen={isFullscreen} isStreamReady={isStreamReady} setIsFullscreen={setIsFullscreen}  />
 
       { !isFullscreen &&
         <KeyboardAvoidingView style={{flex: 1}} behavior={GlobalKAVBehaviour} keyboardVerticalOffset={offset}>

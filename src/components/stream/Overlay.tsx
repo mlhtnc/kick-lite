@@ -4,24 +4,24 @@ import {
   TouchableOpacity,
   BackHandler,
   ActivityIndicator,
+  View,
   Text,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { OverlayProps } from '../../types';
+import { OverlayProps, StreamURL } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
 import { convertMillisecondsToTime } from '../../helpers/helpers';
 
 
-export default function Overlay({actions, startTime, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
+export default function Overlay({actions, streamURLs, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
   
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
 
   const [ showControl, setShowControl ] = useState<boolean>(false);
-  const [ elapsedTime, setElapsedTime ] = useState<string>("");
-
+  const [ showQualityMenu, setShowQualityMenu ] = useState<boolean>(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -74,18 +74,15 @@ export default function Overlay({actions, startTime, isStreamReady, isLoading, p
     }
   }
 
-  const startShowingTime = () => {
-    const diffMs = new Date().getTime() - new Date(startTime).getTime();
-    setElapsedTime(convertMillisecondsToTime(diffMs));
-
-    timerInterval.current = setInterval(() => {
-      const diffMs = new Date().getTime() - new Date(startTime).getTime();
-      setElapsedTime(convertMillisecondsToTime(diffMs));
-    }, 500);
+  const showQualityOptions = () => {
+    setShowQualityMenu(true);
+    clearTimeout(timeoutRef.current || undefined);
   }
 
-  const stopShowingTime = () => {
-    clearInterval(timerInterval.current || undefined);
+  const selectQuality = (quality: StreamURL) => {
+    actions.onQualityChanged(quality);
+    setShowQualityMenu(false);
+    setShowControl(false);
   }
 
   
@@ -95,9 +92,23 @@ export default function Overlay({actions, startTime, isStreamReady, isLoading, p
     <TouchableOpacity style={styles.controls} onPress={onControllersPressed} activeOpacity={1}>
       { (isStreamReady && showControl) ?
         <>
-          <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause} />
-          <BasicCircleButton style={styles.fullscreenButton} iconName='expand-outline' iconSize={30} onPress={toggleFullscreen} />
-          <Text style={styles.timeText}>{elapsedTime}</Text>
+
+          <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
+          <BasicCircleButton style={styles.fullscreenButton} iconName='scan-outline' iconSize={25} onPress={toggleFullscreen} />
+          
+          
+          { !showQualityMenu || !streamURLs ? (
+            <BasicCircleButton style={styles.qualityButton} iconName='settings-outline' iconSize={25} onPress={showQualityOptions} />
+          ) : (
+            <View style={styles.qualityMenu}>
+              {streamURLs.map(q => (
+                <TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={styles.qualityOption}>
+                  <Text style={{color:"white"}}>{q.height + "p"}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}  
+
         </>
         : null
       }
@@ -121,7 +132,9 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0)"
   },
   playPauseButton: {
-    backgroundColor: "rgba(0,0,0,0)"
+    width: 40,
+    height: 40,
+    backgroundColor: "rgba(0,0,0,0)",
   },
   fullscreenButton: {
     position: 'absolute',
@@ -129,15 +142,28 @@ const styles = StyleSheet.create({
     right: 0,
     margin: 5,
     backgroundColor: "rgba(0,0,0,0)",
-    width: 30,
-    height: 30
+    width: 25,
+    height: 25
   },
-  timeText: {
+  qualityButton: {
     position: 'absolute',
-    left: 0,
-    bottom: 0,
+    top: 0,
+    right: 0,
     margin: 5,
-    fontSize: 16,
-    color: "#fff"
+    backgroundColor: "rgba(0,0,0,0)",
+    width: 25,
+    height: 25
   },
+  qualityMenu: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    margin: 5,
+    backgroundColor: "rgba(0,0,0,0.8)",
+    borderRadius: 5,
+    padding: 5,
+  },
+  qualityOption: {
+    padding: 5,
+  }
 });
