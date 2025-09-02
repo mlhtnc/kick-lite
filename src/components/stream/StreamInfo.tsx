@@ -46,7 +46,7 @@ export default function StreamInfo({ channel, tokens }: StreamInfoProps) {
 
 const styles = StyleSheet.create({
   container: {
-    height: 70,
+    height: 100,
     alignSelf: 'stretch',
     marginHorizontal: 20,
     marginTop: 10
