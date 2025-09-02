@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '../constants';
@@ -25,6 +25,10 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
   const initChannels = async () => {
     const channels = await loadChannels();
+    
+    if(channels.length === 0) {
+      return;
+    }
 
     setLoading(true);
     getChannels(tokens.accessToken, channels.map((ch: Channel) => ch.slug))
