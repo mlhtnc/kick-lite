@@ -12,11 +12,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import { OverlayProps, StreamURL } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
+import { convertMillisecondsToTime } from '../../helpers/helpers';
 
 
 export default function Overlay({actions, streamURLs, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
   
   const timeoutRef = useRef<NodeJS.Timeout>(null);
+  const timerInterval = useRef<NodeJS.Timeout>(null);
 
   const [ showControl, setShowControl ] = useState<boolean>(false);
   const [ showQualityMenu, setShowQualityMenu ] = useState<boolean>(false);
@@ -55,8 +57,10 @@ export default function Overlay({actions, streamURLs, isStreamReady, isLoading, 
 
   const onControllersPressed = () => {
     if(showControl) {
+      stopShowingTime();
       setShowControl(false);
     } else {
+      startShowingTime();
       setShowControl(true);
 
       if(timeoutRef.current) {
@@ -64,6 +68,7 @@ export default function Overlay({actions, streamURLs, isStreamReady, isLoading, 
       }
 
       timeoutRef.current = setTimeout(() => {
+        stopShowingTime();
         setShowControl(false);
       }, 3000);
     }
@@ -83,11 +88,11 @@ export default function Overlay({actions, streamURLs, isStreamReady, isLoading, 
   
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
 
-
   return (
     <TouchableOpacity style={styles.controls} onPress={onControllersPressed} activeOpacity={1}>
       { (isStreamReady && showControl) ?
         <>
+
           <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
           <BasicCircleButton style={styles.fullscreenButton} iconName='scan-outline' iconSize={25} onPress={toggleFullscreen} />
           
