@@ -81,8 +81,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     backgroundColor: Colors.background,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: Colors.success,
     borderRadius: 20
   },
   listItemButton: {
