@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import WebView, { WebViewNavigation } from 'react-native-webview';
 
 import BasicButton from '../components/buttons/BasicButton';
@@ -9,7 +10,8 @@ import { loadClient, loadTokens, saveClient, saveTokens } from '../utils/save_ut
 import { createAuthUrl, generatePKCE } from '../utils/auth_utils';
 import { getToken, isAccessTokenValid, refreshAccessToken } from '../services/kick_service';
 import { showErrorRefreshingAccessToken, showErrorRequestingAccessToken, showErrorValidatingAccessToken } from '../alerts/alerts';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { LoginSuccessful } from '../components/LoginSuccessful';
+import { GlobalKAVBehaviour } from '../helpers/helpers';
 
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
@@ -20,6 +22,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [ pkce, setPkce ] = useState<PKCE>();
   const [ loading, setLoading ] = useState<boolean>(true);
   const [ tokenHandled, setTokenHandled ] = useState<boolean>(false);
+  const [ isAuthDone, setIsAuthDone ] = useState<boolean>(false);
 
 
   useEffect(() => {
@@ -115,19 +118,22 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         pkce?.code_verifier || '',
       ).then(async (tokenResponse) => {
         await handleTokenResponse(tokenResponse);
+        setIsAuthDone(true);
       }).catch(() => {
         showErrorRequestingAccessToken();
+      }).finally(() => {
+        setAuthUrl(null);
       });
-
-      setAuthUrl(null);
     }
   }
 
 
-  if (!authUrl) {
+  if(isAuthDone) {
+    return (<LoginSuccessful />);
+  } else if (!authUrl) {
     return (
       <SafeAreaView style={styles.safeAreaContainer}>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} >
+        <KeyboardAvoidingView style={styles.kav} behavior={GlobalKAVBehaviour} >
           <View style={styles.container}>
 
           { loading ? null :
@@ -177,6 +183,9 @@ const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  kav: {
+    flex: 1
   },
   container: {
     flex: 1,
