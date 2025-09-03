@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Colors } from '../constants';
 import { Channel, ChannelCardProps, Screens } from '../types';
@@ -17,10 +17,10 @@ export default function ChannelCard({ navigation, channel, tokens, onChannelDele
       return;
     }
     
-    navigation.navigate(Screens.Stream, { channel, tokens })
+    navigation.navigate(Screens.Stream, { channel, tokens });
   }
 
-  const handleChannelLongClick = (channel: Channel) => {
+  const handleChannelLongClick = () => {
     setIsDeleteButtonShowing(true);
 
     setTimeout(() => {
@@ -32,7 +32,7 @@ export default function ChannelCard({ navigation, channel, tokens, onChannelDele
   const viewerCountFormatted = formatViewerCount(channel.viewerCount);
   
   return (
-    <View style={styles.listItemContainer}>
+    <View style={[styles.listItemContainer, !channel.isLive ? { borderWidth: 0 } : null ]}>
     
       { isDeleteButtonShowing ?
         <BasicButton
@@ -45,7 +45,7 @@ export default function ChannelCard({ navigation, channel, tokens, onChannelDele
         <TouchableOpacity
           style={styles.listItemButton}
           onPress={() => handleChannelClick(channel)}
-          onLongPress={() => handleChannelLongClick(channel)}
+          onLongPress={handleChannelLongClick}
           activeOpacity={0.8}
         >
           <View style={styles.listItemButtonContainer}>
@@ -57,6 +57,16 @@ export default function ChannelCard({ navigation, channel, tokens, onChannelDele
             <View style={styles.textContainer2}>
               <Text style={styles.streamTitleText}>{channel.streamTitle}</Text>
             </View>
+
+            { channel.thumbnail ?
+                <Image
+                  style={{width: "100%", aspectRatio: 16 / 9, borderBottomRightRadius: 20, borderBottomLeftRadius: 20}}
+                  source={{ uri: `${channel.thumbnail}?t=${Date.now()}` }}
+                  resizeMode='contain'
+                />
+              :
+              null
+            }
           </View>
         </TouchableOpacity>
       }
@@ -69,14 +79,14 @@ const styles = StyleSheet.create({
   listItemContainer: {
     flexDirection: 'row',
     alignSelf: 'stretch',
-    height: 100,
     backgroundColor: Colors.background,
-    marginBottom: 10,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: Colors.success,
+    borderRadius: 20
   },
   listItemButton: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
     justifyContent: 'center',
     backgroundColor: Colors.card,
     borderRadius: 20
@@ -85,15 +95,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   textContainer1: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "stretch",
-
+    paddingHorizontal: 20,
+    paddingTop: 10
   },
   textContainer2: {
-    flex: 2,
     justifyContent: 'flex-start',
+    marginBottom: 15,
+    paddingHorizontal: 20,
   },
   nameText: {
     flex: 5,

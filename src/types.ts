@@ -127,6 +127,7 @@ export interface Channel {
   viewerCount: number;
   streamTitle: string;
   startTime: string;
+  thumbnail: string;
 }
 
 export interface User {
