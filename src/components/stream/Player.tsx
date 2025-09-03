@@ -9,7 +9,7 @@ import { PlayerProps, StreamURL } from '../../types';
 import Overlay from './Overlay';
 
 
-export default function Player({ streamURLs, startTime, isFullscreen, isStreamReady, setIsFullscreen }: PlayerProps) {
+export default function Player({ streamURLs, startTime, selectedQuality, isFullscreen, isStreamReady, setIsFullscreen, setSelectedQuality }: PlayerProps) {
 
   const videoRef = useRef<VideoRef>(null);
 
@@ -25,7 +25,9 @@ export default function Player({ streamURLs, startTime, isFullscreen, isStreamRe
   }, []);
 
   useEffect(() => {
-    if(streamURLs) {
+    if(selectedQuality) {
+      setStreamURL(selectedQuality.url);
+    } else if(streamURLs) {
       setStreamURL(streamURLs[0].url);
     }
   }, [streamURLs]);
@@ -63,6 +65,7 @@ export default function Player({ streamURLs, startTime, isFullscreen, isStreamRe
 
   const onQualityChanged = (quality: StreamURL) => {
     setStreamURL(quality.url);
+    setSelectedQuality(quality);
   }
 
   const overlayActions = { play, pause, enterFullscreen, exitFullscreen, onQualityChanged };

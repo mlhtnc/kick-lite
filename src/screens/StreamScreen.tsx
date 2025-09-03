@@ -25,6 +25,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const [ offset, setOffset ] = useState<number>(0);
   const [ isFullscreen, setIsFullscreen ] = useState(false);
   const [ isStreamReady, setIsStreamReady ] = useState<boolean>(false);
+  const [ selectedQuality, setSelectedQuality ] = useState<StreamURL>();
   
   
   const { channel, tokens } = route.params;
@@ -65,9 +66,11 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       <Player
         streamURLs={streamURLs}
         startTime={channel.startTime}
+        selectedQuality={selectedQuality}
         isFullscreen={isFullscreen}
         isStreamReady={isStreamReady}
         setIsFullscreen={setIsFullscreen}
+        setSelectedQuality={setSelectedQuality}
       />
 
       { !isFullscreen &&

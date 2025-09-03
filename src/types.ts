@@ -62,9 +62,11 @@ export interface ChannelCardProps {
 export interface PlayerProps {
   streamURLs: StreamURL[] | undefined;
   startTime: string;
+  selectedQuality: StreamURL | undefined;
   isFullscreen: boolean;
   isStreamReady: boolean;
   setIsFullscreen: (fullscreen: boolean) => void;
+  setSelectedQuality: Dispatch<SetStateAction<StreamURL | undefined>>;
 }
 
 export interface OverlayProps {
