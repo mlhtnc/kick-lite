@@ -15,7 +15,7 @@ export const Colors: ColorsType = {
 	textSecondary: "#AAAAAA",
 	textAccent: "#53FC18",
 	buttonPrimary: "#007A3D",
-	card: "#222222",
+	card: "#111",
 	success: "#1DB954",
 	error: "#FF5252",
 	border: "#333333",
