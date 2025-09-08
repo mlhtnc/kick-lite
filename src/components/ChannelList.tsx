@@ -20,6 +20,6 @@ export default function ChannelList({ navigation, channels, tokens, loading, onR
 
 const styles = StyleSheet.create({
   listStyle: {
-    padding: 20
+    padding: 25
   }
 });

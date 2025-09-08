@@ -1,10 +1,10 @@
+import { useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Colors } from '../constants';
 import { Channel, ChannelCardProps, Screens } from '../types';
 import { formatViewerCount } from '../helpers/helpers';
 import BasicButton from './buttons/BasicButton';
-import { useState } from 'react';
 
 
 export default function ChannelCard({ navigation, channel, tokens, onChannelDelete }: ChannelCardProps) {
@@ -32,7 +32,7 @@ export default function ChannelCard({ navigation, channel, tokens, onChannelDele
   const viewerCountFormatted = formatViewerCount(channel.viewerCount);
   
   return (
-    <View style={[styles.listItemContainer, !channel.isLive ? { borderWidth: 0 } : null ]}>
+    <View style={styles.listItemContainer}>
     
       { isDeleteButtonShowing ?
         <BasicButton
@@ -49,6 +49,16 @@ export default function ChannelCard({ navigation, channel, tokens, onChannelDele
           activeOpacity={0.8}
         >
           <View style={styles.listItemButtonContainer}>
+            { channel.thumbnail ?
+                <Image
+                  style={styles.image}
+                  source={{ uri: `${channel.thumbnail}?t=${Date.now()}` }}
+                  resizeMode='contain'
+                />
+              :
+              null
+            }
+
             <View style={styles.textContainer1}>
               <Text style={styles.nameText}>{channel.name}</Text>
               <Text style={styles.viewerCountText}>{channel.viewerCount > 0 ? viewerCountFormatted : ""}</Text>
@@ -58,15 +68,6 @@ export default function ChannelCard({ navigation, channel, tokens, onChannelDele
               <Text style={styles.streamTitleText}>{channel.streamTitle}</Text>
             </View>
 
-            { channel.thumbnail ?
-                <Image
-                  style={{width: "100%", aspectRatio: 16 / 9, borderBottomRightRadius: 20, borderBottomLeftRadius: 20}}
-                  source={{ uri: `${channel.thumbnail}?t=${Date.now()}` }}
-                  resizeMode='contain'
-                />
-              :
-              null
-            }
           </View>
         </TouchableOpacity>
       }
@@ -81,13 +82,11 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     backgroundColor: Colors.background,
     marginBottom: 20,
-    borderRadius: 20
   },
   listItemButton: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: Colors.card,
-    borderRadius: 20
+    backgroundColor: Colors.background,
   },
   listItemButtonContainer: {
     flex: 1,
@@ -96,16 +95,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "stretch",
-    paddingHorizontal: 20,
     paddingTop: 10
   },
   textContainer2: {
     justifyContent: 'flex-start',
-    marginBottom: 15,
-    paddingHorizontal: 20,
   },
   nameText: {
-    flex: 5,
+    flex: 4,
     color: Colors.textPrimary,
     fontSize: 18,
   },
@@ -131,5 +127,10 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     fontSize: 24
+  },
+  image: {
+    width: "100%",
+    aspectRatio: 16 / 9,
+    borderRadius: 20
   }
 });
