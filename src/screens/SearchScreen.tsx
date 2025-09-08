@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Channel, SearchScreenProps } from '../types';
@@ -65,15 +65,15 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
       <View style={styles.resultContainer}>
 
         { !isSearching && (resultChannel ? 
-          <View style={styles.result}>
+          <TouchableOpacity style={styles.result} onPress={onAddButtonPressed} activeOpacity={0.7}>
             <Text style={styles.resultText}>{resultChannel.slug}</Text>
             <BasicCircleButton
               style={{backgroundColor: Colors.background}}
               iconName='add-circle-outline'
               iconSize={30}
               iconColor={Colors.textAccent}
-              onPress={onAddButtonPressed} />
-          </View>
+              disabled />
+          </TouchableOpacity>
           :
           <Text style={styles.noResultText}>No Result</Text>
         )}

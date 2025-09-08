@@ -99,7 +99,7 @@ export interface ChatInputProps {
 
 export interface BasicCircleButtonProps {
   style?: ViewStyle;
-  onPress: (event: GestureResponderEvent) => void;
+  onPress?: (event: GestureResponderEvent) => void;
   disabled?: boolean;
   iconName: string;
   iconSize: number;
