@@ -21,6 +21,7 @@ export enum Screens {
 	Home = "HomeScreen",
 	Stream = "StreamScreen",
   Search = "SearchScreen",
+  SleepTimer = "SleepTimerScreen"
 }
 
 export type RootStackParamList = {
@@ -28,12 +29,14 @@ export type RootStackParamList = {
   [Screens.Home]: { tokens: Tokens; };
   [Screens.Stream]: { tokens: Tokens; channel: Channel };
   [Screens.Search]: { tokens: Tokens; onChannelAdded: () => void };
+  [Screens.SleepTimer]: undefined;
 };
 
 export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Home>;
 export type LoginScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Login>;
 export type StreamScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Stream>;
 export type SearchScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Search>;
+export type SleepTimerScreenProps = NativeStackScreenProps<RootStackParamList, Screens.SleepTimer>;
 type AnyNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 
@@ -41,6 +44,7 @@ export interface ScreenHeaderProps {
   title: string;
   titleTextStyle?: TextStyle;
   onSearchButtonPressed?: () => void;
+  onSleepTimerButtonPressed?: () => void;
 }
 
 export interface ChannelListProps {

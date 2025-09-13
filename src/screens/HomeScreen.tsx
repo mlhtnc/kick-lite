@@ -97,10 +97,14 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     navigation.navigate(Screens.Search, { tokens, onChannelAdded });
   }
 
+  const onSleepTimerButtonPressed = () => {
+    navigation.navigate(Screens.SleepTimer);
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed}/>
+      <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed} onSleepTimerButtonPressed={onSleepTimerButtonPressed}/>
       
         <View style={styles.listContainer}>
           <ChannelList channels={channels || []} tokens={tokens} navigation={navigation} loading={loading} onRefresh={onRefresh} onChannelDelete={onChannelDelete}/>

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Client = "client";
 const Tokens = "tokens";
 const Channels = "channels";
+const SleepTime = "sleepTime";
 
 
 export const loadClient = async (): Promise<any> => {
@@ -32,6 +33,14 @@ export const loadChannels = async (): Promise<any> => {
 
 export const saveChannels = async (channels: any): Promise<void> => {
   save(Channels, channels);
+}
+
+export const loadSleepTime = async (): Promise<any> => {
+  return await load(SleepTime);
+}
+
+export const saveSleepTime = async (time: any): Promise<void> => {
+  save(SleepTime, time);
 }
 
 

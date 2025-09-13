@@ -5,17 +5,25 @@ import { Colors } from '../constants';
 import BasicCircleButton from './buttons/BasicCircleButton';
 
 
-export default function ScreenHeader({ title, onSearchButtonPressed }: ScreenHeaderProps) {
+export default function ScreenHeader({ title, onSearchButtonPressed, onSleepTimerButtonPressed }: ScreenHeaderProps) {
 
-  const handleSearchButtonPressed = (event: GestureResponderEvent) => {
+  const handleSearchButtonPressed = (e: GestureResponderEvent) => {
     onSearchButtonPressed?.();
+  }
+
+  const handleSleepTimerButtonPressed = (e: GestureResponderEvent) => {
+    onSleepTimerButtonPressed?.();
   }
 
   return (
     <View style={styles.header}>
       <View style={styles.content}>
         <Text style={styles.text}>{title}</Text>
-        <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='search' iconSize={24} onPress={handleSearchButtonPressed}></BasicCircleButton>
+
+        <View style={{flexDirection: "row"}}>
+          <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='search-outline' iconSize={24} onPress={handleSearchButtonPressed} />
+          <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='moon-outline' iconSize={24} onPress={handleSleepTimerButtonPressed} />
+        </View>
       </View>
     </View>
   );

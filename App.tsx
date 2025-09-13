@@ -8,9 +8,10 @@ import BootSplash from "react-native-bootsplash";
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import StreamScreen from './src/screens/StreamScreen';
+import SearchScreen from './src/screens/SearchScreen';
+import SleepTimerScreen from './src/screens/SleepTimerScreen';
 import { RootStackParamList, Screens } from './src/types';
 import { mainToastConfig } from './src/toast_types/toast_types';
-import SearchScreen from './src/screens/SearchScreen';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -25,6 +26,7 @@ export default function App() {
           <Stack.Screen name={Screens.Home} component={HomeScreen} />
           <Stack.Screen name={Screens.Stream} component={StreamScreen} />
           <Stack.Screen name={Screens.Search} component={SearchScreen} />
+          <Stack.Screen name={Screens.SleepTimer} component={SleepTimerScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast config={mainToastConfig} visibilityTime={5000} swipeable />
