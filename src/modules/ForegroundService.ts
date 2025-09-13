@@ -9,6 +9,9 @@ export default {
   stop: () => {
     ForegroundService.stopService();
   },
+  getRemainingTime: async (): Promise<any> => {
+    return await ForegroundService.getRemainingTime();
+  },
   killApp: () => {
     ForegroundService.killApp();
   }

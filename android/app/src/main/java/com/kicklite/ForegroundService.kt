@@ -17,6 +17,18 @@ import kotlin.system.exitProcess
 
 class ForegroundService : Service() {
 
+    companion object {
+        private var endTime: Long = -1
+
+        fun setEndTime(durationMs: Int) {
+            endTime = System.currentTimeMillis() + durationMs
+        }
+
+        fun getRemainingTime(): Long {
+            return endTime - System.currentTimeMillis()
+        }
+    }
+
     private val CHANNEL_ID = "ForegroundServiceChannel"
 
     private var wakeLock: PowerManager.WakeLock? = null
@@ -50,6 +62,7 @@ class ForegroundService : Service() {
         val durationMs = intent?.getIntExtra("durationMs", -1) ?: -1
 
         if (durationMs != -1) {
+            setEndTime(durationMs)
             handler.postDelayed({
                 killApp()
             }, durationMs.toLong())

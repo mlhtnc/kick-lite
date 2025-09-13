@@ -6,6 +6,7 @@ import android.os.Process
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.Promise
 import kotlin.system.exitProcess
 
 class ForegroundModule(reactContext: ReactApplicationContext) :
@@ -34,6 +35,12 @@ class ForegroundModule(reactContext: ReactApplicationContext) :
         val context = reactApplicationContext
         val intent = Intent(context, ForegroundService::class.java)
         context.stopService(intent)
+    }
+
+    @ReactMethod
+    fun getRemainingTime(promise: Promise) {
+        val remaining = ForegroundService.getRemainingTime()
+        promise.resolve(remaining.toInt())
     }
 
     @ReactMethod
