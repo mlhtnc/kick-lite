@@ -2,9 +2,11 @@ package com.kicklite
 
 import android.content.Intent
 import android.os.Build
+import android.os.Process
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import kotlin.system.exitProcess
 
 class ForegroundModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -32,5 +34,11 @@ class ForegroundModule(reactContext: ReactApplicationContext) :
         val context = reactApplicationContext
         val intent = Intent(context, ForegroundService::class.java)
         context.stopService(intent)
+    }
+
+    @ReactMethod
+    fun killApp() {
+        Process.killProcess(Process.myPid())
+        exitProcess(0)
     }
 }
