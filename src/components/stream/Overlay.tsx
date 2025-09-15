@@ -119,7 +119,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
         <>
           <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
 
-          <LinearGradient style={styles.bottomControls} colors={['#0000', '#000a',]}>
+          <LinearGradient style={styles.bottomControls} colors={['#0000', '#000a']}>
             <View style={styles.bottomControlsContent}>
               <Text style={styles.timeText}>{elapsedTime}</Text>
               <View style={styles.bottomRightControls}>
