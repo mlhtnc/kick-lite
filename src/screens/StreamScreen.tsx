@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   Keyboard,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StreamScreenProps, StreamURL } from '../types';
@@ -58,10 +57,8 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   }
 
 
-  const WrapperView = isFullscreen ? View : SafeAreaView;
-
   return (
-    <WrapperView style={styles.container}>
+    <View style={[styles.container, !isFullscreen ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>
 
       <Player
         streamURLs={streamURLs}
@@ -81,7 +78,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
         </KeyboardAvoidingView>
       }
 
-    </WrapperView>
+    </View>
   );
 }
 

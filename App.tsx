@@ -1,4 +1,4 @@
-import { StatusBar } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,16 +12,29 @@ import SearchScreen from './src/screens/SearchScreen';
 import SleepTimerScreen from './src/screens/SleepTimerScreen';
 import { RootStackParamList, Screens } from './src/types';
 import { mainToastConfig } from './src/toast_types/toast_types';
+import { Colors } from './src/constants';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <StatusBar translucent backgroundColor={"transparent"} barStyle="light-content" />
+    <SafeAreaProvider style={styles.safeAreaProvider}>
+      <StatusBar
+        translucent
+        backgroundColor={"transparent"}
+        barStyle="light-content"
+      />
+
       <NavigationContainer onReady={() => BootSplash.hide() } >
-        <Stack.Navigator initialRouteName={Screens.Login} screenOptions={{ headerShown: false, animation: 'none' }}>
+        <Stack.Navigator
+          initialRouteName={Screens.Login}
+          screenOptions={{
+            contentStyle: styles.contentStyle,
+            headerShown: false,
+            animation: 'none'
+          }}
+        >
           <Stack.Screen name={Screens.Login} component={LoginScreen} />
           <Stack.Screen name={Screens.Home} component={HomeScreen} />
           <Stack.Screen name={Screens.Stream} component={StreamScreen} />
@@ -33,3 +46,12 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  safeAreaProvider: {
+    backgroundColor: Colors.background
+  },
+  contentStyle: {
+    backgroundColor: Colors.background
+  }
+});
