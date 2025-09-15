@@ -131,6 +131,6 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     aspectRatio: 16 / 9,
-    borderRadius: 20
+    borderRadius: 15
   }
 });
