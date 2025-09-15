@@ -38,7 +38,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
       return true;
     }
     return false;
-  }, [isFullscreen]))
+  }, [isFullscreen]));
 
 
   const play = () => {
@@ -75,7 +75,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
   return (
     <View style={[ styles.videoContainer, { width: videoWidth, height: videoHeight }]}>
       <Video
-        source={{ uri: streamURL }}
+        source={ streamURL ? { uri: streamURL } : undefined}
         style={styles.video}
         resizeMode='contain'
         playInBackground={true}
@@ -103,8 +103,6 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
 const styles = StyleSheet.create({
   videoContainer: {
     backgroundColor: Colors.background,
-    justifyContent: "center",
-    alignItems: "center"
   },
   video: {
     width: '100%',

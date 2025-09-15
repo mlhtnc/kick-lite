@@ -73,7 +73,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
       timeoutRef.current = setTimeout(() => {
         stopShowingTime();
         setShowControl(false);
-      }, 3000);
+      }, 5000);
     }
   }
 

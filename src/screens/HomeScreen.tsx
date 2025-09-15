@@ -33,7 +33,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
       const sleepTime = await loadSleepTime();
       if(sleepTime === null) {
-        ForegroundService.start(5 * 1000);
+        ForegroundService.start(5 * 60 * 60 * 1000);
       } else {
         const remainingTime = stopTimer();
         ForegroundService.start(remainingTime);
