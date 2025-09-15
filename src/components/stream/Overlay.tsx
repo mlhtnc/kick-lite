@@ -13,6 +13,7 @@ import { OverlayProps, StreamURL } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
 import { convertMillisecondsToTime } from '../../helpers/helpers';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 export default function Overlay({actions, streamURLs, startTime, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
@@ -91,9 +92,12 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
     clearInterval(timerInterval.current || undefined);
   }
 
-  const showQualityOptions = () => {
-    setShowQualityMenu(true);
-    clearTimeout(timeoutRef.current || undefined);
+  const toggleQualityOptions = () => {
+    if(showQualityMenu) {
+      clearTimeout(timeoutRef.current || undefined);
+    }
+
+    setShowQualityMenu(p => !p);
   }
 
   const selectQuality = (quality: StreamURL) => {
@@ -104,35 +108,43 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
 
   
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
+  const showIndicatorCondition = !isStreamReady || isLoading;
+  const showQualityCondition = showQualityMenu && streamURLs;
+  const showControlCondition = !showIndicatorCondition && isStreamReady && showControl;
 
   return (
     <TouchableOpacity style={styles.controls} onPress={onControllersPressed} activeOpacity={1}>
-      { (isStreamReady && showControl) ?
+      { showControlCondition ?
+      
         <>
-
           <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
-          <BasicCircleButton style={styles.fullscreenButton} iconName='scan-outline' iconSize={25} onPress={toggleFullscreen} />
-          
-          
-          { !showQualityMenu || !streamURLs ? (
-            <BasicCircleButton style={styles.qualityButton} iconName='settings-outline' iconSize={25} onPress={showQualityOptions} />
-          ) : (
-            <View style={styles.qualityMenu}>
-              {streamURLs.map(q => (
-                <TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={styles.qualityOption}>
-                  <Text style={{color:"white"}}>{q.height + "p"}</Text>
-                </TouchableOpacity>
-              ))}
+
+          <LinearGradient style={styles.bottomControls} colors={['#0000', '#000a',]}>
+            <View style={styles.bottomControlsContent}>
+              <Text style={styles.timeText}>{elapsedTime}</Text>
+              <View style={styles.bottomRightControls}>
+                <BasicCircleButton style={styles.qualityButton} iconName='settings-outline' iconSize={25} onPress={toggleQualityOptions} />
+                <BasicCircleButton style={styles.fullscreenButton} iconName='scan-outline' iconSize={25} onPress={toggleFullscreen} />
+              </View>
             </View>
-          )}
-
-          <Text style={styles.timeText}>{elapsedTime}</Text>
-
+          </LinearGradient>
+          
+          { showQualityCondition ?
+            (
+              <View style={styles.qualityMenu}>
+                {streamURLs.map(q => (
+                  <TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={styles.qualityOption}>
+                    <Text style={{color:"#fff"}}>{q.height + "p"}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : null
+          }
         </>
         : null
       }
 
-      { (!isStreamReady || isLoading) ? <ActivityIndicator size={'large'} color={Colors.success} /> : null }
+      { showIndicatorCondition ? <ActivityIndicator size={'large'} color={Colors.success} /> : null }
 
     </TouchableOpacity>
   );
@@ -155,20 +167,33 @@ const styles = StyleSheet.create({
     height: 40,
     backgroundColor: "rgba(0,0,0,0)",
   },
-  fullscreenButton: {
+  bottomControls: {
     position: 'absolute',
     bottom: 0,
+    left: 0,
     right: 0,
-    margin: 5,
+    height: "15%"
+  },
+  bottomControlsContent: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  bottomRightControls: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center', 
+    width: 80
+  },
+  fullscreenButton: {
+    marginHorizontal: 5,
     backgroundColor: "rgba(0,0,0,0)",
     width: 25,
     height: 25
   },
   qualityButton: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    margin: 5,
+    marginHorizontal: 5,
     backgroundColor: "rgba(0,0,0,0)",
     width: 25,
     height: 25
@@ -186,11 +211,10 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   timeText: {
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-    margin: 5,
+    flex: 1,
+    paddingLeft: 10,
     fontSize: 16,
-    color: "#fff"
+    fontWeight: 'bold',
+    color: "#fff",
   },
 });
