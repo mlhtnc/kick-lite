@@ -78,14 +78,15 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
         source={ streamURL ? { uri: streamURL } : undefined}
         style={styles.video}
         resizeMode='contain'
+        ignoreSilentSwitch='ignore'
         playInBackground={true}
         playWhenInactive={true}
         enterPictureInPictureOnLeave={true}
+        disableFocus={true}
         paused={paused}
         onLoadStart={() => setLoadingVideo(true)}
         onLoad={() => setLoadingVideo(false)}
         onBuffer={(e: OnBufferData) => setLoadingVideo(e.isBuffering)}
-        ignoreSilentSwitch='ignore'
       />
       <Overlay
         actions={overlayActions}
