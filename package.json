@@ -21,6 +21,7 @@
     "react-native-dotenv": "^3.4.11",
     "react-native-edge-to-edge": "^1.6.2",
     "react-native-get-random-values": "^1.11.0",
+    "react-native-linear-gradient": "^2.8.3",
     "react-native-orientation-locker": "^1.7.0",
     "react-native-safe-area-context": "^5.6.1",
     "react-native-screens": "^4.15.0",
