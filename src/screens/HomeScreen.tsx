@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { AppState, AppStateStatus, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '../constants';
@@ -8,7 +8,9 @@ import ScreenHeader from '../components/ScreenHeader';
 import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
-import { loadChannels, saveChannels } from '../utils/save_utils';
+import { loadChannels, loadSleepTime, saveChannels } from '../utils/save_utils';
+import ForegroundService from '../modules/ForegroundService';
+import { startTimer, stopTimer } from '../managers/timer_manager';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
@@ -21,7 +23,33 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
   useEffect(() => {
     initChannels();
+
+    const subscription = AppState.addEventListener('change', onAppStateChanged);
+    return () => subscription.remove();
   }, []);
+
+  const onAppStateChanged = async (nextAppState: AppStateStatus) => {
+    if(nextAppState === "background") {
+
+      const sleepTime = await loadSleepTime();
+      if(sleepTime === null) {
+        ForegroundService.start(5 * 1000);
+      } else {
+        const remainingTime = stopTimer();
+        ForegroundService.start(remainingTime);
+      }
+
+    } else if(nextAppState === "active") {
+
+      const sleepTime = await loadSleepTime();
+      if(sleepTime !== null) {
+        const remainingTime = await ForegroundService.getRemainingTime();
+        startTimer(remainingTime, onSleepTimerExpire);
+      }
+
+      ForegroundService.stop();
+    }
+  }
 
   const initChannels = async () => {
     const channels = await loadChannels();
@@ -98,16 +126,31 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
   }
 
   const onSleepTimerButtonPressed = () => {
-    navigation.navigate(Screens.SleepTimer);
+    navigation.navigate(Screens.SleepTimer, { onExpire: onSleepTimerExpire });
+  }
+
+  const onSleepTimerExpire = () => {
+    ForegroundService.killApp();
   }
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title={"Kick Lite"} onSearchButtonPressed={onSearchButtonPressed} onSleepTimerButtonPressed={onSleepTimerButtonPressed}/>
+      <ScreenHeader
+        title={"Kick Lite"}
+        onSearchButtonPressed={onSearchButtonPressed}
+        onSleepTimerButtonPressed={onSleepTimerButtonPressed}
+      />
       
         <View style={styles.listContainer}>
-          <ChannelList channels={channels || []} tokens={tokens} navigation={navigation} loading={loading} onRefresh={onRefresh} onChannelDelete={onChannelDelete}/>
+          <ChannelList
+            channels={channels || []}
+            tokens={tokens}
+            navigation={navigation}
+            loading={loading}
+            onRefresh={onRefresh}
+            onChannelDelete={onChannelDelete}
+          />
         </View>
     
     </SafeAreaView>

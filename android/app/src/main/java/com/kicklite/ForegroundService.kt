@@ -29,7 +29,7 @@ class ForegroundService : Service() {
         }
     }
 
-    private val CHANNEL_ID = "ForegroundServiceChannel"
+    private val CHANNEL_ID = "BackgroundMedia"
 
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
@@ -96,7 +96,7 @@ class ForegroundService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
-                "Foreground Service Channel",
+                "Background Media Playing",
                 NotificationManager.IMPORTANCE_LOW
             )
             val manager = getSystemService(NotificationManager::class.java)

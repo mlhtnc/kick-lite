@@ -23,7 +23,7 @@ export const stopTimer = () => {
   }
   onExpire = null;
 
-  return Date.now() - endTime;
+  return endTime - Date.now();
 }
 
 export const getRemainingTime = () => {

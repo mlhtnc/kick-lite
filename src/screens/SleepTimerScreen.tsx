@@ -10,7 +10,9 @@ import { getRemainingTime, isTimerRunning, startTimer, stopTimer } from '../mana
 import { convertMillisecondsToTime } from '../helpers/helpers';
 
 
-export default function SleepTimerScreen({}: SleepTimerScreenProps) {
+export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
+
+  const { onExpire } = route.params;
 
   const intervalRef = useRef<NodeJS.Timeout>(null);
   const sleepTimeRef = useRef<number | null>(null);
@@ -72,9 +74,7 @@ export default function SleepTimerScreen({}: SleepTimerScreenProps) {
     const milliseconds = (hour * 60 * 60 + minute * 60) * 1000;
 
     stopTimer();
-    startTimer(milliseconds, () => {
-      console.log("done");
-    });
+    startTimer(milliseconds, onExpire);
 
     setRemainingTime(convertMillisecondsToTime(getRemainingTime()));
     clearInterval(intervalRef.current || undefined);
@@ -94,25 +94,6 @@ export default function SleepTimerScreen({}: SleepTimerScreenProps) {
     
     await saveSleepTime(null);
   }
-
-
-
-    // useEffect(() => {
-    //   const subscription = AppState.addEventListener('change', onAppStateChanged);
-    //   return () => subscription.remove();
-    // }, []);
-
-    // const onAppStateChanged = (nextAppState: AppStateStatus) => {
-      // console.log('AppState:', nextAppState);
-  
-      // if(nextAppState === "background") {
-      //   ForegroundService.start(10000);
-      //   console.log("start called")
-      // } else if(nextAppState === "active") {
-      //   ForegroundService.stop();
-      //   console.log("stop called")
-      // }
-    // }
 
 
   return (

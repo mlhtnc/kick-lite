@@ -29,7 +29,7 @@ export type RootStackParamList = {
   [Screens.Home]: { tokens: Tokens; };
   [Screens.Stream]: { tokens: Tokens; channel: Channel };
   [Screens.Search]: { tokens: Tokens; onChannelAdded: () => void };
-  [Screens.SleepTimer]: undefined;
+  [Screens.SleepTimer]: { onExpire: () => void };
 };
 
 export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Home>;
