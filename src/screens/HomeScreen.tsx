@@ -8,9 +8,9 @@ import ScreenHeader from '../components/ScreenHeader';
 import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
-import { loadChannels, loadSleepTime, saveChannels } from '../utils/save_utils';
+import { loadChannels, loadSleepTime, saveChannels, saveSleepTime } from '../utils/save_utils';
 import ForegroundService from '../modules/ForegroundService';
-import { startTimer, stopTimer } from '../managers/timer_manager';
+import { isTimerRunning, startTimer, stopTimer } from '../managers/timer_manager';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
@@ -32,22 +32,20 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     if(nextAppState === "background") {
 
       const sleepTime = await loadSleepTime();
-      if(sleepTime === null) {
-        ForegroundService.start(5 * 60 * 60 * 1000);
-      } else {
+      if(sleepTime && isTimerRunning()) {
         const remainingTime = stopTimer();
         ForegroundService.start(remainingTime);
       }
 
     } else if(nextAppState === "active") {
 
-      const sleepTime = await loadSleepTime();
-      if(sleepTime !== null) {
+      const isServiceAlive = await ForegroundService.isAlive();
+      if(isServiceAlive) {
         const remainingTime = await ForegroundService.getRemainingTime();
         startTimer(remainingTime, onSleepTimerExpire);
+        ForegroundService.stop();
       }
 
-      ForegroundService.stop();
     }
   }
 
@@ -129,8 +127,9 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     navigation.navigate(Screens.SleepTimer, { onExpire: onSleepTimerExpire });
   }
 
-  const onSleepTimerExpire = () => {
-    ForegroundService.killApp();
+  const onSleepTimerExpire = async () => {
+    await saveSleepTime(null);
+    ForegroundService.moveTaskToBack();
   }
 
 

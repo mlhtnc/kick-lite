@@ -11,14 +11,13 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.os.Handler
 import android.os.Looper
-import android.os.Process
 import androidx.core.app.NotificationCompat
-import kotlin.system.exitProcess
 
 class ForegroundService : Service() {
 
     companion object {
         private var endTime: Long = -1
+        private var isRunning: Boolean = false
 
         fun setEndTime(durationMs: Int) {
             endTime = System.currentTimeMillis() + durationMs
@@ -27,6 +26,11 @@ class ForegroundService : Service() {
         fun getRemainingTime(): Long {
             return endTime - System.currentTimeMillis()
         }
+
+        fun isAlive(): Boolean {
+            return isRunning;
+        }
+
     }
 
     private val CHANNEL_ID = "BackgroundMedia"
@@ -47,6 +51,8 @@ class ForegroundService : Service() {
         val wm = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "KickLite::WifiLock")
         wifiLock?.acquire()
+
+        isRunning = true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -64,18 +70,11 @@ class ForegroundService : Service() {
         if (durationMs != -1) {
             setEndTime(durationMs)
             handler.postDelayed({
-                killApp()
+                stopSelf()
             }, durationMs.toLong())
         }
 
         return START_STICKY
-    }
-
-    private fun killApp() {
-        stopSelf()
-
-        Process.killProcess(Process.myPid())
-        exitProcess(0)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
@@ -88,6 +87,8 @@ class ForegroundService : Service() {
         wakeLock?.release()
         wifiLock?.release()
         handler.removeCallbacksAndMessages(null)
+
+        isRunning = false
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

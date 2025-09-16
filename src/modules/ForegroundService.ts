@@ -9,10 +9,13 @@ export default {
   stop: () => {
     ForegroundService.stopService();
   },
+  moveTaskToBack: () => {
+    ForegroundService.moveTaskToBack();
+  },
+  isAlive: async (): Promise<boolean> => {
+    return await ForegroundService.isAlive();
+  },
   getRemainingTime: async (): Promise<any> => {
     return await ForegroundService.getRemainingTime();
-  },
-  killApp: () => {
-    ForegroundService.killApp();
   }
 };

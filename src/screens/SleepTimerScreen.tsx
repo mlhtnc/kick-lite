@@ -18,7 +18,7 @@ export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
   const sleepTimeRef = useRef<number | null>(null);
 
   const [ hours, setHours ] = useState<string>("00");
-  const [ minutes, setMinutes ] = useState<string>("01");
+  const [ minutes, setMinutes ] = useState<string>("30");
   const [ remainingTime, setRemainingTime ] = useState<string>("--:--:--");
 
 

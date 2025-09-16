@@ -2,12 +2,10 @@ package com.kicklite
 
 import android.content.Intent
 import android.os.Build
-import android.os.Process
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
-import kotlin.system.exitProcess
 
 class ForegroundModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -38,14 +36,18 @@ class ForegroundModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun getRemainingTime(promise: Promise) {
-        val remaining = ForegroundService.getRemainingTime()
-        promise.resolve(remaining.toInt())
+    fun moveTaskToBack() {
+        reactApplicationContext.currentActivity?.moveTaskToBack(true)
     }
 
     @ReactMethod
-    fun killApp() {
-        Process.killProcess(Process.myPid())
-        exitProcess(0)
+    fun isAlive(promise: Promise) {
+        promise.resolve(ForegroundService.isAlive())
+    }
+
+    @ReactMethod
+    fun getRemainingTime(promise: Promise) {
+        val remaining = ForegroundService.getRemainingTime()
+        promise.resolve(remaining.toInt())
     }
 }
