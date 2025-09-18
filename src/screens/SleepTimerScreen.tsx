@@ -50,6 +50,10 @@ export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
       return;
     }
 
+    if (/^[0-9]{0,2}$/.test(text) === false) {
+      return;
+    }
+
     const hour = parseInt(text);
     if(hour >= 0 && hour <= 24) {
       setHours(text);
@@ -62,6 +66,10 @@ export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
       return;
     }
 
+    if (/^[0-9]{0,2}$/.test(text) === false) {
+      return;
+    }
+
     const minute = parseInt(text);
     if(minute >= 0 && minute <= 60) {
       setMinutes(text);
@@ -69,9 +77,13 @@ export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
   }
 
   const onStartButtonPressed = async () => {
-    const hour = parseInt(hours);
-    const minute = parseInt(minutes);
+    const hour = parseInt(hours || "0");
+    const minute = parseInt(minutes || "0");
     const milliseconds = (hour * 60 * 60 + minute * 60) * 1000;
+
+    if(milliseconds === 0) {
+      return;
+    }
 
     stopTimer();
     startTimer(milliseconds, onExpire);
