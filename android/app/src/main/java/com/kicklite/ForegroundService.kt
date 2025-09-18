@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
+import android.os.Binder
 import android.os.PowerManager
 import android.os.Handler
 import android.os.Looper
@@ -15,30 +16,28 @@ import androidx.core.app.NotificationCompat
 
 class ForegroundService : Service() {
 
-    companion object {
-        private var endTime: Long = -1
-        private var isRunning: Boolean = false
-
-        fun setEndTime(durationMs: Int) {
-            endTime = System.currentTimeMillis() + durationMs
-        }
-
-        fun getRemainingTime(): Long {
-            return endTime - System.currentTimeMillis()
-        }
-
-        fun isAlive(): Boolean {
-            return isRunning;
-        }
-
+    interface ServiceCallback {
+        fun onMessage(msg: String)
     }
 
+    inner class LocalBinder : Binder() {
+		fun getService(): ForegroundService = this@ForegroundService
+	}
+
+
     private val CHANNEL_ID = "BackgroundMedia"
+
+    private var endTime: Long = -1
+    private var isRunning: Boolean = false
+
+    private var callback: ServiceCallback? = null
+    private val binder = LocalBinder()
 
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
 
     private val handler = Handler(Looper.getMainLooper())
+
 
     override fun onCreate() {
         super.onCreate()
@@ -70,7 +69,7 @@ class ForegroundService : Service() {
         if (durationMs != -1) {
             setEndTime(durationMs)
             handler.postDelayed({
-                stopSelf()
+                callback?.onMessage("exitApp")
             }, durationMs.toLong())
         }
 
@@ -79,7 +78,7 @@ class ForegroundService : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        stopSelf()
+        callback?.onMessage("onTaskRemoved")
     }
 
     override fun onDestroy() {
@@ -91,7 +90,11 @@ class ForegroundService : Service() {
         isRunning = false
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onBind(intent: Intent?): IBinder = binder
+
+    fun setCallback(cb: ServiceCallback) {
+        callback = cb
+    }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -103,5 +106,17 @@ class ForegroundService : Service() {
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
         }
+    }
+
+    fun setEndTime(durationMs: Int) {
+        endTime = System.currentTimeMillis() + durationMs
+    }
+
+    fun getRemainingTime(): Long {
+        return endTime - System.currentTimeMillis()
+    }
+
+    fun isAlive(): Boolean {
+        return isRunning;
     }
 }

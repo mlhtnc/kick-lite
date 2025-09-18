@@ -129,7 +129,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
   const onSleepTimerExpire = async () => {
     await saveSleepTime(null);
-    ForegroundService.moveTaskToBack();
+    ForegroundService.exitApp();
   }
 
 
