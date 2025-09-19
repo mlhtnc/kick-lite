@@ -7,7 +7,7 @@ import { formatViewerCount } from '../../helpers/helpers';
 import { getChannels } from '../../services/kick_service';
 
 
-export default function StreamInfo({ channel, tokens }: StreamInfoProps) {
+export default function StreamInfo({ channel }: StreamInfoProps) {
 
   const [ viewerCount, setViewerCount ] = useState<number>(channel.viewerCount);
 
@@ -16,7 +16,7 @@ export default function StreamInfo({ channel, tokens }: StreamInfoProps) {
 		const interval = setInterval(async () => {
 			try {
         
-        getChannels(tokens.accessToken, [ channel.slug ])
+        getChannels([ channel.slug ])
         .then(async (channels) => {
           setViewerCount(channels[0].viewerCount);
         }).catch(() => {});

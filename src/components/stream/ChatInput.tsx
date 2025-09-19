@@ -7,14 +7,13 @@ import { showErrorSendingMessage, showSuccessSendingMessage } from '../../alerts
 import { postMessage } from '../../services/kick_service';
 
 
-export default function ChatInput({ channel, tokens }: ChatInputProps) {
+export default function ChatInput({ channel }: ChatInputProps) {
   
   const [ messageText, setMessageText ] = useState<string>("");
 
 
   const handleSendMessage = (e: TextInputSubmitEditingEvent) => {
     postMessage(
-      tokens.accessToken,
       channel.id,
       messageText.substring(0, 500),
     ).then(() => {

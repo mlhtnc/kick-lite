@@ -1,4 +1,5 @@
 import { KickApiBaseUrl, KickAuthTokenBaseUrl, KickAuthTokenIntrospectUrl } from "../constants";
+import { useTokens } from "../stores/tokensStore";
 import { Channel, User } from "../types";
 
 
@@ -95,20 +96,27 @@ export const isAccessTokenValid = async (accessToken: string): Promise<boolean> 
 	}
 }
 
-export const getUser = async (accessToken: string, id?: string): Promise<User> => {
-	let url = `${KickApiBaseUrl}/users`;
-	const params = new URLSearchParams();
-	const headers = {
-		"Authorization": `Bearer ${accessToken}`,
-		"Accept": "*/*",
-	};
-
-	if(id) {
-		params.append("id", id);
-		url += "?" + params.toString();
-	}
-
+export const getUser = async (id?: string): Promise<User> => {
+	
 	try {
+		const { tokens } = useTokens.getState();
+
+		if(!tokens) {
+			throw new Error();
+		}
+
+		let url = `${KickApiBaseUrl}/users`;
+		const params = new URLSearchParams();
+		const headers = {
+			"Authorization": `Bearer ${tokens.accessToken}`,
+			"Accept": "*/*",
+		};
+
+		if(id) {
+			params.append("id", id);
+			url += "?" + params.toString();
+		}
+
 		const response = await fetch(url, { headers });
 
 		if (!response.ok) {
@@ -128,20 +136,26 @@ export const getUser = async (accessToken: string, id?: string): Promise<User> =
 	}
 }
 
-export const getChannels = async (accessToken: string, slugs?: string[]): Promise<Channel[]> => {
-	let url = `${KickApiBaseUrl}/channels`;
-	const params = new URLSearchParams();
-
-	if (slugs && slugs.length > 0) {
-		slugs.forEach((s) => params.append("slug", s));
-		url += "?" + params.toString();
-	}
-
+export const getChannels = async (slugs?: string[]): Promise<Channel[]> => {
+		
 	try {
+		const { tokens } = useTokens.getState();
+		if(!tokens) {
+			throw new Error();
+		}
+
+		let url = `${KickApiBaseUrl}/channels`;
+		const params = new URLSearchParams();
+
+		if (slugs && slugs.length > 0) {
+			slugs.forEach((s) => params.append("slug", s));
+			url += "?" + params.toString();
+		}
+
 		const res = await fetch(url, {
 			method: "GET",
 			headers: {
-				"Authorization": `Bearer ${accessToken}`,
+				"Authorization": `Bearer ${tokens.accessToken}`,
       	"Accept": "*/*"
 			},
 		});
@@ -173,23 +187,26 @@ export const getChannels = async (accessToken: string, slugs?: string[]): Promis
 };
 
 export const postMessage = async (
-	accessToken: string,
 	userId: string,
 	content: string,
 ) => {
-	let url = `${KickApiBaseUrl}/chat`;
-	const data = {
-		broadcaster_user_id: userId,
-		content: content,
-		type: "user"
-	};
-
-
 	try {
+		const { tokens } = useTokens.getState();
+		if(!tokens) {
+			throw new Error();
+		}
+
+		let url = `${KickApiBaseUrl}/chat`;
+		const data = {
+			broadcaster_user_id: userId,
+			content: content,
+			type: "user"
+		};
+
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
-				"Authorization": `Bearer ${accessToken}`,
+				"Authorization": `Bearer ${tokens.accessToken}`,
 				"Content-Type": "application/json"
 			},
 			body: JSON.stringify(data),

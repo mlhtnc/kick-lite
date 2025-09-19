@@ -1,6 +1,7 @@
 import { StatusBar, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import BootSplash from "react-native-bootsplash";
@@ -10,37 +11,72 @@ import HomeScreen from './src/screens/HomeScreen';
 import StreamScreen from './src/screens/StreamScreen';
 import SearchScreen from './src/screens/SearchScreen';
 import SleepTimerScreen from './src/screens/SleepTimerScreen';
-import { RootStackParamList, Screens } from './src/types';
+import { RootStackParamList, RootTabParamList, Screens } from './src/types';
 import { mainToastConfig } from './src/toast_types/toast_types';
 import { Colors } from './src/constants';
+import Ionicons, { IoniconsIconName } from '@react-native-vector-icons/ionicons';
+import useSleepTimerInBackground from './src/components/hooks/useSleepTimerInBackground';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<RootTabParamList>();
+
+
+function MainStack() {
+	return (
+		<Stack.Navigator
+      initialRouteName={Screens.Login}
+      screenOptions={{
+        contentStyle: styles.contentStyle,
+        headerShown: false,
+        animation: 'none'
+      }}
+    >
+      <Stack.Screen name={Screens.Login} component={LoginScreen} />
+      <Stack.Screen name={Screens.Home} component={HomeScreen} />
+      <Stack.Screen name={Screens.Stream} component={StreamScreen} />
+    </Stack.Navigator>
+	);
+}
 
 export default function App() {
+
+  useSleepTimerInBackground();
+
   return (
     <SafeAreaProvider style={styles.safeAreaProvider}>
       <StatusBar
-        translucent
+        translucent={false}
         backgroundColor={"transparent"}
         barStyle="light-content"
       />
 
       <NavigationContainer onReady={() => BootSplash.hide() } >
-        <Stack.Navigator
-          initialRouteName={Screens.Login}
-          screenOptions={{
-            contentStyle: styles.contentStyle,
+        <Tab.Navigator
+          screenOptions={({route}) => ({
+            tabBarStyle: styles.tabBarStyle,
             headerShown: false,
-            animation: 'none'
-          }}
+            tabBarShowLabel: false,
+            animation: 'none',
+            tabBarIcon: ({ color, size }) => {
+              let iconName: IoniconsIconName = 'home-outline';
+
+              if (route.name === Screens.MainStack) {
+                iconName = 'home-outline';
+              } else if (route.name === Screens.SleepTimer) {
+                iconName = 'moon-outline';
+              } else if (route.name === Screens.Search) {
+                iconName = 'search-outline';
+              }
+
+              return <Ionicons name={iconName} size={size} color={color} />;
+            }
+          })}
         >
-          <Stack.Screen name={Screens.Login} component={LoginScreen} />
-          <Stack.Screen name={Screens.Home} component={HomeScreen} />
-          <Stack.Screen name={Screens.Stream} component={StreamScreen} />
-          <Stack.Screen name={Screens.Search} component={SearchScreen} />
-          <Stack.Screen name={Screens.SleepTimer} component={SleepTimerScreen} />
-        </Stack.Navigator>
+          <Tab.Screen name={Screens.MainStack} component={MainStack} />
+          <Tab.Screen name={Screens.SleepTimer} component={SleepTimerScreen} />
+          <Tab.Screen name={Screens.Search} component={SearchScreen} />
+        </Tab.Navigator>
       </NavigationContainer>
       <Toast config={mainToastConfig} visibilityTime={5000} swipeable />
     </SafeAreaProvider>
@@ -53,5 +89,9 @@ const styles = StyleSheet.create({
   },
   contentStyle: {
     backgroundColor: Colors.background
+  },
+  tabBarStyle: {
+    backgroundColor: Colors.background,
+    borderTopColor: Colors.background
   }
 });

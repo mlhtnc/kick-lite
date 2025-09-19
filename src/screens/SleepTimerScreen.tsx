@@ -1,18 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import BasicButton from '../components/buttons/BasicButton';
-import { SleepTimerScreenProps } from '../types';
 import { Colors } from '../constants';
 import { loadSleepTime, saveSleepTime } from '../utils/save_utils';
 import { getRemainingTime, isTimerRunning, startTimer, stopTimer } from '../managers/timer_manager';
 import { convertMillisecondsToTime } from '../helpers/helpers';
+import { onSleepTimerExpired } from '../helpers/sleep_timer_helper';
 
 
-export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
-
-  const { onExpire } = route.params;
+export default function SleepTimerScreen() {
 
   const intervalRef = useRef<NodeJS.Timeout>(null);
   const sleepTimeRef = useRef<number | null>(null);
@@ -20,6 +18,9 @@ export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
   const [ hours, setHours ] = useState<string>("00");
   const [ minutes, setMinutes ] = useState<string>("30");
   const [ remainingTime, setRemainingTime ] = useState<string>("--:--:--");
+
+
+  const insets = useSafeAreaInsets();
 
 
   useEffect(() => {
@@ -86,7 +87,7 @@ export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
     }
 
     stopTimer();
-    startTimer(milliseconds, onExpire);
+    startTimer(milliseconds, onSleepTimerExpired);
 
     setRemainingTime(convertMillisecondsToTime(getRemainingTime()));
     clearInterval(intervalRef.current || undefined);
@@ -109,7 +110,7 @@ export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
 
       <Text style={styles.remainingTimeText}>{"Remaining Time\n" + remainingTime}</Text>
 
@@ -146,7 +147,7 @@ export default function SleepTimerScreen({ route }: SleepTimerScreenProps) {
         />
       </View>
 
-    </SafeAreaView>
+    </View>
   );
 }
 

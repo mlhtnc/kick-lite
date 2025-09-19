@@ -1,63 +1,50 @@
 import { useEffect, useState } from 'react';
-import { AppState, AppStateStatus, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '../constants';
-import { Channel, HomeScreenProps, Screens } from '../types';
+import { Channel, HomeScreenProps } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
 import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
-import { loadChannels, loadSleepTime, saveChannels, saveSleepTime } from '../utils/save_utils';
-import ForegroundService from '../modules/ForegroundService';
-import { isTimerRunning, startTimer, stopTimer } from '../managers/timer_manager';
+import { loadChannels } from '../utils/save_utils';
+import { useChannelListStore } from '../stores/channelListStore';
 
 
 export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
-  const { tokens } = route.params;
-
-  const [ channels, setChannels ] = useState<Channel[]>();
   const [ loading, setLoading ] = useState<boolean>(false);
+
+  const { channels, setChannels } = useChannelListStore();
 
 
   useEffect(() => {
-    initChannels();
-
-    const subscription = AppState.addEventListener('change', onAppStateChanged);
-    return () => subscription.remove();
+    loadSavedChannels();
   }, []);
 
-  const onAppStateChanged = async (nextAppState: AppStateStatus) => {
-    if(nextAppState === "background") {
-
-      const sleepTime = await loadSleepTime();
-      if(sleepTime && isTimerRunning()) {
-        const remainingTime = stopTimer();
-        ForegroundService.start(remainingTime);
-      }
-
-    } else if(nextAppState === "active") {
-
-      const isServiceAlive = await ForegroundService.isAlive();
-      if(isServiceAlive) {
-        const remainingTime = await ForegroundService.getRemainingTime();
-        startTimer(remainingTime, onSleepTimerExpire);
-        ForegroundService.stop();
-      }
-
-    }
-  }
-
-  const initChannels = async () => {
-    const channels = await loadChannels();
-    
+  useEffect(() => {
     if(channels.length === 0) {
       return;
     }
 
+    fetchChannels();
+  }, [channels.length]);
+
+
+  const loadSavedChannels = async () => {
+    const savedChannels = await loadChannels();
+    if(savedChannels.length === 0) {
+      return;
+    }
+
+    setChannels(savedChannels);
+  }
+
+
+  const fetchChannels = async () => {
     setLoading(true);
-    getChannels(tokens.accessToken, channels.map((ch: Channel) => ch.slug))
+    getChannels(channels.map((ch: Channel) => ch.slug))
     .then(async (channels) => {
       let updatedChannels = await fetchChannelUsernames(channels);
       sortChannels(updatedChannels);
@@ -75,7 +62,7 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     const updatedChannels = await Promise.all(
       channels.map(async (ch) => {
         try {
-          const user = await getUser(tokens.accessToken, ch.id);
+          const user = await getUser(ch.id);
           return { ...ch, name: user.name };
         } catch (err) {
           error = true;
@@ -101,56 +88,23 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     });
   }
 
-  const onChannelAdded = (): void => {
-    initChannels();
-  }
-
-  const onChannelDelete = async (channel: Channel) => {
-      const channels: Channel[] = await loadChannels();
-
-      const updatedChannels = channels.filter((ch) => ch.id !== channel.id);
-
-      await saveChannels([ ...updatedChannels ]);
-
-      initChannels();
-  }
-
   const onRefresh = () => {
-    initChannels();
-  }
-
-  const onSearchButtonPressed = () => {
-    navigation.navigate(Screens.Search, { tokens, onChannelAdded });
-  }
-
-  const onSleepTimerButtonPressed = () => {
-    navigation.navigate(Screens.SleepTimer, { onExpire: onSleepTimerExpire });
-  }
-
-  const onSleepTimerExpire = async () => {
-    await saveSleepTime(null);
-    ForegroundService.exitApp();
+    fetchChannels();
   }
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader
-        title={"Kick Lite"}
-        onSearchButtonPressed={onSearchButtonPressed}
-        onSleepTimerButtonPressed={onSleepTimerButtonPressed}
-      />
+      <ScreenHeader title={"Kick Lite"} />
       
-        <View style={styles.listContainer}>
-          <ChannelList
-            channels={channels || []}
-            tokens={tokens}
-            navigation={navigation}
-            loading={loading}
-            onRefresh={onRefresh}
-            onChannelDelete={onChannelDelete}
-          />
-        </View>
+      <View style={styles.listContainer}>
+        <ChannelList
+          channels={channels || []}
+          screenProps={{navigation, route}}
+          loading={loading}
+          onRefresh={onRefresh}
+        />
+      </View>
     
     </SafeAreaView>
   );

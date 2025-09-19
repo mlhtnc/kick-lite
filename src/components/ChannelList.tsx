@@ -4,13 +4,14 @@ import { ChannelListProps } from '../types';
 import ChannelCard from './ChannelCard';
 
 
-export default function ChannelList({ navigation, channels, tokens, loading, onRefresh, onChannelDelete }: ChannelListProps) {
+export default function ChannelList({ screenProps, channels, loading, onRefresh }: ChannelListProps) {
 
   return (
     <FlatList
+      contentContainerStyle={{margin: 0, padding: 0}}
       style={styles.listStyle}
       data={channels}
-      renderItem={({item: channel}) => <ChannelCard channel={channel} tokens={tokens} navigation={navigation} onChannelDelete={onChannelDelete} /> }
+      renderItem={({item: channel}) => <ChannelCard channel={channel} screenProps={screenProps} /> }
       refreshing={loading}
       onRefresh={onRefresh}
       keyExtractor={item => item.id}
@@ -20,6 +21,6 @@ export default function ChannelList({ navigation, channels, tokens, loading, onR
 
 const styles = StyleSheet.create({
   listStyle: {
-    padding: 20
+    padding: 20,
   }
 });

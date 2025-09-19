@@ -1,3 +1,4 @@
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Dispatch, SetStateAction } from "react";
 import { ColorValue, GestureResponderEvent, TextStyle, ViewStyle } from "react-native";
@@ -17,6 +18,7 @@ export interface ColorsType {
 }
 
 export enum Screens {
+  MainStack = "MainStack",
 	Login = "LoginScreen",
 	Home = "HomeScreen",
 	Stream = "StreamScreen",
@@ -26,41 +28,41 @@ export enum Screens {
 
 export type RootStackParamList = {
   [Screens.Login]: undefined;
-  [Screens.Home]: { tokens: Tokens; };
-  [Screens.Stream]: { tokens: Tokens; channel: Channel };
-  [Screens.Search]: { tokens: Tokens; onChannelAdded: () => void };
-  [Screens.SleepTimer]: { onExpire: () => void };
+  [Screens.Home]: undefined;
+  [Screens.Stream]: { channel: Channel };
 };
 
 export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Home>;
 export type LoginScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Login>;
 export type StreamScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Stream>;
-export type SearchScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Search>;
-export type SleepTimerScreenProps = NativeStackScreenProps<RootStackParamList, Screens.SleepTimer>;
-type AnyNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type AnyNavigationProp = HomeScreenProps | LoginScreenProps | StreamScreenProps;
+
+
+export type RootTabParamList = {
+  [Screens.MainStack]: undefined;
+  [Screens.Search]: undefined;
+  [Screens.SleepTimer]: undefined;
+};
+
+
+export type SearchScreenProps = BottomTabScreenProps<RootTabParamList, Screens.Search>;
 
 
 export interface ScreenHeaderProps {
   title: string;
   titleTextStyle?: TextStyle;
-  onSearchButtonPressed?: () => void;
-  onSleepTimerButtonPressed?: () => void;
 }
 
 export interface ChannelListProps {
 	channels: Channel[];
-  tokens: Tokens;
-  navigation: AnyNavigationProp;
+  screenProps: AnyNavigationProp;
   loading: boolean;
   onRefresh: () => void;
-  onChannelDelete: (channel: Channel) => void;
 }
 
 export interface ChannelCardProps {
   channel: Channel;
-  tokens: Tokens;
-  navigation: AnyNavigationProp;
-  onChannelDelete: (channel: Channel) => void;
+  screenProps: AnyNavigationProp;
 }
 
 export interface PlayerProps {
@@ -93,12 +95,10 @@ export interface OverlayActions {
 
 export interface StreamInfoProps {
   channel: Channel;
-  tokens: Tokens;
 }
 
 export interface ChatInputProps {
   channel: Channel;
-  tokens: Tokens;
 }
 
 export interface BasicCircleButtonProps {

@@ -5,19 +5,22 @@ import { Colors } from '../constants';
 import { Channel, ChannelCardProps, Screens } from '../types';
 import { formatViewerCount } from '../helpers/helpers';
 import BasicButton from './buttons/BasicButton';
+import { useChannelListStore } from '../stores/channelListStore';
 
 
-export default function ChannelCard({ navigation, channel, tokens, onChannelDelete }: ChannelCardProps) {
+export default function ChannelCard({ screenProps, channel }: ChannelCardProps) {
 
   const [ isDeleteButtonShowing, setIsDeleteButtonShowing ] = useState<boolean>(false);
 
+  const { removeChannel }= useChannelListStore();
+  
 
   const handleChannelClick = (channel: Channel) => {
     if(!channel.isLive) {
       return;
     }
     
-    navigation.navigate(Screens.Stream, { channel, tokens });
+    screenProps.navigation.navigate(Screens.Stream, { channel });
   }
 
   const handleChannelLongClick = () => {
@@ -39,7 +42,7 @@ export default function ChannelCard({ navigation, channel, tokens, onChannelDele
           text='DELETE'
           style={styles.deleteButton}
           textStyle={styles.deleteButtonText}
-          onPress={() => onChannelDelete(channel)}
+          onPress={() => removeChannel(channel)}
         />
         :
         <TouchableOpacity

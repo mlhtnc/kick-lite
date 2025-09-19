@@ -12,6 +12,7 @@ import { getToken, isAccessTokenValid, refreshAccessToken } from '../services/ki
 import { showErrorRefreshingAccessToken, showErrorRequestingAccessToken, showErrorValidatingAccessToken } from '../alerts/alerts';
 import { LoginSuccessful } from '../components/LoginSuccessful';
 import { GlobalKAVBehaviour } from '../helpers/helpers';
+import { useTokens } from '../stores/tokensStore';
 
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
@@ -23,6 +24,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [ loading, setLoading ] = useState<boolean>(true);
   const [ tokenHandled, setTokenHandled ] = useState<boolean>(false);
   const [ isAuthDone, setIsAuthDone ] = useState<boolean>(false);
+
+  const { setTokens } = useTokens();
 
 
   useEffect(() => {
@@ -47,6 +50,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
     isAccessTokenValid(tokens.accessToken).then(async (isValid) => {
       if(isValid) {
+        setTokens(tokens);
         navigation.reset({ index: 0, routes: [{ name: Screens.Home, params: { tokens: tokens }}]});
         return;
       }
@@ -90,7 +94,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
   const handleTokenResponse = async (tokenResponse: any) => {
     const tokens = { accessToken: tokenResponse.access_token, refreshToken: tokenResponse.refresh_token };
-        
+    
+    setTokens(tokens);
     await saveTokens(tokens);
     navigation.reset({ index: 0, routes: [{ name: Screens.Home, params: { tokens: tokens }}]});
   }
