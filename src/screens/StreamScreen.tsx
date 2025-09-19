@@ -26,8 +26,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const [ isStreamReady, setIsStreamReady ] = useState<boolean>(false);
   const [ selectedQuality, setSelectedQuality ] = useState<StreamURL>();
   
-  
-  const { channel, tokens } = route.params;
+  const { channel } = route.params;
 
   const insets = useSafeAreaInsets();
 
@@ -72,9 +71,9 @@ export default function StreamScreen({ route }: StreamScreenProps) {
 
       { !isFullscreen &&
         <KeyboardAvoidingView style={{flex: 1}} behavior={GlobalKAVBehaviour} keyboardVerticalOffset={offset}>
-          <StreamInfo channel={channel} tokens={tokens} />
+          <StreamInfo channel={channel} />
           <ChatFeed/>
-          <ChatInput channel={channel} tokens={tokens} />
+          <ChatInput channel={channel} />
         </KeyboardAvoidingView>
       }
 

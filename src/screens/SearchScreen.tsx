@@ -7,22 +7,22 @@ import { Colors } from '../constants';
 import BasicCircleButton from '../components/buttons/BasicCircleButton';
 import { getChannels } from '../services/kick_service';
 import { showErrorChannelsLoading } from '../alerts/alerts';
-import { loadChannels, saveChannels } from '../utils/save_utils';
+import { useChannelListStore } from '../stores/channelListStore';
 
 
-export default function SearchScreen({ navigation, route }: SearchScreenProps) {
+export default function SearchScreen({ navigation }: SearchScreenProps) {
 
   const [ searchText, setSearchText ] = useState<string>("");
   const [ resultChannel, setResultChannel ] = useState<Channel>();
   const [ isSearching, setIsSearching ] = useState<boolean>(true);
-  
-  const { tokens, onChannelAdded } = route.params;
 
+  const { addChannel } = useChannelListStore();
+  
 
   const onSearchButtonPressed = () => {
     setIsSearching(true);
 
-    getChannels(tokens.accessToken, [searchText])
+    getChannels([searchText])
     .then(async (channels) => {
       if(channels.length === 1) {
         setResultChannel(channels[0]);
@@ -37,10 +37,11 @@ export default function SearchScreen({ navigation, route }: SearchScreenProps) {
   }
 
   const onAddButtonPressed = async () => {
-    const channels = await loadChannels();
-    await saveChannels([ ...channels, resultChannel ]);
+    if(!resultChannel) {
+      return;
+    }
 
-    onChannelAdded();
+    addChannel(resultChannel);
     navigation.goBack();
   }
 

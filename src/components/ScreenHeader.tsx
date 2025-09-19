@@ -1,29 +1,15 @@
-import { View, StyleSheet, Text, GestureResponderEvent } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 
 import { ScreenHeaderProps } from '../types';
 import { Colors } from '../constants';
-import BasicCircleButton from './buttons/BasicCircleButton';
 
 
-export default function ScreenHeader({ title, onSearchButtonPressed, onSleepTimerButtonPressed }: ScreenHeaderProps) {
-
-  const handleSearchButtonPressed = (e: GestureResponderEvent) => {
-    onSearchButtonPressed?.();
-  }
-
-  const handleSleepTimerButtonPressed = (e: GestureResponderEvent) => {
-    onSleepTimerButtonPressed?.();
-  }
+export default function ScreenHeader({ title }: ScreenHeaderProps) {
 
   return (
     <View style={styles.header}>
       <View style={styles.content}>
         <Text style={styles.text}>{title}</Text>
-
-        <View style={{flexDirection: "row"}}>
-          <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='search-outline' iconSize={24} onPress={handleSearchButtonPressed} />
-          <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='moon-outline' iconSize={24} onPress={handleSleepTimerButtonPressed} />
-        </View>
       </View>
     </View>
   );
