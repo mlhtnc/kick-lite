@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -17,7 +17,17 @@ export default function SearchScreen({ navigation }: SearchScreenProps) {
   const [ isSearching, setIsSearching ] = useState<boolean>(true);
 
   const { addChannel } = useChannelListStore();
-  
+
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      setSearchText("");
+      setIsSearching(true);
+      setResultChannel(undefined);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const onSearchButtonPressed = () => {
     setIsSearching(true);
