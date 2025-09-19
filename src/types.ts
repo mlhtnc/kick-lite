@@ -18,6 +18,7 @@ export interface ColorsType {
 }
 
 export enum Screens {
+  MainTabs = "MainTabs",
   MainStack = "MainStack",
 	Login = "LoginScreen",
 	Home = "HomeScreen",
@@ -27,15 +28,21 @@ export enum Screens {
 }
 
 export type RootStackParamList = {
-  [Screens.Login]: undefined;
-  [Screens.Home]: undefined;
+  [Screens.MainTabs]: undefined;
   [Screens.Stream]: { channel: Channel };
 };
 
-export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Home>;
-export type LoginScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Login>;
 export type StreamScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Stream>;
-type AnyNavigationProp = HomeScreenProps | LoginScreenProps | StreamScreenProps;
+
+
+export type MainStackParamList = {
+  [Screens.Login]: undefined;
+  [Screens.Home]: undefined;
+};
+
+export type HomeScreenProps = NativeStackScreenProps<MainStackParamList, Screens.Home>;
+export type LoginScreenProps = NativeStackScreenProps<MainStackParamList, Screens.Login>;
+type AnyNavigationProp = HomeScreenProps | LoginScreenProps;
 
 
 export type RootTabParamList = {
@@ -43,7 +50,6 @@ export type RootTabParamList = {
   [Screens.Search]: undefined;
   [Screens.SleepTimer]: undefined;
 };
-
 
 export type SearchScreenProps = BottomTabScreenProps<RootTabParamList, Screens.Search>;
 

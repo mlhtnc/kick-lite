@@ -11,14 +11,15 @@ import HomeScreen from './src/screens/HomeScreen';
 import StreamScreen from './src/screens/StreamScreen';
 import SearchScreen from './src/screens/SearchScreen';
 import SleepTimerScreen from './src/screens/SleepTimerScreen';
-import { RootStackParamList, RootTabParamList, Screens } from './src/types';
+import { MainStackParamList, RootStackParamList, RootTabParamList, Screens } from './src/types';
 import { mainToastConfig } from './src/toast_types/toast_types';
 import { Colors } from './src/constants';
 import Ionicons, { IoniconsIconName } from '@react-native-vector-icons/ionicons';
 import useSleepTimerInBackground from './src/components/hooks/useSleepTimerInBackground';
 
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<MainStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 
@@ -27,16 +28,46 @@ function MainStack() {
 		<Stack.Navigator
       initialRouteName={Screens.Login}
       screenOptions={{
-        contentStyle: styles.contentStyle,
+        contentStyle: styles.rootContentStyle,
         headerShown: false,
         animation: 'none'
       }}
     >
       <Stack.Screen name={Screens.Login} component={LoginScreen} />
       <Stack.Screen name={Screens.Home} component={HomeScreen} />
-      <Stack.Screen name={Screens.Stream} component={StreamScreen} />
     </Stack.Navigator>
 	);
+}
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({route}) => ({
+        tabBarStyle: styles.tabBarStyle,
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: Colors.buttonPrimary,
+        animation: 'none',
+        tabBarIcon: ({ color, size }) => {
+          let iconName: IoniconsIconName = 'home-outline';
+
+          if (route.name === Screens.MainStack) {
+            iconName = 'home-outline';
+          } else if (route.name === Screens.SleepTimer) {
+            iconName = 'moon-outline';
+          } else if (route.name === Screens.Search) {
+            iconName = 'search-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        }
+      })}
+    >
+      <Tab.Screen name={Screens.MainStack} component={MainStack} />
+      <Tab.Screen name={Screens.SleepTimer} component={SleepTimerScreen} />
+      <Tab.Screen name={Screens.Search} component={SearchScreen} />
+    </Tab.Navigator>
+  );
 }
 
 export default function App() {
@@ -52,31 +83,17 @@ export default function App() {
       />
 
       <NavigationContainer onReady={() => BootSplash.hide() } >
-        <Tab.Navigator
-          screenOptions={({route}) => ({
-            tabBarStyle: styles.tabBarStyle,
+        <RootStack.Navigator
+          initialRouteName={Screens.MainTabs}
+          screenOptions={{
+            contentStyle: styles.rootContentStyle,
             headerShown: false,
-            tabBarShowLabel: false,
-            animation: 'none',
-            tabBarIcon: ({ color, size }) => {
-              let iconName: IoniconsIconName = 'home-outline';
-
-              if (route.name === Screens.MainStack) {
-                iconName = 'home-outline';
-              } else if (route.name === Screens.SleepTimer) {
-                iconName = 'moon-outline';
-              } else if (route.name === Screens.Search) {
-                iconName = 'search-outline';
-              }
-
-              return <Ionicons name={iconName} size={size} color={color} />;
-            }
-          })}
+            animation: 'none'
+          }}
         >
-          <Tab.Screen name={Screens.MainStack} component={MainStack} />
-          <Tab.Screen name={Screens.SleepTimer} component={SleepTimerScreen} />
-          <Tab.Screen name={Screens.Search} component={SearchScreen} />
-        </Tab.Navigator>
+          <RootStack.Screen name={Screens.MainTabs} component={MainTabs} />
+          <RootStack.Screen name={Screens.Stream} component={StreamScreen} />
+        </RootStack.Navigator>
       </NavigationContainer>
       <Toast config={mainToastConfig} visibilityTime={5000} swipeable />
     </SafeAreaProvider>
@@ -85,6 +102,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   safeAreaProvider: {
+    backgroundColor: Colors.background
+  },
+  rootContentStyle: {
     backgroundColor: Colors.background
   },
   contentStyle: {
