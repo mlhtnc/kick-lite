@@ -22,9 +22,10 @@ export enum Screens {
   MainStack = "MainStack",
 	Login = "LoginScreen",
 	Home = "HomeScreen",
-	Stream = "StreamScreen",
+  Browse = "BrowseScreen",
   Search = "SearchScreen",
-  SleepTimer = "SleepTimerScreen"
+  SleepTimer = "SleepTimerScreen",
+	Stream = "StreamScreen",
 }
 
 export type RootStackParamList = {
@@ -47,6 +48,7 @@ export type LoginScreenProps = NativeStackScreenProps<MainStackParamList, Screen
 
 export type RootTabParamList = {
   [Screens.MainStack]: undefined;
+  [Screens.Browse]: undefined;
   [Screens.Search]: undefined;
   [Screens.SleepTimer]: undefined;
 };

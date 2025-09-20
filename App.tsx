@@ -16,6 +16,7 @@ import { mainToastConfig } from './src/toast_types/toast_types';
 import { Colors } from './src/constants';
 import Ionicons, { IoniconsIconName } from '@react-native-vector-icons/ionicons';
 import useSleepTimerInBackground from './src/components/hooks/useSleepTimerInBackground';
+import BrowseScreen from './src/screens/BrowseScreen';
 
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -53,6 +54,8 @@ function MainTabs() {
 
           if (route.name === Screens.MainStack) {
             iconName = 'home-outline';
+          } else if (route.name === Screens.Browse) {
+            iconName = 'albums-outline';
           } else if (route.name === Screens.SleepTimer) {
             iconName = 'moon-outline';
           } else if (route.name === Screens.Search) {
@@ -64,6 +67,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name={Screens.MainStack} component={MainStack} />
+      <Tab.Screen name={Screens.Browse} component={BrowseScreen} />
       <Tab.Screen name={Screens.SleepTimer} component={SleepTimerScreen} />
       <Tab.Screen name={Screens.Search} component={SearchScreen} />
     </Tab.Navigator>

@@ -186,6 +186,57 @@ export const getChannels = async (slugs?: string[]): Promise<Channel[]> => {
 	}
 };
 
+export const getLivestreams = async (slugs?: string[]): Promise<Channel[]> => {
+		
+	try {
+		const { tokens } = useTokens.getState();
+		if(!tokens) {
+			throw new Error();
+		}
+
+		let url = `${KickApiBaseUrl}/livestreams`;
+		const params = new URLSearchParams();
+
+		params.append("language", "tr");
+		params.append("sort", "viewer_count");
+		params.append("limit", "30");
+
+		url += "?" + params.toString();
+
+		const res = await fetch(url, {
+			method: "GET",
+			headers: {
+				"Authorization": `Bearer ${tokens.accessToken}`,
+      	"Accept": "*/*"
+			},
+		});
+
+		console.log(res);
+
+		if (!res.ok) {
+			throw new Error();
+		}
+
+		const data = await res.json();
+
+		return data.data.map(( data: any ): Channel => {
+			return {
+				id: data.broadcaster_user_id,
+				name: "",
+				slug: data.slug,
+				isLive: true,
+				viewerCount: data.viewer_count,
+				streamTitle: data.stream_title,
+				startTime: data.started_at,
+				thumbnail: data.thumbnail
+			}
+		});
+
+	} catch (err) {
+		throw err;
+	}
+};
+
 export const postMessage = async (
 	userId: string,
 	content: string,
