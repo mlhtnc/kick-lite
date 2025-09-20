@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -12,6 +12,8 @@ import { useChannelListStore } from '../stores/channelListStore';
 
 export default function SearchScreen({ navigation }: SearchScreenProps) {
 
+  const searchInputRef = useRef<TextInput>(null);
+
   const [ searchText, setSearchText ] = useState<string>("");
   const [ resultChannel, setResultChannel ] = useState<Channel>();
   const [ isSearching, setIsSearching ] = useState<boolean>(true);
@@ -20,13 +22,22 @@ export default function SearchScreen({ navigation }: SearchScreenProps) {
 
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('blur', () => {
+    const focusUnsubscribe = navigation.addListener('focus', () => {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 200);
+    });
+
+    const blurUnsubscribe = navigation.addListener('blur', () => {
       setSearchText("");
       setIsSearching(true);
       setResultChannel(undefined);
     });
 
-    return unsubscribe;
+    return () => {
+      focusUnsubscribe();
+      blurUnsubscribe();
+    }
   }, [navigation]);
 
   const onSearchButtonPressed = () => {
@@ -62,6 +73,7 @@ export default function SearchScreen({ navigation }: SearchScreenProps) {
         <View style={styles.content}>
 
           <TextInput
+            ref={searchInputRef}
             style={styles.searchInput}
             value={searchText}
             onChangeText={setSearchText}
