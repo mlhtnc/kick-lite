@@ -17,7 +17,7 @@ export default function SleepTimerScreen() {
 
   const [ hours, setHours ] = useState<string>("00");
   const [ minutes, setMinutes ] = useState<string>("30");
-  const [ remainingTime, setRemainingTime ] = useState<string>("--:--:--");
+  const [ remainingTime, setRemainingTime ] = useState<string>("");
 
 
   const insets = useSafeAreaInsets();
@@ -103,16 +103,16 @@ export default function SleepTimerScreen() {
     clearInterval(intervalRef.current || undefined);
     stopTimer();
 
-    setRemainingTime("--:--:--")
-    
+    setRemainingTime("")
     await saveSleepTime(null);
   }
 
+  const remainingTimeOpacity = remainingTime ? 1 : 0;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
 
-      <Text style={styles.remainingTimeText}>{"Remaining Time\n" + remainingTime}</Text>
+      <Text style={[styles.remainingTimeText, { opacity: remainingTimeOpacity }]}>{"You will sleep in\n" + remainingTime}</Text>
 
       <View style={styles.flexRowContainer}>
         <TextInput
