@@ -51,7 +51,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     isAccessTokenValid(tokens.accessToken).then(async (isValid) => {
       if(isValid) {
         setTokens(tokens);
-        navigation.reset({ index: 0, routes: [{ name: Screens.Home, params: { tokens: tokens }}]});
+        navigation.reset({ index: 0, routes: [{ name: Screens.MainTabs }]});
         return;
       }
 
@@ -97,7 +97,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     
     setTokens(tokens);
     await saveTokens(tokens);
-    navigation.reset({ index: 0, routes: [{ name: Screens.Home, params: { tokens: tokens }}]});
+    navigation.reset({ index: 0, routes: [{ name: Screens.MainTabs }]});
   }
 
   const handleNavigationChange = async (navState: WebViewNavigation) => {

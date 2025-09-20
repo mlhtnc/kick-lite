@@ -29,25 +29,19 @@ export enum Screens {
 }
 
 export type RootStackParamList = {
+  [Screens.Login]: undefined;
   [Screens.MainTabs]: undefined;
   [Screens.Stream]: { channel: Channel };
 };
 
+export type LoginScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Login>;
 export type StreamScreenProps = NativeStackScreenProps<RootStackParamList, Screens.Stream>;
 
-
-export type MainStackParamList = {
-  [Screens.Login]: undefined;
-  [Screens.Home]: undefined;
-};
-
-export type LoginScreenProps = NativeStackScreenProps<MainStackParamList, Screens.Login>;
 // Example for future usage
-// type AnyNavigationProp = HomeScreenProps | LoginScreenProps; 
-
+// type AnyNavigationProp = LoginScreenProps | StreamScreenProps;
 
 export type RootTabParamList = {
-  [Screens.MainStack]: undefined;
+  [Screens.Home]: undefined;
   [Screens.Browse]: undefined;
   [Screens.Search]: undefined;
   [Screens.SleepTimer]: undefined;
