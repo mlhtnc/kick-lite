@@ -10,7 +10,7 @@ export const KickRedirectUri = "http://localhost:3000/callback";
 
 
 export const Colors: ColorsType = {
-	background: "#070707",
+	background: "#000000",
 	textPrimary: "#FFFFFF",
 	textSecondary: "#AAAAAA",
 	textAccent: "#53FC18",
