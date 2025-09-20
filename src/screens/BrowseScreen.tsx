@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '../constants';
 import { Channel } from '../types';
-import ScreenHeader from '../components/ScreenHeader';
 import { getLivestreams, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
@@ -63,8 +61,7 @@ export default function BrowseScreen() {
 
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScreenHeader title={"Browse"} />
+    <View style={styles.container}>
       
       <View style={styles.listContainer}>
         <ChannelList
@@ -74,7 +71,7 @@ export default function BrowseScreen() {
         />
       </View>
     
-    </SafeAreaView>
+    </View>
   );
 }
 

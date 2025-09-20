@@ -110,7 +110,7 @@ export default function SleepTimerScreen() {
   const remainingTimeOpacity = remainingTime ? 1 : 0;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+    <View style={styles.container}>
 
       <Text style={[styles.remainingTimeText, { opacity: remainingTimeOpacity }]}>{"You will sleep in\n" + remainingTime}</Text>
 

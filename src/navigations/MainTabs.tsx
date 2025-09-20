@@ -16,8 +16,15 @@ export default function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
+        headerStyle: {
+          backgroundColor: Colors.background,
+          borderBottomWidth: 1,
+          borderBottomColor: Colors.border,
+	        elevation: 0
+        },
+        headerTintColor: Colors.textPrimary,
         tabBarStyle: styles.tabBarStyle,
-        headerShown: false,
+        headerShown: true,
         tabBarShowLabel: false,
         tabBarActiveTintColor: Colors.buttonPrimary,
         animation: 'none',
@@ -38,10 +45,10 @@ export default function MainTabs() {
         }
       })}
     >
-      <Tab.Screen name={Screens.Home} component={HomeScreen} />
-      <Tab.Screen name={Screens.Browse} component={BrowseScreen} />
-      <Tab.Screen name={Screens.SleepTimer} component={SleepTimerScreen} />
-      <Tab.Screen name={Screens.Search} component={SearchScreen} />
+      <Tab.Screen name={Screens.Home} component={HomeScreen} options={{ title: "Kick Lite" }} />
+      <Tab.Screen name={Screens.Browse} component={BrowseScreen} options={{ title: "Browse" }} />
+      <Tab.Screen name={Screens.SleepTimer} component={SleepTimerScreen} options={{ title: "Sleep Timer" }} />
+      <Tab.Screen name={Screens.Search} component={SearchScreen} options={{ headerShown: false  }} />
     </Tab.Navigator>
   );
 }
