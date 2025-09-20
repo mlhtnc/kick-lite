@@ -4,14 +4,14 @@ import { ChannelListProps } from '../types';
 import ChannelCard from './ChannelCard';
 
 
-export default function ChannelList({ screenProps, channels, loading, onRefresh }: ChannelListProps) {
+export default function ChannelList({ channels, loading, onRefresh }: ChannelListProps) {
 
   return (
     <FlatList
       contentContainerStyle={{margin: 0, padding: 0}}
       style={styles.listStyle}
       data={channels}
-      renderItem={({item: channel}) => <ChannelCard channel={channel} screenProps={screenProps} /> }
+      renderItem={({item: channel}) => <ChannelCard channel={channel} /> }
       refreshing={loading}
       onRefresh={onRefresh}
       keyExtractor={item => item.id}

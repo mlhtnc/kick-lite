@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors } from '../constants';
-import { Channel, HomeScreenProps } from '../types';
+import { Channel } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
 import { getChannels, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
@@ -12,10 +12,9 @@ import { loadChannels } from '../utils/save_utils';
 import { useChannelListStore } from '../stores/channelListStore';
 
 
-export default function HomeScreen({ navigation, route }: HomeScreenProps) {
+export default function HomeScreen() {
 
   const [ loading, setLoading ] = useState<boolean>(false);
-
   const { channels, setChannels } = useChannelListStore();
 
 
@@ -100,7 +99,6 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
       <View style={styles.listContainer}>
         <ChannelList
           channels={channels || []}
-          screenProps={{navigation, route}}
           loading={loading}
           onRefresh={onRefresh}
         />

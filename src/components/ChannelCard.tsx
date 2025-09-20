@@ -2,25 +2,27 @@ import { useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Colors } from '../constants';
-import { Channel, ChannelCardProps, Screens } from '../types';
+import { Channel, ChannelCardProps, RootStackParamList, Screens } from '../types';
 import { formatViewerCount } from '../helpers/helpers';
 import BasicButton from './buttons/BasicButton';
 import { useChannelListStore } from '../stores/channelListStore';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
-export default function ChannelCard({ screenProps, channel }: ChannelCardProps) {
+export default function ChannelCard({ channel }: ChannelCardProps) {
 
   const [ isDeleteButtonShowing, setIsDeleteButtonShowing ] = useState<boolean>(false);
+  const { removeChannel } = useChannelListStore();
+  const rootNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const { removeChannel }= useChannelListStore();
   
-
   const handleChannelClick = (channel: Channel) => {
     if(!channel.isLive) {
       return;
     }
     
-    screenProps.navigation.navigate(Screens.Stream, { channel });
+    rootNavigation.navigate(Screens.Stream, { channel });
   }
 
   const handleChannelLongClick = () => {

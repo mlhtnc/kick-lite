@@ -40,9 +40,9 @@ export type MainStackParamList = {
   [Screens.Home]: undefined;
 };
 
-export type HomeScreenProps = NativeStackScreenProps<MainStackParamList, Screens.Home>;
 export type LoginScreenProps = NativeStackScreenProps<MainStackParamList, Screens.Login>;
-type AnyNavigationProp = HomeScreenProps | LoginScreenProps;
+// Example for future usage
+// type AnyNavigationProp = HomeScreenProps | LoginScreenProps; 
 
 
 export type RootTabParamList = {
@@ -61,14 +61,12 @@ export interface ScreenHeaderProps {
 
 export interface ChannelListProps {
 	channels: Channel[];
-  screenProps: AnyNavigationProp;
   loading: boolean;
   onRefresh: () => void;
 }
 
 export interface ChannelCardProps {
   channel: Channel;
-  screenProps: AnyNavigationProp;
 }
 
 export interface PlayerProps {
