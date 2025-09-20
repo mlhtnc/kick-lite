@@ -10,6 +10,7 @@ export default function ChannelList({ channels, loading, onRefresh }: ChannelLis
     <FlatList
       contentContainerStyle={{margin: 0, padding: 0}}
       style={styles.listStyle}
+      windowSize={7}
       data={channels}
       renderItem={({item: channel}) => <ChannelCard channel={channel} /> }
       refreshing={loading}
