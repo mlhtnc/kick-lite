@@ -81,7 +81,7 @@ export default function SearchScreen({ navigation }: SearchScreenProps) {
             autoFocus
           />
               
-          <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='search' iconSize={24} onPress={onSearchButtonPressed}></BasicCircleButton>
+          <BasicCircleButton style={{backgroundColor: Colors.background}} iconName='search' iconSize={24} onPress={onSearchButtonPressed} />
         </View>
       </View>
       
