@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   View,
   Text,
+  Animated,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -21,9 +22,29 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   const [ showControl, setShowControl ] = useState<boolean>(false);
   const [ showQualityMenu, setShowQualityMenu ] = useState<boolean>(false);
   const [ elapsedTime, setElapsedTime ] = useState<string>("");
+
+  
+
+  const fadeIn = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const fadeOut = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  };
 
 
   useFocusEffect(
@@ -63,9 +84,11 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
       stopShowingTime();
       setShowQualityMenu(false);
       setShowControl(false);
+      fadeOut();
     } else {
       startShowingTime();
       setShowControl(true);
+      fadeIn();
 
       if(timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -74,6 +97,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
       timeoutRef.current = setTimeout(() => {
         stopShowingTime();
         setShowControl(false);
+        fadeOut();
       }, 5000);
     }
   }
@@ -110,16 +134,16 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
   const showIndicatorCondition = !isStreamReady || isLoading;
   const showQualityCondition = showQualityMenu && streamURLs;
-  const showControlCondition = !showIndicatorCondition && isStreamReady && showControl;
+  const showControlCondition = !showIndicatorCondition && isStreamReady;
 
   return (
-    <TouchableOpacity style={styles.controls} onPress={onControllersPressed} activeOpacity={1}>
+    <TouchableOpacity style={styles.controlsContainer} onPress={onControllersPressed} activeOpacity={1}>
       { showControlCondition ?
       
-        <>
+        <Animated.View style={[ styles.controls, { opacity: fadeAnim } ]}>
           <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
 
-          <LinearGradient style={[styles.bottomControls, isFullscreen ? { height: "9%" } : undefined ]} colors={['#0000', '#000a']}>
+          <LinearGradient style={[styles.bottomControls, isFullscreen ? { height: "9%" } : undefined]} colors={['#0000', '#000a']}>
             <View style={styles.bottomControlsContent}>
               <Text style={styles.timeText}>{elapsedTime}</Text>
               <View style={styles.bottomRightControls}>
@@ -128,6 +152,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
               </View>
             </View>
           </LinearGradient>
+
           
           { showQualityCondition ?
             (
@@ -140,7 +165,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
               </View>
             ) : null
           }
-        </>
+        </Animated.View>
         : null
       }
 
@@ -151,7 +176,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
 }
 
 const styles = StyleSheet.create({
-  controls: {
+  controlsContainer: {
     position: 'absolute',
     top: 0,
     bottom: 0,
@@ -161,6 +186,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: "rgba(0,0,0,0)"
+  },
+  controls: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'stretch'
   },
   playPauseButton: {
     width: 40,
