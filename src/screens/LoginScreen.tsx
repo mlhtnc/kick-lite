@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import WebView, { WebViewNavigation } from 'react-native-webview';
+import WebView from 'react-native-webview';
+import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 
 import BasicButton from '../components/buttons/BasicButton';
 import { Colors, KickRedirectUri, KickScopeString } from '../constants';
@@ -10,20 +11,19 @@ import { loadClient, loadTokens, saveClient, saveTokens } from '../utils/save_ut
 import { createAuthUrl, generatePKCE } from '../utils/auth_utils';
 import { getToken, isAccessTokenValid, refreshAccessToken } from '../services/kick_service';
 import { showErrorRefreshingAccessToken, showErrorRequestingAccessToken, showErrorValidatingAccessToken } from '../alerts/alerts';
-import { LoginSuccessful } from '../components/LoginSuccessful';
 import { GlobalKAVBehaviour } from '../helpers/helpers';
 import { useTokens } from '../stores/tokensStore';
 
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
 
+  const isTokenHandledRef = useRef<boolean>(false);
+
   const [ clientId, setClientId ] = useState<string>('');
   const [ clientSecret, setClientSecret ] = useState<string>('');
   const [ authUrl, setAuthUrl ] = useState<string | null>(null);
   const [ pkce, setPkce ] = useState<PKCE>();
   const [ loading, setLoading ] = useState<boolean>(true);
-  const [ tokenHandled, setTokenHandled ] = useState<boolean>(false);
-  const [ isAuthDone, setIsAuthDone ] = useState<boolean>(false);
 
   const { setTokens } = useTokens();
 
@@ -100,42 +100,50 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     navigation.reset({ index: 0, routes: [{ name: Screens.MainTabs }]});
   }
 
-  const handleNavigationChange = async (navState: WebViewNavigation) => {
-    const url = navState.url;
-
-    if(tokenHandled) {
-      return;
-    }
+  const handleRequest = (request: ShouldStartLoadRequest) => {
+    const url = request.url;
 
     if(url.includes(KickRedirectUri)) {
-      setTokenHandled(true);
+      parseTokens(url);
+      return false;
+    }
 
-      const codeParam = url.split('code=')[1];
-      const code = codeParam ? codeParam.split('&')[0] : null;
+    return true;
+  }
 
-      const { clientId, clientSecret } = await loadClient();
+  const parseTokens = async (url: string) => {
+    if(isTokenHandledRef.current) {
+      return false;
+    }
 
-      getToken(
+    isTokenHandledRef.current = true;
+
+    const codeParam = url.split('code=')[1];
+    const code = codeParam ? codeParam.split('&')[0] : null;
+
+    const { clientId, clientSecret } = await loadClient();
+
+    try {
+
+      const tokenResponse = await getToken(
         clientId,
         clientSecret,
         code as string,
         KickRedirectUri,
         pkce?.code_verifier || '',
-      ).then(async (tokenResponse) => {
-        await handleTokenResponse(tokenResponse);
-        setIsAuthDone(true);
-      }).catch(() => {
-        showErrorRequestingAccessToken();
-      }).finally(() => {
-        setAuthUrl(null);
-      });
+      );
+
+      await handleTokenResponse(tokenResponse);
+
+    } catch(err) {
+      showErrorRequestingAccessToken();
+    } finally {
+      setAuthUrl(null);
     }
   }
 
 
-  if(isAuthDone) {
-    return (<LoginSuccessful />);
-  } else if (!authUrl) {
+  if (!authUrl) {
     return (
       <SafeAreaView style={styles.safeAreaContainer}>
         <KeyboardAvoidingView style={styles.kav} behavior={GlobalKAVBehaviour} >
@@ -175,7 +183,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       <SafeAreaView style={styles.safeAreaContainer}>
         <WebView
           source={{ uri: authUrl }}
-          onNavigationStateChange={handleNavigationChange}
+          onShouldStartLoadWithRequest={handleRequest}
           startInLoadingState={true}
           renderLoading={() => <ActivityIndicator size="large" />}
         />
