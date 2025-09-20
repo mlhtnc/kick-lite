@@ -31,8 +31,8 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    const showSubscription = Keyboard.addListener('keyboardDidShow', () => setOffset(0));
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => setOffset(-insets.top));
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => setOffset(insets.top));
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => setOffset(0));
 
     fetchStreamURL();
 
@@ -70,7 +70,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       />
 
       { !isFullscreen &&
-        <KeyboardAvoidingView style={{flex: 1}} behavior={GlobalKAVBehaviour} keyboardVerticalOffset={offset}>
+        <KeyboardAvoidingView style={{flex: 1}} behavior={GlobalKAVBehaviour} keyboardVerticalOffset={ offset } >
           <StreamInfo channel={channel} />
           <ChatFeed/>
           <ChatInput channel={channel} />
