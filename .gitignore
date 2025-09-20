@@ -77,3 +77,4 @@ yarn-error.log
 
 # Custom
 .env
+android/app/signing.properties
