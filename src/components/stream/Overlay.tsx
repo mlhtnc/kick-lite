@@ -119,7 +119,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
         <>
           <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
 
-          <LinearGradient style={styles.bottomControls} colors={['#0000', '#000a']}>
+          <LinearGradient style={[styles.bottomControls, isFullscreen ? { height: "9%" } : undefined ]} colors={['#0000', '#000a']}>
             <View style={styles.bottomControlsContent}>
               <Text style={styles.timeText}>{elapsedTime}</Text>
               <View style={styles.bottomRightControls}>
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: "15%"
+    height: "13%"
   },
   bottomControlsContent: {
     flex: 1,

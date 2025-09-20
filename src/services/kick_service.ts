@@ -211,8 +211,6 @@ export const getLivestreams = async (slugs?: string[]): Promise<Channel[]> => {
 			},
 		});
 
-		console.log(res);
-
 		if (!res.ok) {
 			throw new Error();
 		}

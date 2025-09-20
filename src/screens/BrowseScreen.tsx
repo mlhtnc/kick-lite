@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants';
 import { Channel } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
-import { getChannels, getLivestreams, getUser } from '../services/kick_service';
+import { getLivestreams, getUser } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
 import { useBrowsedChannelListStore } from '../stores/browsedChannelListStore';
