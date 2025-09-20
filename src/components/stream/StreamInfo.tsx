@@ -9,6 +9,7 @@ import { getChannels } from '../../services/kick_service';
 
 export default function StreamInfo({ channel }: StreamInfoProps) {
 
+  const [ streamTitle, setStreamTitle ] = useState<string>(channel.streamTitle);
   const [ viewerCount, setViewerCount ] = useState<number>(channel.viewerCount);
 
 
@@ -19,6 +20,7 @@ export default function StreamInfo({ channel }: StreamInfoProps) {
         getChannels([ channel.slug ])
         .then(async (channels) => {
           setViewerCount(channels[0].viewerCount);
+          setStreamTitle(channels[0].streamTitle);
         }).catch(() => {});
 				
 			} catch (e) {}
@@ -38,7 +40,7 @@ export default function StreamInfo({ channel }: StreamInfoProps) {
       </View>
 
       <View style={styles.textContainer2}>
-        <Text style={styles.streamTitleText}>{channel.streamTitle}</Text>
+        <Text style={styles.streamTitleText}>{streamTitle}</Text>
       </View>
     </View>
   );
