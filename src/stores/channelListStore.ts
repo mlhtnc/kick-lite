@@ -99,14 +99,14 @@ export const useChannelListStore = create<ChannelListState>((set, get) => ({
     channels = [...channels, channel];
     fetchChannels(set, channels);
 
-    await saveChannelsBySlugs(get().channels);
+    await saveChannelsBySlugs(channels);
   },
   removeChannel: async (channel: Channel) => {
     let { channels } = get();
     channels = channels.filter(ch => ch.id !== channel.id);
     fetchChannels(set, channels);
 
-    await saveChannelsBySlugs(get().channels);
+    await saveChannelsBySlugs(channels);
   },
   refreshChannels: () => refresh(set, get),
   channelsLoading: false,
