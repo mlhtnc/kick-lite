@@ -44,7 +44,6 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         // Show login screen
         setLoading(false);
       }
-
       return;
     }
 
@@ -62,10 +61,14 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       ).then(async (tokenResponse) => handleTokenResponse(tokenResponse)
       ).catch(() => {
         showErrorRefreshingAccessToken();
+        setLoading(false);
+        return;
       });
 
     }).catch(() => {
       showErrorValidatingAccessToken();
+      setLoading(false);
+      return;
     });
   }
 
