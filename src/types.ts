@@ -1,5 +1,6 @@
+import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Dispatch, SetStateAction } from "react";
 import { ColorValue, GestureResponderEvent, TextStyle, ViewStyle } from "react-native";
 
@@ -97,6 +98,7 @@ export interface StreamInfoProps {
 
 export interface ChatInputProps {
   channel: Channel;
+  bottomSheetRef: React.RefObject<BottomSheetMethods | null>;
 }
 
 export interface BasicCircleButtonProps {
