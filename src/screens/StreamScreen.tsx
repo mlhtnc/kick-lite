@@ -32,12 +32,13 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const [ isFullscreen, setIsFullscreen ] = useState(false);
   const [ isStreamReady, setIsStreamReady ] = useState<boolean>(false);
   const [ selectedQuality, setSelectedQuality ] = useState<StreamURL>();
-  
+  const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState<boolean>(false);
+
   const { channel } = route.params;
 
   const insets = useSafeAreaInsets();
 
-  const { setIsRunning } = useBackgroundServiceInfo.getState();
+  const { setIsRunning, setEndTime } = useBackgroundServiceInfo.getState();
 
 
   useEffect(() => {
@@ -60,6 +61,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       if(isRunning) {
         ForegroundService.stop();
         setIsRunning(false);
+        setEndTime(-1);
       }
     };
   }, []);
@@ -75,6 +77,10 @@ export default function StreamScreen({ route }: StreamScreenProps) {
     }).catch(() => {
       showErrorUnabletoStream();
     });
+  }
+
+  const handleSheetChanges = (index: number) => {
+    setIsBottomSheetOpen(index !== -1);
   }
 
 
@@ -106,8 +112,9 @@ export default function StreamScreen({ route }: StreamScreenProps) {
         enableDynamicSizing={false}
         enablePanDownToClose={true}
         backgroundStyle={{ backgroundColor: "#222" }}
+        onChange={handleSheetChanges}
       >
-        <SleepTimerBottomSheet />
+        <SleepTimerBottomSheet isOpen={isBottomSheetOpen} />
       </BottomSheet>
 
     </GestureHandlerRootView>
