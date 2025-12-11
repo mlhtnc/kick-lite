@@ -16,6 +16,8 @@ import ChatFeed from '../components/stream/ChatFeed';
 import { GlobalKAVBehaviour } from '../helpers/helpers';
 import Player from '../components/stream/Player';
 import StreamInfo from '../components/stream/StreamInfo';
+import { useBackgroundServiceInfo } from '../stores/backgroundServiceStore';
+import ForegroundService from '../modules/ForegroundService';
 
 
 export default function StreamScreen({ route }: StreamScreenProps) {
@@ -30,15 +32,30 @@ export default function StreamScreen({ route }: StreamScreenProps) {
 
   const insets = useSafeAreaInsets();
 
+  const { setIsRunning } = useBackgroundServiceInfo.getState();
+
+
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => setOffset(insets.top));
     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => setOffset(0));
 
     fetchStreamURL();
 
+    const { isRunning } = useBackgroundServiceInfo.getState();
+    if(!isRunning) {
+      ForegroundService.start();
+      setIsRunning(true);
+    }
+
     return () => {
       showSubscription.remove();
       hideSubscription.remove();
+      
+      const { isRunning } = useBackgroundServiceInfo.getState();
+      if(isRunning) {
+        ForegroundService.stop();
+        setIsRunning(false);
+      }
     };
   }, []);
 

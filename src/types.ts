@@ -24,7 +24,6 @@ export enum Screens {
 	Home = "HomeScreen",
   Browse = "BrowseScreen",
   Search = "SearchScreen",
-  SleepTimer = "SleepTimerScreen",
 	Stream = "StreamScreen",
 }
 
@@ -44,7 +43,6 @@ export type RootTabParamList = {
   [Screens.Home]: undefined;
   [Screens.Browse]: undefined;
   [Screens.Search]: undefined;
-  [Screens.SleepTimer]: undefined;
 };
 
 export type SearchScreenProps = BottomTabScreenProps<RootTabParamList, Screens.Search>;

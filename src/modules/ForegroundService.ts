@@ -3,19 +3,16 @@ import { NativeModules } from "react-native";
 const { ForegroundService } = NativeModules;
 
 export default {
-  start: (durationMs: number) => {
-    ForegroundService.startService(durationMs);
+  start: () => {
+    ForegroundService.startService();
   },
   stop: () => {
     ForegroundService.stopService();
   },
-  isAlive: async (): Promise<boolean> => {
-    return await ForegroundService.isAlive();
+  updateTimer: (endTimeMs: number) => {
+    ForegroundService.updateTimer(endTimeMs);
   },
-  getRemainingTime: async (): Promise<any> => {
-    return await ForegroundService.getRemainingTime();
-  },
-  exitApp: () => {
-    ForegroundService.exitApp();
+  stopTimer: () => {
+    ForegroundService.stopTimer();
   }
 };

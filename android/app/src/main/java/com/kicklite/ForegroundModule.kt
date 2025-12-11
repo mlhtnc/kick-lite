@@ -9,7 +9,7 @@ import android.os.Build
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
+
 
 class ForegroundModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -72,11 +72,9 @@ class ForegroundModule(reactContext: ReactApplicationContext) :
 
 
     @ReactMethod
-    fun startService(durationMs: Int) {
+    fun startService() {
         val context = reactApplicationContext
-        val intent = Intent(context, ForegroundService::class.java).apply {
-            putExtra("durationMs", durationMs)
-        }
+        val intent = Intent(context, ForegroundService::class.java)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
@@ -94,19 +92,16 @@ class ForegroundModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun isAlive(promise: Promise) {
-        promise.resolve(service?.isAlive() ?: false)
+    fun updateTimer(ms: Int) {
+        if (bound) {
+            service?.updateTimer(ms)
+        }
     }
 
     @ReactMethod
-    fun getRemainingTime(promise: Promise) {
-        val remaining = service?.getRemainingTime() ?: 0L
-        promise.resolve(remaining.toInt())
-    }
-
-    @ReactMethod
-    fun exitApp() {
-        unbind()
-        _exitApp()
+    fun stopTimer() {
+        if (bound) {
+            service?.stopTimer()
+        }
     }
 }
