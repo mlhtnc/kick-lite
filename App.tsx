@@ -6,13 +6,10 @@ import BootSplash from "react-native-bootsplash";
 
 import { mainToastConfig } from './src/toast_types/toast_types';
 import { Colors } from './src/constants';
-import useSleepTimerInBackground from './src/components/hooks/useSleepTimerInBackground';
 import RootStack from './src/navigations/RootStack';
 
 
 export default function App() {
-
-  useSleepTimerInBackground();
 
   return (
     <SafeAreaProvider style={styles.safeAreaProvider}>

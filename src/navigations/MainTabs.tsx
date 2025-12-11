@@ -5,7 +5,6 @@ import Ionicons, { IoniconsIconName } from "@react-native-vector-icons/ionicons"
 import { RootTabParamList, Screens } from "../types";
 import { Colors } from "../constants";
 import BrowseScreen from "../screens/BrowseScreen";
-import SleepTimerScreen from "../screens/SleepTimerScreen";
 import SearchScreen from "../screens/SearchScreen";
 import HomeScreen from "../screens/HomeScreen";
 
@@ -35,8 +34,6 @@ export default function MainTabs() {
             iconName = 'home-outline';
           } else if (route.name === Screens.Browse) {
             iconName = 'albums-outline';
-          } else if (route.name === Screens.SleepTimer) {
-            iconName = 'moon-outline';
           } else if (route.name === Screens.Search) {
             iconName = 'search-outline';
           }
@@ -47,7 +44,6 @@ export default function MainTabs() {
     >
       <Tab.Screen name={Screens.Home} component={HomeScreen} options={{ title: "Kick Lite" }} />
       <Tab.Screen name={Screens.Browse} component={BrowseScreen} options={{ title: "Browse" }} />
-      <Tab.Screen name={Screens.SleepTimer} component={SleepTimerScreen} options={{ title: "Sleep Timer" }} />
       <Tab.Screen name={Screens.Search} component={SearchScreen} options={{ headerShown: false  }} />
     </Tab.Navigator>
   );
