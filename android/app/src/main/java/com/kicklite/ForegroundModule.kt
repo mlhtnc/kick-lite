@@ -57,6 +57,8 @@ class ForegroundModule(reactContext: ReactApplicationContext) :
     private fun unbind() {
         if (bound) {
             reactApplicationContext.unbindService(connection)
+            bound = false
+            service = null
         }
     }
 

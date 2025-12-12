@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   StyleSheet,
-  View,
   KeyboardAvoidingView,
   Keyboard,
 } from 'react-native';
@@ -18,21 +17,28 @@ import Player from '../components/stream/Player';
 import StreamInfo from '../components/stream/StreamInfo';
 import { useBackgroundServiceInfo } from '../stores/backgroundServiceStore';
 import ForegroundService from '../modules/ForegroundService';
+import BottomSheet from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import SleepTimerBottomSheet from '../components/SleepTimerBottomSheet';
 
 
 export default function StreamScreen({ route }: StreamScreenProps) {
   
+  const sheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ["30%"], []);
+
   const [ streamURLs, setStreamURLs ] = useState<StreamURL[]>();
   const [ offset, setOffset ] = useState<number>(0);
   const [ isFullscreen, setIsFullscreen ] = useState(false);
   const [ isStreamReady, setIsStreamReady ] = useState<boolean>(false);
   const [ selectedQuality, setSelectedQuality ] = useState<StreamURL>();
-  
+  const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState<boolean>(false);
+
   const { channel } = route.params;
 
   const insets = useSafeAreaInsets();
 
-  const { setIsRunning } = useBackgroundServiceInfo.getState();
+  const { setIsRunning, setEndTime } = useBackgroundServiceInfo.getState();
 
 
   useEffect(() => {
@@ -55,6 +61,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       if(isRunning) {
         ForegroundService.stop();
         setIsRunning(false);
+        setEndTime(-1);
       }
     };
   }, []);
@@ -72,9 +79,13 @@ export default function StreamScreen({ route }: StreamScreenProps) {
     });
   }
 
+  const handleSheetChanges = (index: number) => {
+    setIsBottomSheetOpen(index !== -1);
+  }
+
 
   return (
-    <View style={[styles.container, !isFullscreen ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>
+    <GestureHandlerRootView style={[styles.container, !isFullscreen ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>
 
       <Player
         streamURLs={streamURLs}
@@ -90,11 +101,23 @@ export default function StreamScreen({ route }: StreamScreenProps) {
         <KeyboardAvoidingView style={{flex: 1}} behavior={GlobalKAVBehaviour} keyboardVerticalOffset={ offset } >
           <StreamInfo channel={channel} />
           <ChatFeed/>
-          <ChatInput channel={channel} />
+          <ChatInput channel={channel} bottomSheetRef={sheetRef} />
         </KeyboardAvoidingView>
       }
 
-    </View>
+      <BottomSheet
+        ref={sheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        enableDynamicSizing={false}
+        enablePanDownToClose={true}
+        backgroundStyle={{ backgroundColor: "#222" }}
+        onChange={handleSheetChanges}
+      >
+        <SleepTimerBottomSheet isOpen={isBottomSheetOpen} />
+      </BottomSheet>
+
+    </GestureHandlerRootView>
   );
 }
 
