@@ -25,7 +25,6 @@ export default function SleepTimerBottomSheet({ isOpen }: { isOpen: boolean }) {
       return;
 
     if(isOpen) {
-      console.log("Starting interval in bottom sheet");
       intervalRef.current = setInterval(() => {
         setRemainingTime(endTimeMs - Date.now());
       }, 100);
@@ -33,11 +32,11 @@ export default function SleepTimerBottomSheet({ isOpen }: { isOpen: boolean }) {
 
     return () => {
       if(intervalRef.current) {
+
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
 
-      console.log("Cleanup interval");
     }
   }, [isOpen]);
 
@@ -101,8 +100,8 @@ export default function SleepTimerBottomSheet({ isOpen }: { isOpen: boolean }) {
         <BasicButton style={styles.timeButtons} text='+1 hours' onPress={() => onTimeButtonPressed(60)} />
       </View>
       <View style= {styles.buttonContainer}>
-        <BasicButton style={styles.timeButtons} text='Reset' onPress={onResetPressed} />
-        <BasicButton style={styles.timeButtons} text='Start' onPress={onStartPressed} />
+        <BasicButton style={[styles.timeButtons, { backgroundColor: "#bb3333ff" }]} text='Reset' onPress={onResetPressed} />
+        <BasicButton style={[styles.timeButtons, { backgroundColor: "#1e71beff" }]} text='Start' onPress={onStartPressed} />
       </View>
 
     </BottomSheetView>
@@ -118,7 +117,7 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     color: '#999',
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 30
   },
   buttonContainer: {
