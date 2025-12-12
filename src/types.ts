@@ -81,12 +81,15 @@ export interface OverlayProps {
   isStreamReady: boolean;
   isLoading: boolean;
   paused: boolean;
+  muted: boolean;
   isFullscreen: boolean;
 }
 
 export interface OverlayActions {
   play: () => void;
   pause: () => void;
+  mute: () => void;
+  unmute: () => void;
   enterFullscreen: () => void;
   exitFullscreen: () => void;
   onQualityChanged: (quality: StreamURL) => void;

@@ -15,6 +15,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
 
   const [ streamURL, setStreamURL ] = useState<string>("");
   const [ paused, setPaused ] = useState(false);
+  const [ muted, setMuted ] = useState(false);
   const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
 
@@ -49,6 +50,14 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
     setPaused(true);
   }
 
+  const mute = () => {
+    setMuted(true);
+  }
+
+  const unmute = () => {
+    setMuted(false);
+  }
+
   const enterFullscreen = () => {
     videoRef.current?.presentFullscreenPlayer();
     Orientation.lockToLandscapeLeft();
@@ -68,7 +77,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
     setSelectedQuality(quality);
   }
 
-  const overlayActions = { play, pause, enterFullscreen, exitFullscreen, onQualityChanged };
+  const overlayActions = { play, pause, mute, unmute, enterFullscreen, exitFullscreen, onQualityChanged };
   const videoWidth = screenSize.width;
   const videoHeight = isFullscreen ? screenSize.height : (videoWidth * 9) / 16;
 
@@ -84,6 +93,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
         enterPictureInPictureOnLeave={true}
         disableFocus={true}
         paused={paused}
+        muted={muted}
         onLoadStart={() => setLoadingVideo(true)}
         onLoad={() => setLoadingVideo(false)}
         onBuffer={(e: OnBufferData) => setLoadingVideo(e.isBuffering)}
@@ -95,6 +105,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
         isStreamReady={isStreamReady}
         isLoading={loadingVideo}
         paused={paused}
+        muted={muted}
         isFullscreen={isFullscreen}
       />
     </View>
