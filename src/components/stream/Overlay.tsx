@@ -17,7 +17,7 @@ import BasicCircleButton from '../buttons/BasicCircleButton';
 import { convertMillisecondsToTime } from '../../helpers/helpers';
 
 
-export default function Overlay({actions, streamURLs, startTime, isStreamReady, isLoading, paused, isFullscreen}: OverlayProps) {
+export default function Overlay({actions, streamURLs, startTime, isStreamReady, paused, muted, isFullscreen}: OverlayProps) {
   
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
@@ -70,6 +70,14 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
       actions.play();
     } else {
       actions.pause();
+    }
+  }
+
+  const toggleVolume = () => {
+    if(muted) {
+      actions.unmute();
+    } else {
+      actions.mute();
     }
   }
 
@@ -134,6 +142,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
 
   
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
+  const volumeIconName = muted ? "volume-mute-outline" : "volume-medium-outline";
   const showIndicatorCondition = !isStreamReady;
   const showQualityCondition = showQualityMenu && streamURLs;
   const showControlCondition = !showIndicatorCondition && isStreamReady;
@@ -149,6 +158,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
             <View style={styles.bottomControlsContent}>
               <Text style={styles.timeText}>{elapsedTime}</Text>
               <View style={styles.bottomRightControls}>
+                <BasicCircleButton style={styles.qualityButton} iconName={volumeIconName} iconSize={25} onPress={toggleVolume} />
                 <BasicCircleButton style={styles.qualityButton} iconName='settings-outline' iconSize={25} onPress={toggleQualityOptions} />
                 <BasicCircleButton style={styles.fullscreenButton} iconName='scan-outline' iconSize={25} onPress={toggleFullscreen} />
               </View>
@@ -214,9 +224,8 @@ const styles = StyleSheet.create({
   },
   bottomRightControls: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center', 
-    width: 80
   },
   fullscreenButton: {
     marginHorizontal: 5,
