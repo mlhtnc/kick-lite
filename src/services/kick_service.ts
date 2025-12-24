@@ -161,7 +161,7 @@ export const getChannels = async (slugs?: string[]): Promise<Channel[]> => {
 		});
 
 		if (!res.ok) {
-			throw new Error();
+			throw new Error(res.status.toString());
 		}
 
 		const data = await res.json();
@@ -212,7 +212,7 @@ export const getLivestreams = async (slugs?: string[]): Promise<Channel[]> => {
 		});
 
 		if (!res.ok) {
-			throw new Error();
+			throw new Error(res.status.toString());
 		}
 
 		const data = await res.json();

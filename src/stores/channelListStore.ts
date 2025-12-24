@@ -39,8 +39,8 @@ const fetchChannels = async (set: SetFn, channels: Channel[]) => {
   .then(async (channels) => {
     updatedChannels = await fetchChannelUsernames(channels);
     sortChannels(updatedChannels);
-  }).catch(() => {
-    showErrorChannelsLoading();
+  }).catch((err: Error) => {
+    showErrorChannelsLoading("Home " + err.message);
   }).finally(() => {
     set({ channelsLoading: false, channels: updatedChannels});
   });

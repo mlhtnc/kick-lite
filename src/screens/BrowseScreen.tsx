@@ -26,8 +26,8 @@ export default function BrowseScreen() {
     .then(async (channels) => {
       let updatedChannels = await fetchChannelUsernames(channels);
       setChannels(updatedChannels);
-    }).catch(() => {
-      showErrorChannelsLoading();
+    }).catch((err: Error) => {
+      showErrorChannelsLoading("Browse " + err.message);
     }).finally(() => {
       setLoading(false);
     });

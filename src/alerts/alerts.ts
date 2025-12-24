@@ -32,10 +32,10 @@ export const showErrorUserLoading = () => {
   );
 }
 
-export const showErrorChannelsLoading = () => {
+export const showErrorChannelsLoading = (message: String) => {
   showError(
     "Error",
-    "An error occured while loading channels."
+    "An error occured while loading channels. (" + message + ")"
   );
 }
 
