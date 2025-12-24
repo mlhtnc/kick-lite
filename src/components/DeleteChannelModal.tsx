@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
 		backgroundColor: Colors.card,
 		padding: 20,
-		borderRadius: 8,
+		borderRadius: 20,
     borderWidth: 2,
     borderColor: Colors.border,
 	},
