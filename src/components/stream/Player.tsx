@@ -13,6 +13,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
 
   const videoRef = useRef<VideoRef>(null);
 
+  const [ playerKey, setPlayerKey ] = useState<number>(0); // Used to force re-mount Video component
   const [ streamURL, setStreamURL ] = useState<string>("");
   const [ paused, setPaused ] = useState(false);
   const [ muted, setMuted ] = useState(false);
@@ -44,6 +45,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
 
   const play = () => {
     setPaused(false);
+    setPlayerKey(p => p + 1);
   }
 
   const pause = () => {
@@ -84,6 +86,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
   return (
     <View style={[ styles.videoContainer, { width: videoWidth, height: videoHeight }]}>
       <Video
+        key={playerKey}
         source={ streamURL ? { uri: streamURL } : undefined}
         style={styles.video}
         resizeMode='contain'
