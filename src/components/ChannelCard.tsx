@@ -1,21 +1,14 @@
-import { useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Colors } from '../constants';
 import { Channel, ChannelCardProps, RootStackParamList, Screens } from '../types';
 import { formatViewerCount } from '../helpers/helpers';
-import BasicButton from './buttons/BasicButton';
-import { useChannelListStore } from '../stores/channelListStore';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+export default function ChannelCard({ channel, showDeleteChannel = undefined }: ChannelCardProps) {
 
-export default function ChannelCard({ channel }: ChannelCardProps) {
-
-  const [ isDeleteButtonShowing, setIsDeleteButtonShowing ] = useState<boolean>(false);
-  const { removeChannel } = useChannelListStore();
   const rootNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
   
   const handleChannelClick = (channel: Channel) => {
     if(!channel.isLive) {
@@ -26,58 +19,46 @@ export default function ChannelCard({ channel }: ChannelCardProps) {
   }
 
   const handleChannelLongClick = () => {
-    setIsDeleteButtonShowing(true);
+    if(showDeleteChannel === undefined) {
+      return;
+    }
 
-    setTimeout(() => {
-      setIsDeleteButtonShowing(false);
-    }, 2000);
+    showDeleteChannel(channel);
   }
-
 
   const viewerCountFormatted = formatViewerCount(channel.viewerCount);
   
   return (
     <View style={styles.listItemContainer}>
-    
-      { isDeleteButtonShowing ?
-        <BasicButton
-          text='DELETE'
-          style={styles.deleteButton}
-          textStyle={styles.deleteButtonText}
-          onPress={() => removeChannel(channel)}
-        />
-        :
-        <TouchableOpacity
-          style={styles.listItemButton}
-          onPress={() => handleChannelClick(channel)}
-          onLongPress={handleChannelLongClick}
-          activeOpacity={0.8}
-        >
-          <View style={styles.listItemButtonContainer}>
-            { channel.thumbnail ?
-                <Image
-                  style={styles.image}
-                  source={{ uri: `${channel.thumbnail}?t=${Date.now()}` }}
-                  resizeMode='contain'
-                />
-              :
-              null
-            }
+      <TouchableOpacity
+        style={styles.listItemButton}
+        onPress={() => handleChannelClick(channel)}
+        onLongPress={handleChannelLongClick}
+        activeOpacity={0.8}
+      >
+        <View style={styles.listItemButtonContainer}>
+          { channel.thumbnail ?
+              <Image
+                style={styles.image}
+                source={{ uri: `${channel.thumbnail}?t=${Date.now()}` }}
+                resizeMode='contain'
+              />
+            :
+            null
+          }
 
-            <View style={styles.textContainer1}>
-              <Text style={styles.nameText}>{channel.name}</Text>
-              <Text style={styles.viewerCountText}>{channel.viewerCount > 0 ? viewerCountFormatted : ""}</Text>
-            </View>
-
-            <View style={styles.textContainer2}>
-              <Text style={styles.streamTitleText}>{channel.streamTitle}</Text>
-            </View>
-
+          <View style={styles.textContainer1}>
+            <Text style={styles.nameText}>{channel.name}</Text>
+            <Text style={styles.viewerCountText}>{channel.viewerCount > 0 ? viewerCountFormatted : ""}</Text>
           </View>
-        </TouchableOpacity>
-      }
-    </View>
 
+          <View style={styles.textContainer2}>
+            <Text style={styles.streamTitleText}>{channel.streamTitle}</Text>
+          </View>
+
+        </View>
+      </TouchableOpacity>
+    </View>
   );
 }
 
