@@ -58,10 +58,13 @@ export interface ChannelListProps {
 	channels: Channel[];
   loading: boolean;
   onRefresh: () => void;
+  showDeleteChannel?: (channel: Channel) => void;
 }
 
 export interface ChannelCardProps {
   channel: Channel;
+  disableDelete?: boolean;
+  showDeleteChannel?: (channel: Channel) => void;
 }
 
 export interface PlayerProps {

@@ -1,26 +1,34 @@
+import { memo } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 
-import { ChannelListProps } from '../types';
+import { Channel, ChannelListProps } from '../types';
 import ChannelCard from './ChannelCard';
 
+export default memo(function ChannelList({ channels, loading, onRefresh, showDeleteChannel = undefined }: ChannelListProps) {
 
-export default function ChannelList({ channels, loading, onRefresh }: ChannelListProps) {
+  const renderItem = ({item: channel}: {item: Channel}) => (
+    <ChannelCard channel={channel} showDeleteChannel={showDeleteChannel} />
+  );
 
   return (
     <FlatList
-      contentContainerStyle={{margin: 0, padding: 0}}
+      contentContainerStyle={styles.contentContainerStyle}
       style={styles.listStyle}
       windowSize={7}
       data={channels}
-      renderItem={({item: channel}) => <ChannelCard channel={channel} /> }
+      renderItem={renderItem}
       refreshing={loading}
       onRefresh={onRefresh}
       keyExtractor={item => item.id}
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
+  contentContainerStyle: {
+    padding: 0,
+    margin: 0,
+  },
   listStyle: {
     padding: 20,
   }

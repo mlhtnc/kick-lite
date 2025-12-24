@@ -11,7 +11,7 @@ interface ChannelListState {
   setChannels: (channels: Channel[]) => Promise<void>;
   addChannel: (channel: Channel) => Promise<void>;
   removeChannel: (channel: Channel) => Promise<void>;
-  refreshChannels: () => void;
+  fetchChannels: () => void;
   channelsLoading: boolean;
 }
 
@@ -78,7 +78,7 @@ const sortChannels = (channels: Channel[]) => {
   });
 }
 
-const refresh = (set: SetFn, get: GetFn) => {
+const fetch = (set: SetFn, get: GetFn) => {
   fetchChannels(set, get().channels);
 }
 
@@ -104,10 +104,10 @@ export const useChannelListStore = create<ChannelListState>((set, get) => ({
   removeChannel: async (channel: Channel) => {
     let { channels } = get();
     channels = channels.filter(ch => ch.id !== channel.id);
-    fetchChannels(set, channels);
+    set({ channels });
 
     await saveChannelsBySlugs(channels);
   },
-  refreshChannels: () => refresh(set, get),
+  fetchChannels: () => fetch(set, get),
   channelsLoading: false,
 }));
