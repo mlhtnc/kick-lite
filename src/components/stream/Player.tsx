@@ -20,7 +20,6 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
   const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
 
-
   useEffect(() => {
     const dimensionSubscription = Dimensions.addEventListener('change', ({ screen }) => setScreenSize(screen));
     return () => dimensionSubscription?.remove();
@@ -110,6 +109,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
         paused={paused}
         muted={muted}
         isFullscreen={isFullscreen}
+        selectedQuality={selectedQuality}
       />
     </View>
   );

@@ -87,6 +87,7 @@ export interface OverlayProps {
   paused: boolean;
   muted: boolean;
   isFullscreen: boolean;
+  selectedQuality: StreamURL | undefined;
 }
 
 export interface OverlayActions {

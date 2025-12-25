@@ -17,8 +17,16 @@ import BasicCircleButton from '../buttons/BasicCircleButton';
 import { convertMillisecondsToTime } from '../../helpers/helpers';
 
 
-export default function Overlay({actions, streamURLs, startTime, isStreamReady, paused, muted, isFullscreen}: OverlayProps) {
-  
+export default function Overlay({
+  actions,
+  streamURLs,
+  startTime,
+  isStreamReady,
+  paused,
+  muted,
+  isFullscreen,
+  selectedQuality,
+}: OverlayProps) {  
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
 
@@ -106,6 +114,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
 
       timeoutRef.current = setTimeout(() => {
         stopShowingTime();
+        setShowQualityMenu(false);
         setShowControl(false);
         fadeOut();
       }, 5000);
@@ -136,11 +145,13 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
 
   const selectQuality = (quality: StreamURL) => {
     actions.onQualityChanged(quality);
+    stopShowingTime();
     setShowQualityMenu(false);
     setShowControl(false);
+    fadeOut();
   }
 
-  
+  const selectedQualityHeight = selectedQuality ? selectedQuality.height : 1080;
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
   const volumeIconName = muted ? "volume-mute-outline" : "volume-medium-outline";
   const showIndicatorCondition = !isStreamReady;
@@ -168,11 +179,16 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
           { showQualityCondition ?
             (
               <View style={styles.qualityMenu}>
-                {streamURLs.map(q => (
-                  <TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={styles.qualityOption}>
-                    <Text style={{color:"#fff"}}>{q.height + "p"}</Text>
-                  </TouchableOpacity>
-                ))}
+                {streamURLs.map(q => {
+                  let textColor = "#fff";
+                  if(q.height === selectedQualityHeight) {
+                    textColor = Colors.textAccent;
+                  }
+
+                  return (<TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={styles.qualityOption} activeOpacity={0.7}>
+                            <Text style={{color: textColor, fontWeight: "bold"}}>{q.height + "p"}</Text>
+                          </TouchableOpacity>)
+                })}
               </View>
             ) : null
           }
