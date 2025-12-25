@@ -3,7 +3,7 @@ import { create, StateCreator } from 'zustand';
 import { Channel } from '../types';
 import { loadChannels, saveChannels } from '../utils/save_utils';
 import { getChannels, getUser } from '../services/kick_service';
-import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
+import { showErrorChannelsLoading, showErrorUserLoading, showWarningChannelAlreadyAdded } from '../alerts/alerts';
 
 
 interface ChannelListState {
@@ -96,9 +96,13 @@ export const useChannelListStore = create<ChannelListState>((set, get) => ({
   },
   addChannel: async (channel: Channel) => {
     let { channels } = get();
+    if(channels.find(ch => ch.id === channel.id)) {
+      showWarningChannelAlreadyAdded();
+      return;
+    }
+
     channels = [...channels, channel];
     fetchChannels(set, channels);
-
     await saveChannelsBySlugs(channels);
   },
   removeChannel: async (channel: Channel) => {

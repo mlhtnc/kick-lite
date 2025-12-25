@@ -3,7 +3,10 @@ import Toast from "react-native-toast-message";
 
 const showSuccess = (text1: string, text2: string) => {
   Toast.show({ type: "success", text1, text2 });
+}
 
+const showWarning = (text1: string, text2: string) => {
+  Toast.show({ type: "warning", text1, text2 });
 }
 
 const showError = (text1: string, text2: string) => {
@@ -18,6 +21,16 @@ export const showSuccessSendingMessage = () => {
   showSuccess(
     "Success",
     "Message sent.",
+  );
+}
+
+
+// WARNING
+
+export const showWarningChannelAlreadyAdded = () => {
+  showWarning(
+    "Warning",
+    "Channel already added.",
   );
 }
 
