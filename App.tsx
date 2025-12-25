@@ -22,7 +22,7 @@ export default function App() {
       <NavigationContainer onReady={() => BootSplash.hide() } >
         <RootStack />
       </NavigationContainer>
-      <Toast config={mainToastConfig} visibilityTime={5000} swipeable />
+      <Toast config={mainToastConfig} visibilityTime={3000} swipeable />
     </SafeAreaProvider>
   );
 }
