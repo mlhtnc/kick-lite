@@ -15,15 +15,11 @@ export default function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
-        headerStyle: {
-          backgroundColor: Colors.background,
-          borderBottomWidth: 1,
-          borderBottomColor: Colors.border,
-	        elevation: 0
-        },
+        headerStyle: styles.headerStyle,
         headerTintColor: Colors.textPrimary,
-        tabBarStyle: styles.tabBarStyle,
         headerShown: true,
+        tabBarIconStyle: styles.tabBarIconStyle,
+        tabBarStyle: styles.tabBarStyle,
         tabBarShowLabel: false,
         tabBarActiveTintColor: Colors.buttonPrimary,
         animation: 'none',
@@ -50,8 +46,19 @@ export default function MainTabs() {
 }
 
 const styles = StyleSheet.create({
+  headerStyle: {
+    backgroundColor: Colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+    elevation: 0
+  },
   tabBarStyle: {
     backgroundColor: Colors.background,
     borderTopColor: Colors.background
+  },
+  tabBarIconStyle: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });
