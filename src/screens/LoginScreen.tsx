@@ -25,7 +25,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [ pkce, setPkce ] = useState<PKCE>();
   const [ loading, setLoading ] = useState<boolean>(true);
 
-  const { setTokens } = useTokens();
+  const { setTokens, setExpiresAt } = useTokens();
 
 
   useEffect(() => {
@@ -47,9 +47,10 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       return;
     }
 
-    isAccessTokenValid(tokens.accessToken).then(async (isValid) => {
+    isAccessTokenValid(tokens.accessToken).then(async ({isValid, expiresAt}) => {
       if(isValid) {
         setTokens(tokens);
+        setExpiresAt(expiresAt * 1000);
         navigation.reset({ index: 0, routes: [{ name: Screens.MainTabs }]});
         return;
       }
@@ -97,8 +98,10 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
   const handleTokenResponse = async (tokenResponse: any) => {
     const tokens = { accessToken: tokenResponse.access_token, refreshToken: tokenResponse.refresh_token };
-    
+    const expireAt = Date.now() + tokenResponse.expires_in * 1000;
+
     setTokens(tokens);
+    setExpiresAt(expireAt);
     await saveTokens(tokens);
     navigation.reset({ index: 0, routes: [{ name: Screens.MainTabs }]});
   }

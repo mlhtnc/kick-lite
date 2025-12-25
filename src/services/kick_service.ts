@@ -73,7 +73,7 @@ export const refreshAccessToken = async (
 	}
 }
 
-export const isAccessTokenValid = async (accessToken: string): Promise<boolean> => {
+export const isAccessTokenValid = async (accessToken: string): Promise<{isValid: boolean, expiresAt: number}> => {
 	try {
 		const response = await fetch(KickAuthTokenIntrospectUrl, {
 			method: "POST",
@@ -83,11 +83,12 @@ export const isAccessTokenValid = async (accessToken: string): Promise<boolean> 
 		});
 
 		if (response.ok) {
-			return true;
+			const data = await response.json();
+			return { isValid: true, expiresAt: data.data.exp };
 		}
 
 		if (response.status === 401) {
-			return false;
+			return { isValid: false, expiresAt: 0 };
 		}
 
 		throw new Error();
@@ -99,12 +100,15 @@ export const isAccessTokenValid = async (accessToken: string): Promise<boolean> 
 export const getUser = async (id?: string): Promise<User> => {
 	
 	try {
-		const { tokens } = useTokens.getState();
-
+		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
 		if(!tokens) {
 			throw new Error();
 		}
 
+		if(!refreshIfAccessTokenExpired()) {
+			throw new Error();
+		}
+			
 		let url = `${KickApiBaseUrl}/users`;
 		const params = new URLSearchParams();
 		const headers = {
@@ -139,8 +143,12 @@ export const getUser = async (id?: string): Promise<User> => {
 export const getChannels = async (slugs?: string[]): Promise<Channel[]> => {
 		
 	try {
-		const { tokens } = useTokens.getState();
+		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
 		if(!tokens) {
+			throw new Error();
+		}
+
+		if(!refreshIfAccessTokenExpired()) {
 			throw new Error();
 		}
 
@@ -189,8 +197,12 @@ export const getChannels = async (slugs?: string[]): Promise<Channel[]> => {
 export const getLivestreams = async (slugs?: string[]): Promise<Channel[]> => {
 		
 	try {
-		const { tokens } = useTokens.getState();
+		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
 		if(!tokens) {
+			throw new Error();
+		}
+
+		if(!refreshIfAccessTokenExpired()) {
 			throw new Error();
 		}
 
@@ -240,8 +252,12 @@ export const postMessage = async (
 	content: string,
 ) => {
 	try {
-		const { tokens } = useTokens.getState();
+		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
 		if(!tokens) {
+			throw new Error();
+		}
+
+		if(!refreshIfAccessTokenExpired()) {
 			throw new Error();
 		}
 
