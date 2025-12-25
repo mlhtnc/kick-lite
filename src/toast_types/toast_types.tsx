@@ -16,6 +16,16 @@ export const mainToastConfig = {
       text2NumberOfLines={2}
     />
   ),
+  warning: (props: any) => (
+    <BaseToast
+      {...props}
+      style={[ styles.style, { borderLeftColor: Colors.warning } ]}
+      contentContainerStyle={[ styles.contentContainerStyle, { backgroundColor: Colors.warning }]}
+      text1Style={styles.text1Style}
+      text2Style={styles.text2Style}
+      text2NumberOfLines={2}
+    />
+  ),
   error: (props: any) => (
     <BaseToast
       {...props}

@@ -13,6 +13,7 @@ export interface ColorsType {
   buttonPrimary: string;
   card: string;
   success: string;
+  warning: string;
   error: string;
   border: string;
   toastText: string;

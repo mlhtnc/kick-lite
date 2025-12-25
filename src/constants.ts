@@ -17,6 +17,7 @@ export const Colors: ColorsType = {
 	buttonPrimary: "#007A3D",
 	card: "#111",
 	success: "#1DB954",
+	warning: "#FFA500",
 	error: "#FF5252",
 	border: "#333333",
 	toastText: "#1E1E1E"
