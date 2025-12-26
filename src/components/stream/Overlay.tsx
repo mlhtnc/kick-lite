@@ -14,7 +14,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { OverlayProps, StreamURL } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
-import { convertMillisecondsToTime } from '../../helpers/helpers';
+import { convertMillisecondsToTime, formatViewerCount } from '../../helpers/helpers';
+import { useStreamInfoStore } from '../../stores/streamViewerCountStore';
 
 
 export default function Overlay({
@@ -37,6 +38,7 @@ export default function Overlay({
   const [ elapsedTime, setElapsedTime ] = useState<string>("");
   const [ controlDisplayStyle, setControlDisplayStyle ] = useState<"flex" | "none">("none");
 
+  const viewerCount = useStreamInfoStore((s) => s.viewerCount);
 
   useFocusEffect(
     useCallback(() => {
@@ -162,6 +164,7 @@ export default function Overlay({
   const showIndicatorCondition = !isStreamReady;
   const showQualityCondition = showQualityMenu && streamURLs;
   const showControlCondition = !showIndicatorCondition && isStreamReady;
+  const viewerCountFormatted = formatViewerCount(viewerCount);
 
   return (
     <TouchableOpacity style={styles.controlsContainer} onPress={onControllersPressed} activeOpacity={1}>
@@ -177,7 +180,14 @@ export default function Overlay({
 
           <LinearGradient style={[styles.bottomControls, { height: bottomControlsHeight }]} colors={['#0000', '#000a']}>
             <View style={styles.bottomControlsContent}>
-              <Text style={[styles.timeText, { fontSize: elapsedTimeTextSize }]}>{elapsedTime}</Text>
+              <View style={styles.textGroup}>
+                <Text style={[styles.timeText, { fontSize: elapsedTimeTextSize }]}>{elapsedTime}</Text>
+
+                <Text style={[styles.dotText, { fontSize: elapsedTimeTextSize, display: isFullscreen ? "flex" : "none" }]}>{"•" }</Text>
+                <Text style={[styles.viewerCountText, { fontSize: elapsedTimeTextSize, display: isFullscreen ? "flex" : "none" }]}>{viewerCountFormatted}</Text>
+
+
+              </View>
               <View style={styles.bottomRightControls}>
                 <BasicCircleButton
                   style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
@@ -281,11 +291,28 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 5,
   },
-  timeText: {
+  textGroup: {
     flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center"
+  },
+  timeText: {
     paddingLeft: 10,
     fontSize: 16,
     fontWeight: 'bold',
     color: "#fff",
   },
+  dotText: {
+    paddingLeft: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.textAccent,
+  },
+  viewerCountText: {
+    paddingLeft: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.textAccent,
+  }
 });

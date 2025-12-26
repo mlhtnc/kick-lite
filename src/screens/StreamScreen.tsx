@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  StyleSheet,
-  KeyboardAvoidingView,
-  Keyboard,
-} from 'react-native';
+import { StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 import { StreamScreenProps, StreamURL } from '../types';
 import { getStreamURLs } from '../services/backend_service';
@@ -17,15 +15,17 @@ import Player from '../components/stream/Player';
 import StreamInfo from '../components/stream/StreamInfo';
 import { useBackgroundServiceInfo } from '../stores/backgroundServiceStore';
 import ForegroundService from '../modules/ForegroundService';
-import BottomSheet from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import SleepTimerBottomSheet from '../components/SleepTimerBottomSheet';
+import { getChannels } from '../services/kick_service';
+import { useStreamInfoStore } from '../stores/streamViewerCountStore';
 
 
 export default function StreamScreen({ route }: StreamScreenProps) {
   
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["30%"], []);
+  const insets = useSafeAreaInsets();
+  const { channel } = route.params;
 
   const [ streamURLs, setStreamURLs ] = useState<StreamURL[]>();
   const [ offset, setOffset ] = useState<number>(0);
@@ -34,12 +34,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const [ selectedQuality, setSelectedQuality ] = useState<StreamURL>();
   const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState<boolean>(false);
 
-  const { channel } = route.params;
-
-  const insets = useSafeAreaInsets();
-
   const { setIsRunning, setEndTime } = useBackgroundServiceInfo.getState();
-
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => setOffset(insets.top));
@@ -53,6 +48,16 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       setIsRunning(true);
     }
 
+    useStreamInfoStore.getState().setViewerCount(channel.viewerCount);
+    useStreamInfoStore.getState().setStreamTitle(channel.streamTitle);
+    const streamInfoIntervalId = setInterval(async () => {
+      getChannels([ channel.slug ])
+      .then(async (channels) => {
+        useStreamInfoStore.getState().setViewerCount(channels[0].viewerCount);
+        useStreamInfoStore.getState().setStreamTitle(channels[0].streamTitle);
+      }).catch(() => {});
+    }, 30000);
+
     return () => {
       showSubscription.remove();
       hideSubscription.remove();
@@ -63,9 +68,10 @@ export default function StreamScreen({ route }: StreamScreenProps) {
         setIsRunning(false);
         setEndTime(-1);
       }
+
+      clearInterval(streamInfoIntervalId);
     };
   }, []);
-
 
   const fetchStreamURL = () => {
     getStreamURLs(channel.slug)
@@ -82,7 +88,6 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const handleSheetChanges = (index: number) => {
     setIsBottomSheetOpen(index !== -1);
   }
-
 
   return (
     <GestureHandlerRootView style={[styles.container, !isFullscreen ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>
