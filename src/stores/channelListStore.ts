@@ -1,8 +1,8 @@
 import { create, StateCreator } from 'zustand';
 
-import { Channel } from '../types';
+import { Channel, User } from '../types';
 import { loadChannels, saveChannels } from '../utils/save_utils';
-import { getChannels, getUser } from '../services/kick_service';
+import { getChannels, getUsers } from '../services/kick_service';
 import { showErrorChannelsLoading, showErrorUserLoading, showWarningChannelAlreadyAdded } from '../alerts/alerts';
 
 
@@ -47,25 +47,22 @@ const fetchChannels = async (set: SetFn, channels: Channel[]) => {
 }
 
 const fetchChannelUsernames = async (channels: Channel[]) => {
-  let error: boolean = false;
+  const userIds = channels.map((ch) => ch.id);
 
-  const updatedChannels = await Promise.all(
-    channels.map(async (ch) => {
-      try {
-        const user = await getUser(ch.id);
-        return { ...ch, name: user.name };
-      } catch (err) {
-        error = true;
-        return ch;
-      }
-    })
-  );
+  try {
+    const users = await getUsers(userIds);
+    const userRecords = Object.fromEntries(
+      users.map(item => [item.id, item])
+    ) as Record<string, User>;
 
-  if(error) {
+    return channels.map((ch) => {
+      return { ...ch, name: userRecords[ch.id].name};
+    });
+
+  } catch (err) {
     showErrorUserLoading();
+    return channels;
   }
-
-  return updatedChannels;
 }
 
 const sortChannels = (channels: Channel[]) => {

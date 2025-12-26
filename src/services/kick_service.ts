@@ -97,7 +97,7 @@ export const isAccessTokenValid = async (accessToken: string): Promise<{isValid:
 	}
 }
 
-export const getUser = async (id?: string): Promise<User> => {
+export const getUsers = async (ids: string[]): Promise<User[]> => {
 	
 	try {
 		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
@@ -116,25 +116,25 @@ export const getUser = async (id?: string): Promise<User> => {
 			"Accept": "*/*",
 		};
 
-		if(id) {
+		ids.forEach((id) => {
 			params.append("id", id);
-			url += "?" + params.toString();
-		}
+		});
+
+		url += "?" + params.toString();
 
 		const response = await fetch(url, { headers });
-
 		if (!response.ok) {
 			throw new Error();
 		}
 
 		const data = await response.json();
-		const user: User = {
-			id: data.data[0].user_id,
-			name: data.data[0].name
-		}
-
-		return user;
-
+		return data.data.map(( userData: any ): User => {
+			const user: User = {
+				id: userData.user_id,
+				name: userData.name
+			}
+			return user;
+		});
 	} catch (err) {
 		throw err;
 	}

@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Colors } from '../constants';
-import { Channel } from '../types';
-import { getLivestreams, getUser } from '../services/kick_service';
+import { Channel, User } from '../types';
+import { getLivestreams, getUsers } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
 import { useBrowsedChannelListStore } from '../stores/browsedChannelListStore';
@@ -33,27 +33,24 @@ export default function BrowseScreen() {
     });
   }
 
-  const fetchChannelUsernames = async (channels: Channel[]) => {
-    let error: boolean = false;
+const fetchChannelUsernames = async (channels: Channel[]) => {
+  const userIds = channels.map((ch) => ch.id);
 
-    const updatedChannels = await Promise.all(
-      channels.map(async (ch) => {
-        try {
-          const user = await getUser(ch.id);
-          return { ...ch, name: user.name };
-        } catch (err) {
-          error = true;
-          return ch;
-        }
-      })
-    );
+  try {
+    const users = await getUsers(userIds);
+    const userRecords = Object.fromEntries(
+      users.map(item => [item.id, item])
+    ) as Record<string, User>;
 
-    if(error) {
-      showErrorUserLoading();
-    }
+    return channels.map((ch) => {
+      return { ...ch, name: userRecords[ch.id].name};
+    });
 
-    return updatedChannels;
+  } catch (err) {
+    showErrorUserLoading();
+    return channels;
   }
+}
 
   const onRefresh = () => {
     fetchLivestreams();
