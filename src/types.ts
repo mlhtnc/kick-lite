@@ -2,7 +2,7 @@ import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Dispatch, SetStateAction } from "react";
-import { ColorValue, GestureResponderEvent, TextStyle, ViewStyle } from "react-native";
+import { ColorValue, GestureResponderEvent, StyleProp, TextStyle, ViewStyle } from "react-native";
 
 
 export interface ColorsType {
@@ -110,7 +110,7 @@ export interface ChatInputProps {
 }
 
 export interface BasicCircleButtonProps {
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   onPress?: (event: GestureResponderEvent) => void;
   disabled?: boolean;
   iconName: string;

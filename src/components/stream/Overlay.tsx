@@ -151,6 +151,11 @@ export default function Overlay({
     fadeOut();
   }
 
+  const buttonSize = isFullscreen ? 30 : 25;
+  const playPauseButtonSize = isFullscreen ? 50 : 40;
+  const elapsedTimeTextSize = isFullscreen ? 18 : 16;
+  const bottomControlsHeight = isFullscreen ? 50 : 30;
+  const qualityOptionButtonPadding = isFullscreen ? 8 : 5;
   const selectedQualityHeight = selectedQuality ? selectedQuality.height : 1080;
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
   const volumeIconName = muted ? "volume-mute-outline" : "volume-medium-outline";
@@ -163,15 +168,35 @@ export default function Overlay({
       { showControlCondition ?
       
         <Animated.View style={[ styles.controls, { opacity: fadeAnim, display: controlDisplayStyle } ]}>
-          <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
+          <BasicCircleButton
+            style={[styles.playPauseButton, { width: playPauseButtonSize, height: playPauseButtonSize }]}
+            iconName={playPauseIconName}
+            iconSize={playPauseButtonSize}
+            onPress={togglePlayPause}
+          />
 
-          <LinearGradient style={[styles.bottomControls, isFullscreen ? { height: "9%" } : undefined]} colors={['#0000', '#000a']}>
+          <LinearGradient style={[styles.bottomControls, { height: bottomControlsHeight }]} colors={['#0000', '#000a']}>
             <View style={styles.bottomControlsContent}>
-              <Text style={styles.timeText}>{elapsedTime}</Text>
+              <Text style={[styles.timeText, { fontSize: elapsedTimeTextSize }]}>{elapsedTime}</Text>
               <View style={styles.bottomRightControls}>
-                <BasicCircleButton style={styles.qualityButton} iconName={volumeIconName} iconSize={25} onPress={toggleVolume} />
-                <BasicCircleButton style={styles.qualityButton} iconName='settings-outline' iconSize={25} onPress={toggleQualityOptions} />
-                <BasicCircleButton style={styles.fullscreenButton} iconName='scan-outline' iconSize={25} onPress={toggleFullscreen} />
+                <BasicCircleButton
+                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+                  iconName={volumeIconName}
+                  iconSize={buttonSize}
+                  onPress={toggleVolume}
+                />
+                <BasicCircleButton
+                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+                  iconName='settings-outline'
+                  iconSize={buttonSize}
+                  onPress={toggleQualityOptions}
+                />
+                <BasicCircleButton
+                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+                  iconName='scan-outline'
+                  iconSize={buttonSize}
+                  onPress={toggleFullscreen}
+                />
               </View>
             </View>
           </LinearGradient>
@@ -185,7 +210,7 @@ export default function Overlay({
                     textColor = Colors.textAccent;
                   }
 
-                  return (<TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={styles.qualityOption} activeOpacity={0.7}>
+                  return (<TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={{padding: qualityOptionButtonPadding}} activeOpacity={0.7}>
                             <Text style={{color: textColor, fontWeight: "bold"}}>{q.height + "p"}</Text>
                           </TouchableOpacity>)
                 })}
@@ -221,8 +246,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch'
   },
   playPauseButton: {
-    width: 40,
-    height: 40,
     backgroundColor: "rgba(0,0,0,0)",
   },
   bottomControls: {
@@ -230,26 +253,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: "13%"
   },
   bottomControlsContent: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   bottomRightControls: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center', 
   },
-  fullscreenButton: {
-    marginHorizontal: 5,
-    backgroundColor: "rgba(0,0,0,0)",
-    width: 25,
-    height: 25
-  },
-  qualityButton: {
+  button: {
     marginHorizontal: 5,
     backgroundColor: "rgba(0,0,0,0)",
     width: 25,
@@ -262,9 +278,6 @@ const styles = StyleSheet.create({
     margin: 5,
     backgroundColor: "rgba(0,0,0,0.8)",
     borderRadius: 5,
-    padding: 5,
-  },
-  qualityOption: {
     padding: 5,
   },
   timeText: {
