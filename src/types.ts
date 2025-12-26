@@ -90,6 +90,23 @@ export interface OverlayProps {
   selectedQuality: StreamURL | undefined;
 }
 
+export interface OverlayBottomProps {
+  actions: OverlayActions;
+  muted: boolean;
+  isFullscreen: boolean;
+  elapsedTime: string;
+  setShowQualityMenu: Dispatch<SetStateAction<boolean>>;
+}
+
+export interface OverlayQualityProps {
+  actions: OverlayActions;
+  streamURLs: StreamURL[] | undefined;
+  isFullscreen: boolean;
+  selectedQuality: StreamURL | undefined;
+  showQualityMenu: boolean;
+  handleQualityChange: () => void;
+}
+
 export interface OverlayActions {
   play: () => void;
   pause: () => void;

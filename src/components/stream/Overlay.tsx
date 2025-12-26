@@ -1,21 +1,17 @@
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
-  BackHandler,
   ActivityIndicator,
-  View,
-  Text,
   Animated,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import LinearGradient from 'react-native-linear-gradient';
 
-import { OverlayProps, StreamURL } from '../../types';
+import { OverlayProps } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
-import { convertMillisecondsToTime, formatViewerCount } from '../../helpers/helpers';
-import { useStreamInfoStore } from '../../stores/streamViewerCountStore';
+import { convertMillisecondsToTime } from '../../helpers/helpers';
+import OverlayBottom from './OverlayBottom';
+import OverlayQuality from './OverlayQuality';
 
 
 export default function Overlay({
@@ -37,24 +33,6 @@ export default function Overlay({
   const [ showQualityMenu, setShowQualityMenu ] = useState<boolean>(false);
   const [ elapsedTime, setElapsedTime ] = useState<string>("");
   const [ controlDisplayStyle, setControlDisplayStyle ] = useState<"flex" | "none">("none");
-
-  const viewerCount = useStreamInfoStore((s) => s.viewerCount);
-
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        if (isFullscreen) {
-          toggleFullscreen();
-          return true;
-        } else {
-          return false;
-        }
-      };
-
-      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => subscription.remove();
-    }, [isFullscreen])
-  );
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -83,24 +61,9 @@ export default function Overlay({
     }
   }
 
-  const toggleVolume = () => {
-    if(muted) {
-      actions.unmute();
-    } else {
-      actions.mute();
-    }
-  }
-
-  const toggleFullscreen = () => {
-    if (isFullscreen) {
-      actions.exitFullscreen();
-    } else {
-      actions.enterFullscreen();
-    }
-  }
-
   const onControllersPressed = () => {
     if(showControl) {
+      clearTimeout(timeoutRef.current || undefined);
       stopShowingTime();
       setShowQualityMenu(false);
       setShowControl(false);
@@ -110,10 +73,7 @@ export default function Overlay({
       setShowControl(true);
       fadeIn();
 
-      if(timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-
+      clearTimeout(timeoutRef.current || undefined);
       timeoutRef.current = setTimeout(() => {
         stopShowingTime();
         setShowQualityMenu(false);
@@ -137,34 +97,17 @@ export default function Overlay({
     clearInterval(timerInterval.current || undefined);
   }
 
-  const toggleQualityOptions = () => {
-    if(showQualityMenu) {
-      clearTimeout(timeoutRef.current || undefined);
-    }
-
-    setShowQualityMenu(p => !p);
-  }
-
-  const selectQuality = (quality: StreamURL) => {
-    actions.onQualityChanged(quality);
+  const handleQualityChange = () => {
     stopShowingTime();
     setShowQualityMenu(false);
     setShowControl(false);
     fadeOut();
   }
 
-  const buttonSize = isFullscreen ? 30 : 25;
   const playPauseButtonSize = isFullscreen ? 60 : 45;
-  const elapsedTimeTextSize = isFullscreen ? 18 : 16;
-  const bottomControlsHeight = isFullscreen ? 50 : 30;
-  const qualityOptionButtonPadding = isFullscreen ? 8 : 5;
-  const selectedQualityHeight = selectedQuality ? selectedQuality.height : 1080;
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
-  const volumeIconName = muted ? "volume-mute-outline" : "volume-medium-outline";
   const showIndicatorCondition = !isStreamReady;
-  const showQualityCondition = showQualityMenu && streamURLs;
   const showControlCondition = !showIndicatorCondition && isStreamReady;
-  const viewerCountFormatted = formatViewerCount(viewerCount);
 
   return (
     <TouchableOpacity style={styles.controlsContainer} onPress={onControllersPressed} activeOpacity={1}>
@@ -178,55 +121,22 @@ export default function Overlay({
             onPress={togglePlayPause}
           />
 
-          <LinearGradient style={[styles.bottomControls, { height: bottomControlsHeight }]} colors={['#0000', '#000a']}>
-            <View style={styles.bottomControlsContent}>
-              <View style={styles.textGroup}>
-                <Text style={[styles.timeText, { fontSize: elapsedTimeTextSize }]}>{elapsedTime}</Text>
+          <OverlayBottom
+            actions={actions}
+            muted={muted}
+            isFullscreen={isFullscreen}
+            elapsedTime={elapsedTime}
+            setShowQualityMenu={setShowQualityMenu}
+          />
 
-                <Text style={[styles.dotText, { fontSize: elapsedTimeTextSize, display: isFullscreen ? "flex" : "none" }]}>{"•" }</Text>
-                <Text style={[styles.viewerCountText, { fontSize: elapsedTimeTextSize, display: isFullscreen ? "flex" : "none" }]}>{viewerCountFormatted}</Text>
-
-
-              </View>
-              <View style={styles.bottomRightControls}>
-                <BasicCircleButton
-                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
-                  iconName={volumeIconName}
-                  iconSize={buttonSize}
-                  onPress={toggleVolume}
-                />
-                <BasicCircleButton
-                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
-                  iconName='settings-outline'
-                  iconSize={buttonSize}
-                  onPress={toggleQualityOptions}
-                />
-                <BasicCircleButton
-                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
-                  iconName='scan-outline'
-                  iconSize={buttonSize}
-                  onPress={toggleFullscreen}
-                />
-              </View>
-            </View>
-          </LinearGradient>
-          
-          { showQualityCondition ?
-            (
-              <View style={styles.qualityMenu}>
-                {streamURLs.map(q => {
-                  let textColor = "#fff";
-                  if(q.height === selectedQualityHeight) {
-                    textColor = Colors.textAccent;
-                  }
-
-                  return (<TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={{padding: qualityOptionButtonPadding}} activeOpacity={0.7}>
-                            <Text style={{color: textColor, fontWeight: "bold"}}>{q.height + "p"}</Text>
-                          </TouchableOpacity>)
-                })}
-              </View>
-            ) : null
-          }
+          <OverlayQuality
+            actions={actions}
+            streamURLs={streamURLs}
+            isFullscreen={isFullscreen}
+            selectedQuality={selectedQuality}
+            showQualityMenu={showQualityMenu}
+            handleQualityChange={handleQualityChange}
+          />
         </Animated.View>
         : null
       }
@@ -256,63 +166,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch'
   },
   playPauseButton: {
-    backgroundColor: "rgba(30,30,30,0.5)",
+    backgroundColor: "rgba(50,50,50,0.7)",
     borderRadius: 50,
-  },
-  bottomControls: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  bottomControlsContent: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  bottomRightControls: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center', 
-  },
-  button: {
-    marginHorizontal: 5,
-    backgroundColor: "rgba(0,0,0,0)",
-    width: 25,
-    height: 25
-  },
-  qualityMenu: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    margin: 5,
-    backgroundColor: "rgba(0,0,0,0.8)",
-    borderRadius: 5,
-    padding: 5,
-  },
-  textGroup: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center"
-  },
-  timeText: {
-    paddingLeft: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: "#fff",
-  },
-  dotText: {
-    paddingLeft: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.textAccent,
-  },
-  viewerCountText: {
-    paddingLeft: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.textAccent,
   }
 });
