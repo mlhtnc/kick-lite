@@ -1,34 +1,14 @@
-import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors } from '../../constants';
 import { StreamInfoProps } from '../../types';
 import { formatViewerCount } from '../../helpers/helpers';
-import { getChannels } from '../../services/kick_service';
-
+import { useStreamInfoStore } from '../../stores/streamViewerCountStore';
 
 export default function StreamInfo({ channel }: StreamInfoProps) {
 
-  const [ streamTitle, setStreamTitle ] = useState<string>(channel.streamTitle);
-  const [ viewerCount, setViewerCount ] = useState<number>(channel.viewerCount);
-
-
-  useEffect(() => {
-		const interval = setInterval(async () => {
-			try {
-        
-        getChannels([ channel.slug ])
-        .then(async (channels) => {
-          setViewerCount(channels[0].viewerCount);
-          setStreamTitle(channels[0].streamTitle);
-        }).catch(() => {});
-				
-			} catch (e) {}
-		}, 60000);
-
-		return () => clearInterval(interval);
-	}, [channel.id]);
-
+  const viewerCount = useStreamInfoStore((s) => s.viewerCount);
+  const streamTitle = useStreamInfoStore((s) => s.streamTitle);
 
   const viewerCountFormatted = formatViewerCount(viewerCount);
   

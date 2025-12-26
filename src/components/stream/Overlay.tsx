@@ -14,11 +14,20 @@ import LinearGradient from 'react-native-linear-gradient';
 import { OverlayProps, StreamURL } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
-import { convertMillisecondsToTime } from '../../helpers/helpers';
+import { convertMillisecondsToTime, formatViewerCount } from '../../helpers/helpers';
+import { useStreamInfoStore } from '../../stores/streamViewerCountStore';
 
 
-export default function Overlay({actions, streamURLs, startTime, isStreamReady, paused, muted, isFullscreen}: OverlayProps) {
-  
+export default function Overlay({
+  actions,
+  streamURLs,
+  startTime,
+  isStreamReady,
+  paused,
+  muted,
+  isFullscreen,
+  selectedQuality,
+}: OverlayProps) {  
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
 
@@ -29,6 +38,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
   const [ elapsedTime, setElapsedTime ] = useState<string>("");
   const [ controlDisplayStyle, setControlDisplayStyle ] = useState<"flex" | "none">("none");
 
+  const viewerCount = useStreamInfoStore((s) => s.viewerCount);
 
   useFocusEffect(
     useCallback(() => {
@@ -106,6 +116,7 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
 
       timeoutRef.current = setTimeout(() => {
         stopShowingTime();
+        setShowQualityMenu(false);
         setShowControl(false);
         fadeOut();
       }, 5000);
@@ -136,31 +147,66 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
 
   const selectQuality = (quality: StreamURL) => {
     actions.onQualityChanged(quality);
+    stopShowingTime();
     setShowQualityMenu(false);
     setShowControl(false);
+    fadeOut();
   }
 
-  
+  const buttonSize = isFullscreen ? 30 : 25;
+  const playPauseButtonSize = isFullscreen ? 60 : 45;
+  const elapsedTimeTextSize = isFullscreen ? 18 : 16;
+  const bottomControlsHeight = isFullscreen ? 50 : 30;
+  const qualityOptionButtonPadding = isFullscreen ? 8 : 5;
+  const selectedQualityHeight = selectedQuality ? selectedQuality.height : 1080;
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
   const volumeIconName = muted ? "volume-mute-outline" : "volume-medium-outline";
   const showIndicatorCondition = !isStreamReady;
   const showQualityCondition = showQualityMenu && streamURLs;
   const showControlCondition = !showIndicatorCondition && isStreamReady;
+  const viewerCountFormatted = formatViewerCount(viewerCount);
 
   return (
     <TouchableOpacity style={styles.controlsContainer} onPress={onControllersPressed} activeOpacity={1}>
       { showControlCondition ?
       
         <Animated.View style={[ styles.controls, { opacity: fadeAnim, display: controlDisplayStyle } ]}>
-          <BasicCircleButton style={styles.playPauseButton} iconName={playPauseIconName} iconSize={40} onPress={togglePlayPause}/>
+          <BasicCircleButton
+            style={[styles.playPauseButton, { width: playPauseButtonSize, height: playPauseButtonSize }]}
+            iconName={playPauseIconName}
+            iconSize={playPauseButtonSize * 0.6}
+            onPress={togglePlayPause}
+          />
 
-          <LinearGradient style={[styles.bottomControls, isFullscreen ? { height: "9%" } : undefined]} colors={['#0000', '#000a']}>
+          <LinearGradient style={[styles.bottomControls, { height: bottomControlsHeight }]} colors={['#0000', '#000a']}>
             <View style={styles.bottomControlsContent}>
-              <Text style={styles.timeText}>{elapsedTime}</Text>
+              <View style={styles.textGroup}>
+                <Text style={[styles.timeText, { fontSize: elapsedTimeTextSize }]}>{elapsedTime}</Text>
+
+                <Text style={[styles.dotText, { fontSize: elapsedTimeTextSize, display: isFullscreen ? "flex" : "none" }]}>{"•" }</Text>
+                <Text style={[styles.viewerCountText, { fontSize: elapsedTimeTextSize, display: isFullscreen ? "flex" : "none" }]}>{viewerCountFormatted}</Text>
+
+
+              </View>
               <View style={styles.bottomRightControls}>
-                <BasicCircleButton style={styles.qualityButton} iconName={volumeIconName} iconSize={25} onPress={toggleVolume} />
-                <BasicCircleButton style={styles.qualityButton} iconName='settings-outline' iconSize={25} onPress={toggleQualityOptions} />
-                <BasicCircleButton style={styles.fullscreenButton} iconName='scan-outline' iconSize={25} onPress={toggleFullscreen} />
+                <BasicCircleButton
+                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+                  iconName={volumeIconName}
+                  iconSize={buttonSize}
+                  onPress={toggleVolume}
+                />
+                <BasicCircleButton
+                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+                  iconName='settings-outline'
+                  iconSize={buttonSize}
+                  onPress={toggleQualityOptions}
+                />
+                <BasicCircleButton
+                  style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+                  iconName='scan-outline'
+                  iconSize={buttonSize}
+                  onPress={toggleFullscreen}
+                />
               </View>
             </View>
           </LinearGradient>
@@ -168,11 +214,16 @@ export default function Overlay({actions, streamURLs, startTime, isStreamReady, 
           { showQualityCondition ?
             (
               <View style={styles.qualityMenu}>
-                {streamURLs.map(q => (
-                  <TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={styles.qualityOption}>
-                    <Text style={{color:"#fff"}}>{q.height + "p"}</Text>
-                  </TouchableOpacity>
-                ))}
+                {streamURLs.map(q => {
+                  let textColor = "#fff";
+                  if(q.height === selectedQualityHeight) {
+                    textColor = Colors.textAccent;
+                  }
+
+                  return (<TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={{padding: qualityOptionButtonPadding}} activeOpacity={0.7}>
+                            <Text style={{color: textColor, fontWeight: "bold"}}>{q.height + "p"}</Text>
+                          </TouchableOpacity>)
+                })}
               </View>
             ) : null
           }
@@ -205,35 +256,27 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch'
   },
   playPauseButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: "rgba(0,0,0,0)",
+    backgroundColor: "rgba(30,30,30,0.5)",
+    borderRadius: 50,
   },
   bottomControls: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: "13%"
   },
   bottomControlsContent: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   bottomRightControls: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center', 
   },
-  fullscreenButton: {
-    marginHorizontal: 5,
-    backgroundColor: "rgba(0,0,0,0)",
-    width: 25,
-    height: 25
-  },
-  qualityButton: {
+  button: {
     marginHorizontal: 5,
     backgroundColor: "rgba(0,0,0,0)",
     width: 25,
@@ -248,14 +291,28 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 5,
   },
-  qualityOption: {
-    padding: 5,
+  textGroup: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center"
   },
   timeText: {
-    flex: 1,
     paddingLeft: 10,
     fontSize: 16,
     fontWeight: 'bold',
     color: "#fff",
   },
+  dotText: {
+    paddingLeft: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.textAccent,
+  },
+  viewerCountText: {
+    paddingLeft: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.textAccent,
+  }
 });
