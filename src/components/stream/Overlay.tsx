@@ -152,7 +152,7 @@ export default function Overlay({
   }
 
   const buttonSize = isFullscreen ? 30 : 25;
-  const playPauseButtonSize = isFullscreen ? 50 : 40;
+  const playPauseButtonSize = isFullscreen ? 60 : 45;
   const elapsedTimeTextSize = isFullscreen ? 18 : 16;
   const bottomControlsHeight = isFullscreen ? 50 : 30;
   const qualityOptionButtonPadding = isFullscreen ? 8 : 5;
@@ -171,7 +171,7 @@ export default function Overlay({
           <BasicCircleButton
             style={[styles.playPauseButton, { width: playPauseButtonSize, height: playPauseButtonSize }]}
             iconName={playPauseIconName}
-            iconSize={playPauseButtonSize}
+            iconSize={playPauseButtonSize * 0.6}
             onPress={togglePlayPause}
           />
 
@@ -246,7 +246,8 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch'
   },
   playPauseButton: {
-    backgroundColor: "rgba(0,0,0,0)",
+    backgroundColor: "rgba(30,30,30,0.5)",
+    borderRadius: 50,
   },
   bottomControls: {
     position: 'absolute',
