@@ -21,7 +21,7 @@ export default function OverlayBottom({
   isFullscreen,
   elapsedTime,
   setShowQualityMenu
-}: OverlayBottomProps) {  
+}: OverlayBottomProps) {
 
   const viewerCount = useStreamInfoStore((s) => s.viewerCount);
 

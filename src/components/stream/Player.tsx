@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, StatusBar, StyleSheet, View } from 'react-native';
+import { AppState, AppStateStatus, Dimensions, StyleSheet, View } from 'react-native';
 import Video, { OnBufferData, VideoRef } from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
+import ImmersiveMode from 'react-native-immersive-mode';
 
 import { Colors } from '../../constants';
 import useOverrideBackPress from '../hooks/useOverrideBackPress';
@@ -19,6 +20,24 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
   const [ muted, setMuted ] = useState(false);
   const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
+
+
+  useEffect(() => {
+		const onAppStateChange = (state: AppStateStatus) => {
+			if (state === 'active' && isFullscreen) {
+        ImmersiveMode.setBarMode('Normal');
+        ImmersiveMode.fullLayout(false);
+        setTimeout(() => {
+          ImmersiveMode.setBarMode('FullSticky');
+          ImmersiveMode.fullLayout(true);
+        }, 0);
+			}
+		};
+
+		const sub = AppState.addEventListener('change', onAppStateChange);
+		return () => sub.remove();
+	}, [isFullscreen]);
+
 
   useEffect(() => {
     const dimensionSubscription = Dimensions.addEventListener('change', ({ screen }) => setScreenSize(screen));
@@ -62,14 +81,16 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
   const enterFullscreen = () => {
     videoRef.current?.presentFullscreenPlayer();
     Orientation.lockToLandscapeLeft();
-    StatusBar.setHidden(true);
+    ImmersiveMode.setBarMode('FullSticky');
+    ImmersiveMode.fullLayout(true);
     setIsFullscreen(true);
   }
 
   const exitFullscreen = () => {
     videoRef.current?.dismissFullscreenPlayer();
     Orientation.lockToPortrait();
-    StatusBar.setHidden(false);
+    ImmersiveMode.setBarMode('Normal');
+    ImmersiveMode.fullLayout(false);
     setIsFullscreen(false);
   }
 
