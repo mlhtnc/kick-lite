@@ -6,33 +6,30 @@ import {
   Animated,
 } from 'react-native';
 
-import { OverlayProps } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
 import { convertMillisecondsToTime } from '../../helpers/helpers';
 import OverlayBottom from './OverlayBottom';
 import OverlayQuality from './OverlayQuality';
+import { usePlayerStore } from '../../stores/playerStore';
 
 
-export default function Overlay({
-  actions,
-  streamURLs,
-  startTime,
-  isStreamReady,
-  paused,
-  muted,
-  isFullscreen,
-  selectedQuality,
-}: OverlayProps) {  
+export default function Overlay() {  
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const [ showControl, setShowControl ] = useState<boolean>(false);
   const [ showQualityMenu, setShowQualityMenu ] = useState<boolean>(false);
   const [ elapsedTime, setElapsedTime ] = useState<string>("");
   const [ controlDisplayStyle, setControlDisplayStyle ] = useState<"flex" | "none">("none");
+
+  const paused = usePlayerStore(s => s.paused);
+  const startTime = usePlayerStore(s => s.startTime);
+
+  const setPaused = usePlayerStore(s => s.setPaused);
+  const isFullscreen = usePlayerStore(s => s.isFullscreen);
+  const isStreamReady = usePlayerStore(s => s.isStreamReady);
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -54,11 +51,7 @@ export default function Overlay({
   };
 
   const togglePlayPause = () => {
-    if(paused) {
-      actions.play();
-    } else {
-      actions.pause();
-    }
+    setPaused(!paused);
   }
 
   const onControllersPressed = () => {
@@ -104,11 +97,11 @@ export default function Overlay({
     fadeOut();
   }
 
-  const playPauseButtonSize = isFullscreen ? 60 : 45;
+  const playPauseButtonSize = isFullscreen() ? 60 : 45;
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
-  const showIndicatorCondition = !isStreamReady;
-  const showControlCondition = !showIndicatorCondition && isStreamReady;
-
+  const showIndicatorCondition = !isStreamReady();
+  const showControlCondition = !showIndicatorCondition && isStreamReady();
+  
   return (
     <TouchableOpacity style={styles.controlsContainer} onPress={onControllersPressed} activeOpacity={1}>
       { showControlCondition ?
@@ -122,18 +115,11 @@ export default function Overlay({
           />
 
           <OverlayBottom
-            actions={actions}
-            muted={muted}
-            isFullscreen={isFullscreen}
             elapsedTime={elapsedTime}
             setShowQualityMenu={setShowQualityMenu}
           />
 
           <OverlayQuality
-            actions={actions}
-            streamURLs={streamURLs}
-            isFullscreen={isFullscreen}
-            selectedQuality={selectedQuality}
             showQualityMenu={showQualityMenu}
             handleQualityChange={handleQualityChange}
           />

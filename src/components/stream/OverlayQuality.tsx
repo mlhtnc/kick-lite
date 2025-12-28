@@ -5,32 +5,37 @@ import {
   Text,
 } from 'react-native';
 
+import { usePlayerStore } from '../../stores/playerStore';
 import { OverlayQualityProps, StreamURL } from '../../types';
 import { Colors } from '../../constants';
 
 
 export default function OverlayQuality({
-  actions,
-  streamURLs,
-  isFullscreen,
-  selectedQuality,
   showQualityMenu,
   handleQualityChange,
-}: OverlayQualityProps) {  
+}: OverlayQualityProps) {
+
+  const streamUrls = usePlayerStore(s => s.streamUrls);
+  const selectedQuality = usePlayerStore(s => s.selectedQuality);
+
+  const setSource = usePlayerStore(s => s.setSource);
+  const setSelectedQuality = usePlayerStore(s => s.setSelectedQuality);
+  const isFullscreen = usePlayerStore(s => s.isFullscreen);
 
   const selectQuality = (quality: StreamURL) => {
-    actions.onQualityChanged(quality);
+    setSource(quality.url);
+    setSelectedQuality(quality);
     handleQualityChange();
   }
 
-  const qualityOptionButtonPadding = isFullscreen ? 8 : 5;
+  const qualityOptionButtonPadding = isFullscreen() ? 8 : 5;
   const selectedQualityHeight = selectedQuality ? selectedQuality.height : 1080;
-  const showQualityCondition = showQualityMenu && streamURLs;
+  const showQualityCondition = showQualityMenu && streamUrls;
 
   if(showQualityCondition) {
     return (
       <View style={styles.qualityMenu}>
-        {streamURLs.map(q => {
+        {streamUrls.map(q => {
           let textColor = "#fff";
           if(q.height === selectedQualityHeight) {
             textColor = Colors.textAccent;

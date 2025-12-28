@@ -1,7 +1,8 @@
 import { API_HOST } from "@env";
+import { StreamURL } from "../types";
 
 
-export const getStreamURLs = async (channel: string): Promise<any> => {
+export const getStreamURLs = async (channel: string): Promise<StreamURL[] | null> => {
 
   if(API_HOST === undefined) return null;
 

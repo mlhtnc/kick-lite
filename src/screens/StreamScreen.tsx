@@ -11,43 +11,52 @@ import { showErrorUnabletoStream } from '../alerts/alerts';
 import ChatInput from '../components/stream/ChatInput';
 import ChatFeed from '../components/stream/ChatFeed';
 import { GlobalKAVBehaviour } from '../helpers/helpers';
-import Player from '../components/stream/Player';
 import StreamInfo from '../components/stream/StreamInfo';
-import { useBackgroundServiceInfo } from '../stores/backgroundServiceStore';
-import ForegroundService from '../modules/ForegroundService';
 import SleepTimerBottomSheet from '../components/SleepTimerBottomSheet';
 import { getChannels } from '../services/kick_service';
 import { useStreamInfoStore } from '../stores/streamViewerCountStore';
-
+import { usePlayerStore } from '../stores/playerStore';
 
 export default function StreamScreen({ route }: StreamScreenProps) {
   
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["30%"], []);
   const insets = useSafeAreaInsets();
-  const { channel } = route.params;
 
-  const [ streamURLs, setStreamURLs ] = useState<StreamURL[]>();
   const [ offset, setOffset ] = useState<number>(0);
-  const [ isFullscreen, setIsFullscreen ] = useState(false);
-  const [ isStreamReady, setIsStreamReady ] = useState<boolean>(false);
-  const [ selectedQuality, setSelectedQuality ] = useState<StreamURL>();
   const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState<boolean>(false);
 
-  const { setIsRunning, setEndTime } = useBackgroundServiceInfo.getState();
+  const setSource = usePlayerStore(s => s.setSource);
+  const setMode = usePlayerStore(s => s.setMode);
+  const setStreamUrls = usePlayerStore(s => s.setStreamUrls);
+  const setSelectedQuality = usePlayerStore(s => s.setSelectedQuality);
+  const setStartTime = usePlayerStore(s => s.setStartTime);
+  const isFullscreen = usePlayerStore(s => s.isFullscreen);
+
+  const { channel } = route.params;
+
+  // const { setIsRunning, setEndTime } = useBackgroundServiceInfo.getState();
+
+  useEffect(() => {
+    fetchStreamURL();
+    setStartTime(channel.startTime);
+
+    return () => {
+      setMode("hidden");
+    }
+  }, []);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => setOffset(insets.top));
     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => setOffset(0));
 
-    fetchStreamURL();
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
-    const { isRunning } = useBackgroundServiceInfo.getState();
-    if(!isRunning) {
-      ForegroundService.start();
-      setIsRunning(true);
-    }
-
+  useEffect(() => {
     useStreamInfoStore.getState().setViewerCount(channel.viewerCount);
     useStreamInfoStore.getState().setStreamTitle(channel.streamTitle);
     const streamInfoIntervalId = setInterval(async () => {
@@ -58,31 +67,48 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       }).catch(() => {});
     }, 30000);
 
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-      
-      const { isRunning } = useBackgroundServiceInfo.getState();
-      if(isRunning) {
-        ForegroundService.stop();
-        setIsRunning(false);
-        setEndTime(-1);
-      }
-
-      clearInterval(streamInfoIntervalId);
-    };
+    return () => clearInterval(streamInfoIntervalId);
   }, []);
+
+  // We need to add here or somewhere else the mini-player case
+  // useEffect(() => {
+  //   const { isRunning } = useBackgroundServiceInfo.getState();
+  //   if(!isRunning) {
+  //     ForegroundService.start();
+  //     setIsRunning(true);
+  //   }
+
+  //   return () => {
+  //     const { isRunning } = useBackgroundServiceInfo.getState();
+  //     if(isRunning) {
+  //       ForegroundService.stop();
+  //       setIsRunning(false);
+  //       setEndTime(-1);
+  //     }
+  //   };
+  // }, []);
 
   const fetchStreamURL = () => {
     getStreamURLs(channel.slug)
-    .then((res) => {
-      const sortedURLs = res.sort((a: StreamURL, b: StreamURL) => b.height - a.height);
+    .then((urls) => {
+      if(!urls) {
+        showErrorUnabletoStream();
+        return;
+      }
 
-      setStreamURLs(sortedURLs);
-      setIsStreamReady(true);
+      const sortedURLs = sortUrls(urls);
+
+      setSource(sortedURLs[0].url);
+      setSelectedQuality(sortedURLs[0]);
+      setStreamUrls(sortedURLs);
+      setMode("portrait");
     }).catch(() => {
       showErrorUnabletoStream();
     });
+  }
+
+  const sortUrls = (urls: StreamURL[]): StreamURL[] => {
+    return urls.sort((a: StreamURL, b: StreamURL) => b.height - a.height);
   }
 
   const handleSheetChanges = (index: number) => {
@@ -90,19 +116,9 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   }
 
   return (
-    <GestureHandlerRootView style={[styles.container, !isFullscreen ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>
+    <GestureHandlerRootView style={[styles.container, !isFullscreen() ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>
 
-      <Player
-        streamURLs={streamURLs}
-        startTime={channel.startTime}
-        selectedQuality={selectedQuality}
-        isFullscreen={isFullscreen}
-        isStreamReady={isStreamReady}
-        setIsFullscreen={setIsFullscreen}
-        setSelectedQuality={setSelectedQuality}
-      />
-
-      { !isFullscreen &&
+      { !isFullscreen() &&
         <KeyboardAvoidingView style={{flex: 1}} behavior={GlobalKAVBehaviour} keyboardVerticalOffset={ offset } >
           <StreamInfo channel={channel} />
           <ChatFeed/>

@@ -78,31 +78,12 @@ export interface PlayerProps {
   setSelectedQuality: Dispatch<SetStateAction<StreamURL | undefined>>;
 }
 
-export interface OverlayProps {
-  actions: OverlayActions;
-  streamURLs: StreamURL[] | undefined;
-  startTime: string;
-  isStreamReady: boolean;
-  isLoading: boolean;
-  paused: boolean;
-  muted: boolean;
-  isFullscreen: boolean;
-  selectedQuality: StreamURL | undefined;
-}
-
 export interface OverlayBottomProps {
-  actions: OverlayActions;
-  muted: boolean;
-  isFullscreen: boolean;
   elapsedTime: string;
   setShowQualityMenu: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface OverlayQualityProps {
-  actions: OverlayActions;
-  streamURLs: StreamURL[] | undefined;
-  isFullscreen: boolean;
-  selectedQuality: StreamURL | undefined;
   showQualityMenu: boolean;
   handleQualityChange: () => void;
 }

@@ -1,30 +1,58 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState, AppStateStatus, Dimensions, StyleSheet, View } from 'react-native';
 import Video, { OnBufferData, VideoRef } from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
 import ImmersiveMode from 'react-native-immersive-mode';
 
-import { Colors } from '../../constants';
-import useOverrideBackPress from '../hooks/useOverrideBackPress';
-import { PlayerProps, StreamURL } from '../../types';
 import Overlay from './Overlay';
+import { usePlayerStore } from '../../stores/playerStore';
+import { Colors } from '../../constants';
 
+export type PlayerMode =
+  "hidden" |
+  "mini-player" |
+  "portrait" |
+  "fullscreen";
 
-export default function Player({ streamURLs, startTime, selectedQuality, isFullscreen, isStreamReady, setIsFullscreen, setSelectedQuality }: PlayerProps) {
+export default function Player() {
 
   const videoRef = useRef<VideoRef>(null);
 
   const [ playerKey, setPlayerKey ] = useState<number>(0); // Used to force re-mount Video component
-  const [ streamURL, setStreamURL ] = useState<string>("");
-  const [ paused, setPaused ] = useState(false);
-  const [ muted, setMuted ] = useState(false);
   const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
 
+  const source = usePlayerStore(s => s.source);
+  const mode = usePlayerStore(s => s.mode);
+  const muted = usePlayerStore(s => s.muted);
+  const paused = usePlayerStore(s => s.paused);
+
+  const isFullscreen = usePlayerStore(s => s.isFullscreen);
+
+  useEffect(() => {
+    if(paused === false) {
+      setPlayerKey(p => p + 1);
+    }
+  }, [paused]);
+
+  useEffect(() => {
+    if(mode === "fullscreen") {
+      videoRef.current?.presentFullscreenPlayer();
+      Orientation.lockToLandscapeLeft();
+      ImmersiveMode.setBarMode('FullSticky');
+      ImmersiveMode.fullLayout(true);
+    } else if(mode === "portrait") {
+      videoRef.current?.dismissFullscreenPlayer();
+      Orientation.lockToPortrait();
+      ImmersiveMode.setBarMode('Normal');
+      ImmersiveMode.fullLayout(false);
+    }
+
+  }, [mode]);
 
   useEffect(() => {
 		const onAppStateChange = (state: AppStateStatus) => {
-			if (state === 'active' && isFullscreen) {
+			if (state === 'active' && isFullscreen()) {
         ImmersiveMode.setBarMode('Normal');
         ImmersiveMode.fullLayout(false);
         setTimeout(() => {
@@ -36,7 +64,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
 
 		const sub = AppState.addEventListener('change', onAppStateChange);
 		return () => sub.remove();
-	}, [isFullscreen]);
+	}, []);
 
 
   useEffect(() => {
@@ -44,70 +72,29 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
     return () => dimensionSubscription?.remove();
   }, []);
 
-  useEffect(() => {
-    if(selectedQuality) {
-      setStreamURL(selectedQuality.url);
-    } else if(streamURLs) {
-      setStreamURL(streamURLs[0].url);
-    }
-  }, [streamURLs]);
 
-  useOverrideBackPress(useCallback(() => {
-    if (isFullscreen) {
-      exitFullscreen();
-      return true;
-    }
-    return false;
-  }, [isFullscreen]));
+  // This is job of StreamScreen
+  // useOverrideBackPress(useCallback(() => {
+  //   if (isFullscreen()) {
+  //     exitFullscreen();
+  //     return true;
+  //   }
+  //   return false;
+  // }, [isFullscreen()]));
 
 
-  const play = () => {
-    setPaused(false);
-    setPlayerKey(p => p + 1);
-  }
-
-  const pause = () => {
-    setPaused(true);
-  }
-
-  const mute = () => {
-    setMuted(true);
-  }
-
-  const unmute = () => {
-    setMuted(false);
-  }
-
-  const enterFullscreen = () => {
-    videoRef.current?.presentFullscreenPlayer();
-    Orientation.lockToLandscapeLeft();
-    ImmersiveMode.setBarMode('FullSticky');
-    ImmersiveMode.fullLayout(true);
-    setIsFullscreen(true);
-  }
-
-  const exitFullscreen = () => {
-    videoRef.current?.dismissFullscreenPlayer();
-    Orientation.lockToPortrait();
-    ImmersiveMode.setBarMode('Normal');
-    ImmersiveMode.fullLayout(false);
-    setIsFullscreen(false);
-  }
-
-  const onQualityChanged = (quality: StreamURL) => {
-    setStreamURL(quality.url);
-    setSelectedQuality(quality);
-  }
-
-  const overlayActions = { play, pause, mute, unmute, enterFullscreen, exitFullscreen, onQualityChanged };
   const videoWidth = screenSize.width;
-  const videoHeight = isFullscreen ? screenSize.height : (videoWidth * 9) / 16;
+  const videoHeight = isFullscreen() ? screenSize.height : (videoWidth * 9) / 16;
+
+  if(mode === "hidden") {
+    return null;
+  }
 
   return (
     <View style={[ styles.videoContainer, { width: videoWidth, height: videoHeight }]}>
       <Video
         key={playerKey}
-        source={ streamURL ? { uri: streamURL } : undefined}
+        source={{ uri: source }}
         style={styles.video}
         resizeMode='contain'
         ignoreSilentSwitch='ignore'
@@ -122,15 +109,7 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
         onBuffer={(e: OnBufferData) => setLoadingVideo(e.isBuffering)}
       />
       <Overlay
-        actions={overlayActions}
-        streamURLs={streamURLs}
-        startTime={startTime}
-        isStreamReady={isStreamReady}
-        isLoading={loadingVideo}
-        paused={paused}
-        muted={muted}
-        isFullscreen={isFullscreen}
-        selectedQuality={selectedQuality}
+        // isLoading={loadingVideo} // ??
       />
     </View>
   );
@@ -138,6 +117,9 @@ export default function Player({ streamURLs, startTime, selectedQuality, isFulls
 
 const styles = StyleSheet.create({
   videoContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
     backgroundColor: Colors.background,
   },
   video: {
