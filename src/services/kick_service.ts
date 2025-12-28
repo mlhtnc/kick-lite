@@ -100,12 +100,13 @@ export const isAccessTokenValid = async (accessToken: string): Promise<{isValid:
 export const getUsers = async (ids: string[]): Promise<User[]> => {
 	
 	try {
-		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
+		const { tokens, tryRefreshAccessToken } = useTokens.getState();
 		if(!tokens) {
 			throw new Error();
 		}
 
-		if(!refreshIfAccessTokenExpired()) {
+		const isTokenExpired = await tryRefreshAccessToken();
+		if(!isTokenExpired) {
 			throw new Error();
 		}
 			
@@ -143,12 +144,13 @@ export const getUsers = async (ids: string[]): Promise<User[]> => {
 export const getChannels = async (slugs?: string[]): Promise<Channel[]> => {
 		
 	try {
-		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
+		const { tokens, tryRefreshAccessToken } = useTokens.getState();
 		if(!tokens) {
 			throw new Error();
 		}
 
-		if(!refreshIfAccessTokenExpired()) {
+		const isTokenExpired = await tryRefreshAccessToken();
+		if(!isTokenExpired) {
 			throw new Error();
 		}
 
@@ -197,12 +199,13 @@ export const getChannels = async (slugs?: string[]): Promise<Channel[]> => {
 export const getLivestreams = async (slugs?: string[]): Promise<Channel[]> => {
 		
 	try {
-		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
+		const { tokens, tryRefreshAccessToken } = useTokens.getState();
 		if(!tokens) {
 			throw new Error();
 		}
 
-		if(!refreshIfAccessTokenExpired()) {
+		const isTokenExpired = await tryRefreshAccessToken();
+		if(!isTokenExpired) {
 			throw new Error();
 		}
 
@@ -252,12 +255,13 @@ export const postMessage = async (
 	content: string,
 ) => {
 	try {
-		const { tokens, refreshIfAccessTokenExpired } = useTokens.getState();
+		const { tokens, tryRefreshAccessToken } = useTokens.getState();
 		if(!tokens) {
 			throw new Error();
 		}
 
-		if(!refreshIfAccessTokenExpired()) {
+		const isTokenExpired = await tryRefreshAccessToken();
+		if(!isTokenExpired) {
 			throw new Error();
 		}
 

@@ -10,7 +10,7 @@ interface TokensState {
   expiresAt: number;
   setTokens: (tokens: Tokens) => void;
   setExpiresAt: (expiresIn: number) => void;
-  refreshIfAccessTokenExpired: () => Promise<boolean>;
+  tryRefreshAccessToken: () => Promise<boolean>;
 }
 
 export const useTokens = create<TokensState>((set, get): TokensState => ({
@@ -20,7 +20,7 @@ export const useTokens = create<TokensState>((set, get): TokensState => ({
   setExpiresAt: (expiresAt: number) => {
     set({ expiresAt });
   },
-  refreshIfAccessTokenExpired: async () => {
+  tryRefreshAccessToken: async () => {
     if (Date.now() < get().expiresAt) {
       return true;
     }
