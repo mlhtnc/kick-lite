@@ -76,16 +76,6 @@ export default function Player() {
     return () => dimensionSubscription?.remove();
   }, []);
 
-
-  // This is job of StreamScreen
-  // useOverrideBackPress(useCallback(() => {
-  //   if (isFullscreen()) {
-  //     exitFullscreen();
-  //     return true;
-  //   }
-  //   return false;
-  // }, [isFullscreen()]));
-
   let videoWidth: DimensionValue | undefined = undefined;
   let videoHeight: DimensionValue | undefined = undefined;
   let topInset: DimensionValue | undefined = undefined;

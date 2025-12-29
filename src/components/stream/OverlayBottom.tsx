@@ -26,23 +26,6 @@ export default function OverlayBottom({
   const setMuted = usePlayerStore(s => s.setMuted);
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
 
-  // This is job of StreamScreen
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     const onBackPress = () => {
-  //       if (isFullscreen()) {
-  //         toggleFullscreen();
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     };
-
-  //     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-  //     return () => subscription.remove();
-  //   }, [])
-  // );
-
   const toggleVolume = () => {
     setMuted(!muted);
   }

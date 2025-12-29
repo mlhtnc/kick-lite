@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, KeyboardAvoidingView, Keyboard, View, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -17,6 +17,9 @@ import { getChannels } from '../services/kick_service';
 import { useStreamInfoStore } from '../stores/streamViewerCountStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useCurrentChannel } from '../stores/currentChannelStore';
+import useOverrideBackPress from '../components/hooks/useOverrideBackPress';
+import { useBackgroundServiceInfo } from '../stores/backgroundServiceStore';
+import ForegroundService from '../modules/ForegroundService';
 
 export default function StreamScreen({ route }: StreamScreenProps) {
   
@@ -43,7 +46,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
 
   const { channel } = route.params;
 
-  // const { setIsRunning, setEndTime } = useBackgroundServiceInfo.getState();
+  
 
   useEffect(() => {
     const unmount = () => setMode("mini-player");
@@ -100,24 +103,22 @@ export default function StreamScreen({ route }: StreamScreenProps) {
     setCurrentChannel(channel);
     setStreamKey(channel.slug);
   }, [channel]);
+  
+  useOverrideBackPress(useCallback(() => {
+    if (isFullscreen()) {
+      setMode("portrait");
+      return true;
+    }
+    return false;
+  }, []));
 
-  // We need to add here or somewhere else the mini-player case
-  // useEffect(() => {
-  //   const { isRunning } = useBackgroundServiceInfo.getState();
-  //   if(!isRunning) {
-  //     ForegroundService.start();
-  //     setIsRunning(true);
-  //   }
-
-  //   return () => {
-  //     const { isRunning } = useBackgroundServiceInfo.getState();
-  //     if(isRunning) {
-  //       ForegroundService.stop();
-  //       setIsRunning(false);
-  //       setEndTime(-1);
-  //     }
-  //   };
-  // }, []);
+  useEffect(() => {
+    const { isRunning, setIsRunning } = useBackgroundServiceInfo.getState();
+    if(!isRunning) {
+      ForegroundService.start();
+      setIsRunning(true);
+    }
+  }, []);
 
   const fetchStreamURL = () => {
     getStreamURLs(channel.slug)
@@ -132,8 +133,6 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       setSource(sortedURLs[0].url);
       setSelectedQuality(sortedURLs[0]);
       setStreamUrls(sortedURLs);
-
-      
     }).catch(() => {
       showErrorUnabletoStream();
     });
@@ -148,7 +147,7 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   }
 
   const videoWidth = screenSize.width;
-  const videoHeight = isFullscreen() ? screenSize.height : (videoWidth * 9) / 16;
+  const videoHeight = (videoWidth * 9) / 16;
 
   return (
     <GestureHandlerRootView style={[styles.container, !isFullscreen() ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>

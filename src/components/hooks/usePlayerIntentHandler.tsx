@@ -6,6 +6,8 @@ import { usePlayerIntent } from "../../stores/playerIntentStore";
 import { RootStackParamList, Screens } from "../../types";
 import { useCurrentChannel } from "../../stores/currentChannelStore";
 import { usePlayerStore } from "../../stores/playerStore";
+import { useBackgroundServiceInfo } from "../../stores/backgroundServiceStore";
+import ForegroundService from "../../modules/ForegroundService";
 
 export default function usePlayerIntentHandler() {
 
@@ -33,6 +35,13 @@ export default function usePlayerIntentHandler() {
       setSelectedQuality(undefined);
       setStartTime("");
       clearIntent();
+
+      const { isRunning, setIsRunning, setEndTime } = useBackgroundServiceInfo.getState();
+      if(isRunning) {
+        ForegroundService.stop();
+        setIsRunning(false);
+        setEndTime(-1);
+      }
     }
   }, [intent]);
 }
