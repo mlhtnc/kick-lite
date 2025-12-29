@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { StyleSheet, KeyboardAvoidingView, Keyboard, View, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -16,6 +16,7 @@ import SleepTimerBottomSheet from '../components/SleepTimerBottomSheet';
 import { getChannels } from '../services/kick_service';
 import { useStreamInfoStore } from '../stores/streamViewerCountStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { useCurrentChannel } from '../stores/currentChannelStore';
 
 export default function StreamScreen({ route }: StreamScreenProps) {
   
@@ -26,24 +27,44 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const [ offset, setOffset ] = useState<number>(0);
   const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState<boolean>(false);
 
+  const mode = usePlayerStore(s => s.mode);
+
+  const setStreamKey = usePlayerStore(s => s.setStreamKey);
   const setSource = usePlayerStore(s => s.setSource);
   const setMode = usePlayerStore(s => s.setMode);
   const setStreamUrls = usePlayerStore(s => s.setStreamUrls);
   const setSelectedQuality = usePlayerStore(s => s.setSelectedQuality);
   const setStartTime = usePlayerStore(s => s.setStartTime);
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
+  
+  const setCurrentChannel = useCurrentChannel(s => s.setCurrentChannel);
+
+  const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
 
   const { channel } = route.params;
 
   // const { setIsRunning, setEndTime } = useBackgroundServiceInfo.getState();
 
   useEffect(() => {
+    const unmount = () => setMode("mini-player");
+
+    setMode("portrait");
+
+    if(mode === "mini-player" && channel.slug === useCurrentChannel.getState().currentChannel?.slug) {
+      return unmount;
+    }
+
+    if(channel.slug !== useCurrentChannel.getState().currentChannel?.slug) {
+      setSource("");
+      setStreamUrls(undefined);
+      setSelectedQuality(undefined);
+      setStartTime("");
+    }
+
     fetchStreamURL();
     setStartTime(channel.startTime);
 
-    return () => {
-      setMode("hidden");
-    }
+    return unmount;
   }, []);
 
   useEffect(() => {
@@ -69,6 +90,16 @@ export default function StreamScreen({ route }: StreamScreenProps) {
 
     return () => clearInterval(streamInfoIntervalId);
   }, []);
+
+  useEffect(() => {
+    const dimensionSubscription = Dimensions.addEventListener('change', ({ screen }) => setScreenSize(screen));
+    return () => dimensionSubscription?.remove();
+  }, []);
+
+  useEffect(() => {
+    setCurrentChannel(channel);
+    setStreamKey(channel.slug);
+  }, [channel]);
 
   // We need to add here or somewhere else the mini-player case
   // useEffect(() => {
@@ -101,7 +132,8 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       setSource(sortedURLs[0].url);
       setSelectedQuality(sortedURLs[0]);
       setStreamUrls(sortedURLs);
-      setMode("portrait");
+
+      
     }).catch(() => {
       showErrorUnabletoStream();
     });
@@ -115,8 +147,13 @@ export default function StreamScreen({ route }: StreamScreenProps) {
     setIsBottomSheetOpen(index !== -1);
   }
 
+  const videoWidth = screenSize.width;
+  const videoHeight = isFullscreen() ? screenSize.height : (videoWidth * 9) / 16;
+
   return (
     <GestureHandlerRootView style={[styles.container, !isFullscreen() ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>
+
+      <View style={{width: videoWidth, height: videoHeight}} />
 
       { !isFullscreen() &&
         <KeyboardAvoidingView style={{flex: 1}} behavior={GlobalKAVBehaviour} keyboardVerticalOffset={ offset } >

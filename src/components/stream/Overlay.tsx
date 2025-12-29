@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Animated,
+  Pressable,
 } from 'react-native';
 
 import { Colors } from '../../constants';
@@ -12,7 +13,7 @@ import { convertMillisecondsToTime } from '../../helpers/helpers';
 import OverlayBottom from './OverlayBottom';
 import OverlayQuality from './OverlayQuality';
 import { usePlayerStore } from '../../stores/playerStore';
-
+import { usePlayerIntent } from '../../stores/playerIntentStore';
 
 export default function Overlay() {  
   const timeoutRef = useRef<NodeJS.Timeout>(null);
@@ -24,12 +25,18 @@ export default function Overlay() {
   const [ elapsedTime, setElapsedTime ] = useState<string>("");
   const [ controlDisplayStyle, setControlDisplayStyle ] = useState<"flex" | "none">("none");
 
+  const mode = usePlayerStore(s => s.mode);
   const paused = usePlayerStore(s => s.paused);
   const startTime = usePlayerStore(s => s.startTime);
 
+  const setMode = usePlayerStore(s => s.setMode);
   const setPaused = usePlayerStore(s => s.setPaused);
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
   const isStreamReady = usePlayerStore(s => s.isStreamReady);
+
+  const requestOpenStream = usePlayerIntent(s => s.requestOpenStream);
+  const requestCloseStream = usePlayerIntent(s => s.requestCloseStream);
+
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -97,10 +104,33 @@ export default function Overlay() {
     fadeOut();
   }
 
+  const onMiniPlayerInteracted = () => {
+    requestOpenStream();
+  }
+
+  const onMiniPlayerClosePressed = () => {
+    requestCloseStream();
+  }
+
   const playPauseButtonSize = isFullscreen() ? 60 : 45;
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
   const showIndicatorCondition = !isStreamReady();
   const showControlCondition = !showIndicatorCondition && isStreamReady();
+
+  if(mode === "mini-player") {
+    return (<>
+    <Pressable
+      style={{position: "absolute", right: 0, top: 0, left: 0, bottom: 0}}
+      onPress={onMiniPlayerInteracted}
+    />
+    <BasicCircleButton
+      style={{position: "absolute", right: 0, top: 0, backgroundColor: "#fff0"}}
+      iconName='close-outline'
+      iconSize={24}
+      onPress={onMiniPlayerClosePressed}
+    />
+    </>)
+  }
   
   return (
     <TouchableOpacity style={styles.controlsContainer} onPress={onControllersPressed} activeOpacity={1}>
