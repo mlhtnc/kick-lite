@@ -4,35 +4,39 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Animated,
+  Pressable,
 } from 'react-native';
 
-import { OverlayProps } from '../../types';
 import { Colors } from '../../constants';
 import BasicCircleButton from '../buttons/BasicCircleButton';
 import { convertMillisecondsToTime } from '../../helpers/helpers';
 import OverlayBottom from './OverlayBottom';
 import OverlayQuality from './OverlayQuality';
+import { usePlayerStore } from '../../stores/playerStore';
+import { usePlayerIntent } from '../../stores/playerIntentStore';
 
-
-export default function Overlay({
-  actions,
-  streamURLs,
-  startTime,
-  isStreamReady,
-  paused,
-  muted,
-  isFullscreen,
-  selectedQuality,
-}: OverlayProps) {  
+export default function Overlay() {  
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const [ showControl, setShowControl ] = useState<boolean>(false);
   const [ showQualityMenu, setShowQualityMenu ] = useState<boolean>(false);
   const [ elapsedTime, setElapsedTime ] = useState<string>("");
   const [ controlDisplayStyle, setControlDisplayStyle ] = useState<"flex" | "none">("none");
+
+  const mode = usePlayerStore(s => s.mode);
+  const paused = usePlayerStore(s => s.paused);
+  const startTime = usePlayerStore(s => s.startTime);
+
+  const setMode = usePlayerStore(s => s.setMode);
+  const setPaused = usePlayerStore(s => s.setPaused);
+  const isFullscreen = usePlayerStore(s => s.isFullscreen);
+  const isStreamReady = usePlayerStore(s => s.isStreamReady);
+
+  const requestOpenStream = usePlayerIntent(s => s.requestOpenStream);
+  const requestCloseStream = usePlayerIntent(s => s.requestCloseStream);
+
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -54,11 +58,7 @@ export default function Overlay({
   };
 
   const togglePlayPause = () => {
-    if(paused) {
-      actions.play();
-    } else {
-      actions.pause();
-    }
+    setPaused(!paused);
   }
 
   const onControllersPressed = () => {
@@ -104,11 +104,34 @@ export default function Overlay({
     fadeOut();
   }
 
-  const playPauseButtonSize = isFullscreen ? 60 : 45;
-  const playPauseIconName = paused ? "play-outline" : "pause-outline";
-  const showIndicatorCondition = !isStreamReady;
-  const showControlCondition = !showIndicatorCondition && isStreamReady;
+  const onMiniPlayerInteracted = () => {
+    requestOpenStream();
+  }
 
+  const onMiniPlayerClosePressed = () => {
+    requestCloseStream();
+  }
+
+  const playPauseButtonSize = isFullscreen() ? 60 : 45;
+  const playPauseIconName = paused ? "play-outline" : "pause-outline";
+  const showIndicatorCondition = !isStreamReady();
+  const showControlCondition = !showIndicatorCondition && isStreamReady();
+
+  if(mode === "mini-player") {
+    return (<>
+    <Pressable
+      style={{position: "absolute", right: 0, top: 0, left: 0, bottom: 0}}
+      onPress={onMiniPlayerInteracted}
+    />
+    <BasicCircleButton
+      style={{position: "absolute", right: 0, top: 0, backgroundColor: "#fff0"}}
+      iconName='close-outline'
+      iconSize={24}
+      onPress={onMiniPlayerClosePressed}
+    />
+    </>)
+  }
+  
   return (
     <TouchableOpacity style={styles.controlsContainer} onPress={onControllersPressed} activeOpacity={1}>
       { showControlCondition ?
@@ -122,18 +145,11 @@ export default function Overlay({
           />
 
           <OverlayBottom
-            actions={actions}
-            muted={muted}
-            isFullscreen={isFullscreen}
             elapsedTime={elapsedTime}
             setShowQualityMenu={setShowQualityMenu}
           />
 
           <OverlayQuality
-            actions={actions}
-            streamURLs={streamURLs}
-            isFullscreen={isFullscreen}
-            selectedQuality={selectedQuality}
             showQualityMenu={showQualityMenu}
             handleQualityChange={handleQualityChange}
           />

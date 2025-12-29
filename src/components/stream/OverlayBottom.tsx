@@ -1,11 +1,8 @@
-import { useCallback } from 'react';
 import {
   StyleSheet,
-  BackHandler,
   View,
   Text,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { Colors } from '../../constants';
@@ -13,47 +10,31 @@ import BasicCircleButton from '../buttons/BasicCircleButton';
 import { formatViewerCount } from '../../helpers/helpers';
 import { useStreamInfoStore } from '../../stores/streamViewerCountStore';
 import { OverlayBottomProps } from '../../types';
+import { usePlayerStore } from '../../stores/playerStore';
 
 
 export default function OverlayBottom({
-  actions,
-  muted,
-  isFullscreen,
   elapsedTime,
   setShowQualityMenu
 }: OverlayBottomProps) {
 
-  const viewerCount = useStreamInfoStore((s) => s.viewerCount);
+  const viewerCount = useStreamInfoStore(s => s.viewerCount);
 
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        if (isFullscreen) {
-          toggleFullscreen();
-          return true;
-        } else {
-          return false;
-        }
-      };
+  const muted = usePlayerStore(s => s.muted);
 
-      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => subscription.remove();
-    }, [isFullscreen])
-  );
+  const setMode = usePlayerStore(s => s.setMode);
+  const setMuted = usePlayerStore(s => s.setMuted);
+  const isFullscreen = usePlayerStore(s => s.isFullscreen);
 
   const toggleVolume = () => {
-    if(muted) {
-      actions.unmute();
-    } else {
-      actions.mute();
-    }
+    setMuted(!muted);
   }
 
   const toggleFullscreen = () => {
-    if (isFullscreen) {
-      actions.exitFullscreen();
+    if (isFullscreen()) {
+      setMode("portrait");
     } else {
-      actions.enterFullscreen();
+      setMode("fullscreen");
     }
   }
 
@@ -61,9 +42,9 @@ export default function OverlayBottom({
     setShowQualityMenu(p => !p);
   }
 
-  const buttonSize = isFullscreen ? 30 : 25;
-  const elapsedTimeTextSize = isFullscreen ? 18 : 16;
-  const bottomControlsHeight = isFullscreen ? 50 : 30;
+  const buttonSize = isFullscreen() ? 30 : 25;
+  const elapsedTimeTextSize = isFullscreen() ? 18 : 16;
+  const bottomControlsHeight = isFullscreen() ? 50 : 30;
   const volumeIconName = muted ? "volume-mute-outline" : "volume-medium-outline";
   const viewerCountFormatted = formatViewerCount(viewerCount);
 
@@ -72,24 +53,24 @@ export default function OverlayBottom({
       <View style={styles.bottomControlsContent}>
         <View style={styles.textGroup}>
           <Text style={[styles.timeText, { fontSize: elapsedTimeTextSize }]}>{elapsedTime}</Text>
-          <Text style={[styles.dotText, { fontSize: elapsedTimeTextSize, display: isFullscreen ? "flex" : "none" }]}>{"•" }</Text>
-          <Text style={[styles.viewerCountText, { fontSize: elapsedTimeTextSize, display: isFullscreen ? "flex" : "none" }]}>{viewerCountFormatted}</Text>
+          <Text style={[styles.dotText, { fontSize: elapsedTimeTextSize, display: isFullscreen() ? "flex" : "none" }]}>{"•" }</Text>
+          <Text style={[styles.viewerCountText, { fontSize: elapsedTimeTextSize, display: isFullscreen() ? "flex" : "none" }]}>{viewerCountFormatted}</Text>
         </View>
         <View style={styles.bottomRightControls}>
           <BasicCircleButton
-            style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+            style={[styles.button, isFullscreen() ? { width: 30, height: 30 } : undefined]}
             iconName={volumeIconName}
             iconSize={buttonSize}
             onPress={toggleVolume}
           />
           <BasicCircleButton
-            style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+            style={[styles.button, isFullscreen() ? { width: 30, height: 30 } : undefined]}
             iconName='settings-outline'
             iconSize={buttonSize}
             onPress={toggleQualityOptions}
           />
           <BasicCircleButton
-            style={[styles.button, isFullscreen ? { width: 30, height: 30 } : undefined]}
+            style={[styles.button, isFullscreen() ? { width: 30, height: 30 } : undefined]}
             iconName='scan-outline'
             iconSize={buttonSize}
             onPress={toggleFullscreen}

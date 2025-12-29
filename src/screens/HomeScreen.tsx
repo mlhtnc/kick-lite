@@ -6,6 +6,7 @@ import ChannelList from '../components/ChannelList';
 import { useChannelListStore } from '../stores/channelListStore';
 import DeleteChannelModal from '../components/DeleteChannelModal';
 import { Channel } from '../types';
+import usePlayerIntentHandler from '../components/hooks/usePlayerIntentHandler';
 
 export default function HomeScreen() {
 
@@ -17,7 +18,11 @@ export default function HomeScreen() {
   const fetchChannels = useChannelListStore((s) => s.fetchChannels);
   const removeChannel = useChannelListStore((s) => s.removeChannel);
 
-  useEffect(() => fetchChannels(), []);
+  usePlayerIntentHandler();
+
+  useEffect(() => {
+    fetchChannels();
+  }, []);
 
   const showDeleteChannel = useCallback((channel: Channel) => {
     setDeleteChannelModalVisible(true);
