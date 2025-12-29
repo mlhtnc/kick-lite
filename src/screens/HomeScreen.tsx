@@ -1,20 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
 
 import { Colors } from '../constants';
 import ChannelList from '../components/ChannelList';
 import { useChannelListStore } from '../stores/channelListStore';
 import DeleteChannelModal from '../components/DeleteChannelModal';
-import { Channel, RootStackParamList, Screens } from '../types';
-import { usePlayerIntent } from '../stores/playerIntentStore';
-import { useCurrentChannel } from '../stores/currentChannelStore';
-import { usePlayerStore } from '../stores/playerStore';
+import { Channel } from '../types';
+import usePlayerIntentHandler from '../components/hooks/usePlayerIntentHandler';
 
 export default function HomeScreen() {
-
-  const rootNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [ deleteChannelModalVisible, setDeleteChannelModalVisible ] = useState<boolean>(false);
   const [ selectedChannel, setSelectedChannel ] = useState<Channel | null>(null);
@@ -24,32 +18,11 @@ export default function HomeScreen() {
   const fetchChannels = useChannelListStore((s) => s.fetchChannels);
   const removeChannel = useChannelListStore((s) => s.removeChannel);
 
-  const intent = usePlayerIntent(s => s.intent);
-  const clearIntent = usePlayerIntent(s => s.clearIntent);
-
-  const setSource = usePlayerStore(s => s.setSource);
-  const setMode = usePlayerStore(s => s.setMode);
-  const setStreamUrls = usePlayerStore(s => s.setStreamUrls);
-  const setSelectedQuality = usePlayerStore(s => s.setSelectedQuality);
-  const setStartTime = usePlayerStore(s => s.setStartTime);
-
-  const currentChannel = useCurrentChannel(s => s.currentChannel);
-
-  useEffect(() => fetchChannels(), []);
+  usePlayerIntentHandler();
 
   useEffect(() => {
-    if (intent === "REQUEST_OPEN_STREAM" && currentChannel) {
-      rootNavigation.navigate(Screens.Stream, { channel: currentChannel });
-      clearIntent();
-    } else if(intent === "REQUEST_CLOSE_STREAM") {
-      setSource("");
-      setMode("hidden");
-      setStreamUrls(undefined);
-      setSelectedQuality(undefined);
-      setStartTime("");
-      clearIntent();
-    }
-  }, [intent]);
+    fetchChannels();
+  }, []);
 
   const showDeleteChannel = useCallback((channel: Channel) => {
     setDeleteChannelModalVisible(true);

@@ -7,6 +7,7 @@ import { getLivestreams, getUsers } from '../services/kick_service';
 import ChannelList from '../components/ChannelList';
 import { showErrorChannelsLoading, showErrorUserLoading } from '../alerts/alerts';
 import { useBrowsedChannelListStore } from '../stores/browsedChannelListStore';
+import usePlayerIntentHandler from '../components/hooks/usePlayerIntentHandler';
 
 
 export default function BrowseScreen() {
@@ -14,11 +15,11 @@ export default function BrowseScreen() {
   const [ loading, setLoading ] = useState<boolean>(false);
   const { channels, setChannels } = useBrowsedChannelListStore();
 
+  usePlayerIntentHandler();
 
   useEffect(() => {
     fetchLivestreams();
   }, []);
-
 
   const fetchLivestreams = async () => {
     setLoading(true);
