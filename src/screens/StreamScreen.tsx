@@ -29,9 +29,10 @@ export default function StreamScreen({ route }: StreamScreenProps) {
 
   const [ offset, setOffset ] = useState<number>(0);
   const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState<boolean>(false);
+  const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
+  const [ layoutReady, setLayoutReady ] = useState(false);
 
   const mode = usePlayerStore(s => s.mode);
-
   const setStreamKey = usePlayerStore(s => s.setStreamKey);
   const setSource = usePlayerStore(s => s.setSource);
   const setMode = usePlayerStore(s => s.setMode);
@@ -42,17 +43,16 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   
   const setCurrentChannel = useCurrentChannel(s => s.setCurrentChannel);
 
-  const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
-
   const { channel } = route.params;
-
-  
 
   useEffect(() => {
     const unmount = () => setMode("mini-player");
 
-    setMode("portrait");
+    if(!layoutReady) {
+      return unmount;
+    }
 
+    setMode("portrait");
     if(mode === "mini-player" && channel.slug === useCurrentChannel.getState().currentChannel?.slug) {
       return unmount;
     }
@@ -62,13 +62,15 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       setStreamUrls(undefined);
       setSelectedQuality(undefined);
       setStartTime("");
+      setCurrentChannel(channel);
+      setStreamKey(channel.slug);
     }
 
     fetchStreamURL();
     setStartTime(channel.startTime);
 
     return unmount;
-  }, []);
+  }, [layoutReady]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => setOffset(insets.top));
@@ -100,10 +102,13 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   }, []);
 
   useEffect(() => {
-    setCurrentChannel(channel);
-    setStreamKey(channel.slug);
-  }, [channel]);
-  
+    const { isRunning, setIsRunning } = useBackgroundServiceInfo.getState();
+    if(!isRunning) {
+      ForegroundService.start();
+      setIsRunning(true);
+    }
+  }, []);
+
   useOverrideBackPress(useCallback(() => {
     if (isFullscreen()) {
       setMode("portrait");
@@ -112,13 +117,11 @@ export default function StreamScreen({ route }: StreamScreenProps) {
     return false;
   }, []));
 
-  useEffect(() => {
-    const { isRunning, setIsRunning } = useBackgroundServiceInfo.getState();
-    if(!isRunning) {
-      ForegroundService.start();
-      setIsRunning(true);
+  const onLayout = () => {
+    if (!layoutReady) {
+      setLayoutReady(true);
     }
-  }, []);
+  };
 
   const fetchStreamURL = () => {
     getStreamURLs(channel.slug)
@@ -150,7 +153,10 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const videoHeight = (videoWidth * 9) / 16;
 
   return (
-    <GestureHandlerRootView style={[styles.container, !isFullscreen() ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}>
+    <GestureHandlerRootView
+      style={[styles.container, !isFullscreen() ? { marginTop: insets.top, marginBottom: insets.bottom } : undefined]}
+      onLayout={onLayout}  
+    >
 
       <View style={{width: videoWidth, height: videoHeight}} />
 

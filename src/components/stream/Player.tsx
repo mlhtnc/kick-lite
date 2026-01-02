@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { AppState, AppStateStatus, Dimensions, DimensionValue, StyleSheet, View } from 'react-native';
+import { AppState, AppStateStatus, Dimensions, DimensionValue, StatusBar, StyleSheet, View } from 'react-native';
 import Video, { OnBufferData, VideoRef } from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
 import ImmersiveMode from 'react-native-immersive-mode';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Overlay from './Overlay';
 import { usePlayerStore } from '../../stores/playerStore';
 import { Colors } from '../../constants';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type PlayerMode =
   "hidden" |
@@ -28,7 +28,6 @@ export default function Player() {
   const mode = usePlayerStore(s => s.mode);
   const muted = usePlayerStore(s => s.muted);
   const paused = usePlayerStore(s => s.paused);
-
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
 
   const insets = useSafeAreaInsets();
@@ -45,23 +44,26 @@ export default function Player() {
       Orientation.lockToLandscapeLeft();
       ImmersiveMode.setBarMode('FullSticky');
       ImmersiveMode.fullLayout(true);
+      StatusBar.setHidden(true);
     } else if(mode === "portrait") {
       videoRef.current?.dismissFullscreenPlayer();
       Orientation.lockToPortrait();
       ImmersiveMode.setBarMode('Normal');
-      ImmersiveMode.fullLayout(false);
+      ImmersiveMode.fullLayout(true);
+      StatusBar.setHidden(false);
     }
-
   }, [mode]);
 
   useEffect(() => {
 		const onAppStateChange = (state: AppStateStatus) => {
 			if (state === 'active' && isFullscreen()) {
         ImmersiveMode.setBarMode('Normal');
-        ImmersiveMode.fullLayout(false);
+        ImmersiveMode.fullLayout(true);
+        StatusBar.setHidden(false);
         setTimeout(() => {
           ImmersiveMode.setBarMode('FullSticky');
           ImmersiveMode.fullLayout(true);
+          StatusBar.setHidden(true);
         }, 0);
 			}
 		};
