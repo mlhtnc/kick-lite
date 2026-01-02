@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Colors } from '../constants';
@@ -21,7 +21,7 @@ export default function BrowseScreen() {
     fetchLivestreams();
   }, []);
 
-  const fetchLivestreams = async () => {
+  const fetchLivestreams = useCallback(async () => {
     setLoading(true);
     getLivestreams()
     .then(async (channels) => {
@@ -32,43 +32,36 @@ export default function BrowseScreen() {
     }).finally(() => {
       setLoading(false);
     });
+  }, []);
+
+  const fetchChannelUsernames = async (channels: Channel[]) => {
+    const userIds = channels.map((ch) => ch.id);
+
+    try {
+      const users = await getUsers(userIds);
+      const userRecords = Object.fromEntries(
+        users.map(item => [item.id, item])
+      ) as Record<string, User>;
+
+      return channels.map((ch) => {
+        return { ...ch, name: userRecords[ch.id].name};
+      });
+
+    } catch (err) {
+      showErrorUserLoading();
+      return channels;
+    }
   }
-
-const fetchChannelUsernames = async (channels: Channel[]) => {
-  const userIds = channels.map((ch) => ch.id);
-
-  try {
-    const users = await getUsers(userIds);
-    const userRecords = Object.fromEntries(
-      users.map(item => [item.id, item])
-    ) as Record<string, User>;
-
-    return channels.map((ch) => {
-      return { ...ch, name: userRecords[ch.id].name};
-    });
-
-  } catch (err) {
-    showErrorUserLoading();
-    return channels;
-  }
-}
-
-  const onRefresh = () => {
-    fetchLivestreams();
-  }
-
 
   return (
     <View style={styles.container}>
-      
       <View style={styles.listContainer}>
         <ChannelList
           channels={channels || []}
           loading={loading}
-          onRefresh={onRefresh}
+          onRefresh={fetchLivestreams}
         />
       </View>
-    
     </View>
   );
 }
