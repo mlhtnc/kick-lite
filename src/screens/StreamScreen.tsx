@@ -46,13 +46,19 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const { channel } = route.params;
 
   useEffect(() => {
-    const unmount = () => setMode("mini-player");
-
     if(!layoutReady) {
-      return unmount;
+      return;
     }
 
-    setMode("portrait");
+    // Defer mode change by two frames to allow the screen layout and native UI
+    // to settle before showing the global absolute player, preventing flicker.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setMode("portrait");
+      });
+    });
+
+    const unmount = () => setMode("mini-player");
     if(mode === "mini-player" && channel.slug === useCurrentChannel.getState().currentChannel?.slug) {
       return unmount;
     }

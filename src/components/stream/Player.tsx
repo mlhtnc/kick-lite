@@ -31,7 +31,7 @@ export default function Player() {
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
 
   const insets = useSafeAreaInsets();
-  
+
   useEffect(() => {
     if(paused === false) {
       setPlayerKeyId(p => p + 1);
@@ -71,7 +71,6 @@ export default function Player() {
 		const sub = AppState.addEventListener('change', onAppStateChange);
 		return () => sub.remove();
 	}, []);
-
 
   useEffect(() => {
     const dimensionSubscription = Dimensions.addEventListener('change', ({ screen }) => setScreenSize(screen));
