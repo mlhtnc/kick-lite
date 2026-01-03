@@ -14,6 +14,7 @@ import OverlayBottom from './OverlayBottom';
 import OverlayQuality from './OverlayQuality';
 import { usePlayerStore } from '../../stores/playerStore';
 import { usePlayerIntent } from '../../stores/playerIntentStore';
+import { useCurrentStreamStore } from '../../stores/currentStreamStore';
 
 export default function Overlay() {  
   const timeoutRef = useRef<NodeJS.Timeout>(null);
@@ -28,15 +29,13 @@ export default function Overlay() {
   const mode = usePlayerStore(s => s.mode);
   const paused = usePlayerStore(s => s.paused);
   const startTime = usePlayerStore(s => s.startTime);
-
-  const setMode = usePlayerStore(s => s.setMode);
   const setPaused = usePlayerStore(s => s.setPaused);
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
-  const isStreamReady = usePlayerStore(s => s.isStreamReady);
+
+  const isStreamReady = useCurrentStreamStore(s => s.isStreamReady);
 
   const requestOpenStream = usePlayerIntent(s => s.requestOpenStream);
   const requestCloseStream = usePlayerIntent(s => s.requestCloseStream);
-
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {

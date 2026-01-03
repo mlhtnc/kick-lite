@@ -16,7 +16,7 @@ import SleepTimerBottomSheet from '../components/SleepTimerBottomSheet';
 import { getChannels } from '../services/kick_service';
 import { useStreamInfoStore } from '../stores/streamViewerCountStore';
 import { usePlayerStore } from '../stores/playerStore';
-import { useCurrentChannel } from '../stores/currentChannelStore';
+import { useCurrentStreamStore } from '../stores/currentStreamStore';
 import useOverrideBackPress from '../components/hooks/useOverrideBackPress';
 import { useBackgroundServiceInfo } from '../stores/backgroundServiceStore';
 import ForegroundService from '../modules/ForegroundService';
@@ -36,12 +36,12 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   const setStreamKey = usePlayerStore(s => s.setStreamKey);
   const setSource = usePlayerStore(s => s.setSource);
   const setMode = usePlayerStore(s => s.setMode);
-  const setStreamUrls = usePlayerStore(s => s.setStreamUrls);
-  const setSelectedQuality = usePlayerStore(s => s.setSelectedQuality);
   const setStartTime = usePlayerStore(s => s.setStartTime);
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
-  
-  const setCurrentChannel = useCurrentChannel(s => s.setCurrentChannel);
+
+  const setCurrentChannel = useCurrentStreamStore(s => s.setCurrentChannel);
+  const setStreamUrls = useCurrentStreamStore(s => s.setStreamUrls);
+  const setSelectedQuality = useCurrentStreamStore(s => s.setSelectedQuality);
 
   const { channel } = route.params;
 
@@ -59,14 +59,13 @@ export default function StreamScreen({ route }: StreamScreenProps) {
     });
 
     const unmount = () => setMode("mini-player");
-    if(mode === "mini-player" && channel.slug === useCurrentChannel.getState().currentChannel?.slug) {
+    if(mode === "mini-player" && channel.slug === useCurrentStreamStore.getState().currentChannel?.slug) {
       return unmount;
     }
 
-    if(channel.slug !== useCurrentChannel.getState().currentChannel?.slug) {
+    if(channel.slug !== useCurrentStreamStore.getState().currentChannel?.slug) {
       setSource("");
       setStreamUrls(undefined);
-      setSelectedQuality(undefined);
       setStartTime("");
       setCurrentChannel(channel);
       setStreamKey(channel.slug);
@@ -138,9 +137,13 @@ export default function StreamScreen({ route }: StreamScreenProps) {
       }
 
       const sortedURLs = sortUrls(urls);
+      const quality = getQuality(sortedURLs);
+      if(!quality) {
+        throw new Error();
+      }
 
-      setSource(sortedURLs[0].url);
-      setSelectedQuality(sortedURLs[0]);
+      setSource(quality.url);
+      setSelectedQuality(quality.height);
       setStreamUrls(sortedURLs);
     }).catch(() => {
       showErrorUnabletoStream();
@@ -149,6 +152,32 @@ export default function StreamScreen({ route }: StreamScreenProps) {
 
   const sortUrls = (urls: StreamURL[]): StreamURL[] => {
     return urls.sort((a: StreamURL, b: StreamURL) => b.height - a.height);
+  }
+
+  const getHighestQuality = (streamUrls: StreamURL[]): StreamURL | undefined => {
+    if(streamUrls.length > 0) {
+      return streamUrls[0];
+    } else {
+      throw new Error();
+    }
+  }
+
+  const getQuality = (urls: StreamURL[]) => {
+    let selectedQuality: StreamURL | undefined = undefined;
+    const prevQuality = useCurrentStreamStore.getState().selectedQuality;
+    const highestQuality = getHighestQuality(urls);
+    if(prevQuality) {
+      const filteredUrls = urls.filter(e => e.height === prevQuality);
+      if(filteredUrls.length > 0) {
+        selectedQuality = filteredUrls[0];
+      } else {
+        selectedQuality = highestQuality;
+      }
+    } else {
+      selectedQuality = highestQuality;
+    }
+
+    return selectedQuality;
   }
 
   const handleSheetChanges = (index: number) => {

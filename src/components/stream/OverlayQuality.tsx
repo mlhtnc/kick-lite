@@ -7,41 +7,41 @@ import {
 
 import { usePlayerStore } from '../../stores/playerStore';
 import { OverlayQualityProps, StreamURL } from '../../types';
+import { useCurrentStreamStore } from '../../stores/currentStreamStore';
 import { Colors } from '../../constants';
-
 
 export default function OverlayQuality({
   showQualityMenu,
   handleQualityChange,
 }: OverlayQualityProps) {
 
-  const streamUrls = usePlayerStore(s => s.streamUrls);
-  const selectedQuality = usePlayerStore(s => s.selectedQuality);
+  const streamUrls = useCurrentStreamStore(s => s.streamUrls);
+  const selectedQuality = useCurrentStreamStore(s => s.selectedQuality);
 
   const setSource = usePlayerStore(s => s.setSource);
-  const setSelectedQuality = usePlayerStore(s => s.setSelectedQuality);
+  const setSelectedQuality = useCurrentStreamStore(s => s.setSelectedQuality);
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
 
-  const selectQuality = (quality: StreamURL) => {
-    setSource(quality.url);
+  const selectQuality = (quality: number) => {
+    const selectedQuality = streamUrls?.filter(e => e.height === quality)[0];
+    setSource(selectedQuality ? selectedQuality.url : "");
     setSelectedQuality(quality);
     handleQualityChange();
   }
 
   const qualityOptionButtonPadding = isFullscreen() ? 8 : 5;
-  const selectedQualityHeight = selectedQuality ? selectedQuality.height : 1080;
-  const showQualityCondition = showQualityMenu && streamUrls;
+  const showQualityCondition = showQualityMenu && streamUrls && selectedQuality;
 
   if(showQualityCondition) {
     return (
       <View style={styles.qualityMenu}>
         {streamUrls.map(q => {
           let textColor = "#fff";
-          if(q.height === selectedQualityHeight) {
+          if(q.height === selectedQuality) {
             textColor = Colors.textAccent;
           }
 
-          return (<TouchableOpacity key={q.height} onPress={() => selectQuality(q)} style={{padding: qualityOptionButtonPadding}} activeOpacity={0.7}>
+          return (<TouchableOpacity key={q.height} onPress={() => selectQuality(q.height)} style={{padding: qualityOptionButtonPadding}} activeOpacity={0.7}>
                     <Text style={{color: textColor, fontWeight: "bold"}}>{q.height + "p"}</Text>
                   </TouchableOpacity>)
         })}
