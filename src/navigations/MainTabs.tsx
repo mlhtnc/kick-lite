@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons, { IoniconsIconName } from "@react-native-vector-icons/ionicons";
@@ -7,11 +8,24 @@ import { Colors } from "../constants";
 import BrowseScreen from "../screens/BrowseScreen";
 import SearchScreen from "../screens/SearchScreen";
 import HomeScreen from "../screens/HomeScreen";
-
+import { usePlayerIntent } from "../stores/playerIntentStore";
+import useOverrideBackPress from "../components/hooks/useOverrideBackPress";
+import { usePlayerStore } from "../stores/playerStore";
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function MainTabs() {
+  
+  const requestCloseStream = usePlayerIntent(s => s.requestCloseStream);
+  
+  useOverrideBackPress(useCallback(() => {
+    if(usePlayerStore.getState().mode !== "hidden") {
+      requestCloseStream();
+      return true;
+    }
+    return false;
+  }, []));
+  
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
