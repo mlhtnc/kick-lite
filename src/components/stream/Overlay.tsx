@@ -16,7 +16,7 @@ import { usePlayerStore } from '../../stores/playerStore';
 import { usePlayerIntent } from '../../stores/playerIntentStore';
 import { useCurrentStreamStore } from '../../stores/currentStreamStore';
 
-export default function Overlay() {  
+export default function Overlay({ buffering }: { buffering: boolean}) {  
   const timeoutRef = useRef<NodeJS.Timeout>(null);
   const timerInterval = useRef<NodeJS.Timeout>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -113,8 +113,8 @@ export default function Overlay() {
 
   const playPauseButtonSize = isFullscreen() ? 60 : 45;
   const playPauseIconName = paused ? "play-outline" : "pause-outline";
-  const showIndicatorCondition = !isStreamReady();
-  const showControlCondition = !showIndicatorCondition && isStreamReady();
+  const showIndicatorCondition = !isStreamReady() || buffering;
+  const showControlCondition = !showIndicatorCondition;
 
   if(mode === "mini-player") {
     return (<>

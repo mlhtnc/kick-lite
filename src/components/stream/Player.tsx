@@ -20,7 +20,7 @@ export default function Player() {
   const videoRef = useRef<VideoRef>(null);
 
   const [ playerKeyId, setPlayerKeyId ] = useState<number>(0); // Used to force re-mount Video component
-  const [ loadingVideo, setLoadingVideo ] = useState<boolean>(false); // ??
+  const [ buffering, setBuffering ] = useState<boolean>(false);
   const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
 
   const streamKey = usePlayerStore(s => s.streamKey);
@@ -135,12 +135,12 @@ export default function Player() {
         disableFocus={true}
         paused={paused}
         muted={muted}
-        onLoadStart={() => setLoadingVideo(true)}
-        onLoad={() => setLoadingVideo(false)}
-        onBuffer={(e: OnBufferData) => setLoadingVideo(e.isBuffering)}
+        onLoadStart={() => setBuffering(true)}
+        onLoad={() => setBuffering(false)}
+        onBuffer={(e: OnBufferData) => setBuffering(e.isBuffering)}
       />
       <Overlay
-        // isLoading={loadingVideo} // ??
+        buffering={buffering}
       />
     </View>
   );
