@@ -25,11 +25,11 @@ export default function StreamScreen({ route }: StreamScreenProps) {
   
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["30%"], []);
+  const screenSize = useMemo(() => Dimensions.get('screen'), []);
   const insets = useSafeAreaInsets();
 
   const [ offset, setOffset ] = useState<number>(0);
   const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState<boolean>(false);
-  const [ screenSize, setScreenSize ] = useState<{ width: number; height: number }>(Dimensions.get('screen'));
   const [ layoutReady, setLayoutReady ] = useState(false);
 
   const mode = usePlayerStore(s => s.mode);
@@ -99,11 +99,6 @@ export default function StreamScreen({ route }: StreamScreenProps) {
     }, 30000);
 
     return () => clearInterval(streamInfoIntervalId);
-  }, []);
-
-  useEffect(() => {
-    const dimensionSubscription = Dimensions.addEventListener('change', ({ screen }) => setScreenSize(screen));
-    return () => dimensionSubscription?.remove();
   }, []);
 
   useEffect(() => {
